@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invisible House</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0f14;
+    --bg-2:#080a0d;
+    --panel:#12161d;
+    --panel-2:#181d26;
+    --panel-3:#1e2430;
+    --border:#242b37;
+    --grid-line:rgba(79,209,197,.05);
+    --text:#e7eaef;
+    --muted:#7d8794;
+    --accent:#d1a54c;
+    --accent-ink:#221a08;
+    --accent-2:#4fd1c5;
+    --accent-soft:rgba(209,165,76,.10);
+    --danger:#f0776b;
+    --shadow:0 20px 40px rgba(0,0,0,.45);
+    --radius-lg:18px;
+    --radius-md:12px;
+    --serif:"Fraunces", Georgia, serif;
+    --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  html[data-theme="light"]{
+    --bg:#f7f3e9;
+    --bg-2:#efe9da;
+    --panel:#fffdf8;
+    --panel-2:#f5f0e4;
+    --panel-3:#ece5d4;
+    --border:#e2d9c4;
+    --grid-line:rgba(15,98,110,.05);
+    --text:#20241f;
+    --muted:#7a7461;
+    --accent:#a9711f;
+    --accent-ink:#fffaf0;
+    --accent-2:#0f626e;
+    --accent-soft:rgba(169,113,31,.10);
+    --danger:#b8382b;
+    --shadow:0 20px 40px rgba(40,30,10,.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    background:
+      repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 42px),
+      repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 42px),
+      radial-gradient(1000px 460px at 50% -8%, var(--accent-soft), transparent 62%),
+      var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    transition:background .2s ease, color .2s ease;
+  }
+  header{
+    position:relative;
+    padding:28px 20px 20px;
+    text-align:center;
+  }
+  .brand-row{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    max-width:960px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .icon-group{
+    position:absolute;
+    top:18px;
+    right:18px;
+    display:flex;
+    gap:6px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:4px;
+    box-shadow:var(--shadow);
+  }
+  .icon-btn{
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:15px;
+    transition:background .15s, color .15s, transform .1s;
+  }
+  .icon-btn:hover{background:var(--panel-2); color:var(--text);}
+  .icon-btn:active{transform:scale(0.92);}
+  .icon-btn.active{background:var(--accent); color:var(--accent-ink);}
+  .brand-mark{
+    width:120px;
+    height:120px;
+    flex:0 0 auto;
+    margin:0;
+    border-radius:28px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-size:19px;
+    box-shadow:0 0 0 6px var(--accent-soft), var(--shadow);
+    overflow:hidden;
+    padding:14px;
+  }
+  .brand-mark img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .brand-text{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+  }
+  h1{
+    margin:0;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(30px, 7vw, 44px);
+    letter-spacing:.5px;
+    line-height:1.05;
+  }
+  h1 .veil{color:var(--muted); font-style:italic; font-weight:500;}
+  .wrap{
+    flex:1;
+    max-width:680px;
+    margin:0 auto;
+    padding:20px 20px 40px;
+    width:100%;
+  }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .search-box{
+    position:relative;
+  }
+  input[type="text"]{
+    width:100%;
+    padding:15px 42px 15px 16px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    color:var(--text);
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus{
+    border-color:var(--accent-2);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent-2) 20%, transparent);
+  }
+  .search-icon-btn{
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;
+    height:32px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-size:15px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:background .15s, color .15s, transform .1s;
+  }
+  .search-icon-btn:hover{background:var(--panel-2); color:var(--accent-2);}
+  .search-icon-btn:active{transform:translateY(-50%) scale(0.92);}
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    right:0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    max-height:340px;
+    overflow-y:auto;
+    z-index:10;
+    display:none;
+    box-shadow:var(--shadow);
+  }
+  .suggestions.show{display:block;}
+  .suggestion-item{
+    padding:12px 16px;
+    cursor:pointer;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+    line-height:1.4;
+    transition:background .1s;
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:hover, .suggestion-item.active{
+    background:var(--panel-2);
+    color:var(--accent);
+  }
+  .suggestion-code{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+  }
+  .status{
+    margin-top:14px;
+    font-size:13px;
+    color:var(--muted);
+    min-height:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .status.error{color:var(--danger);}
+  .status-retry-btn{
+    border:1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+    background:color-mix(in srgb, var(--danger) 12%, transparent);
+    color:var(--danger);
+    font-size:11.5px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:7px;
+    cursor:pointer;
+    margin-left:4px;
+    transition:background .15s, transform .1s;
+  }
+  .status-retry-btn:hover{background:color-mix(in srgb, var(--danger) 20%, transparent);}
+  .status-retry-btn:active{transform:scale(0.94);}
+  .spinner{
+    --size:26px;
+    width:var(--size);
+    height:var(--size);
+    border-radius:50%;
+    position:relative;
+    flex-shrink:0;
+    display:none;
+    background:conic-gradient(from 0deg, var(--accent) 0deg, var(--accent-2) 150deg, transparent 260deg, transparent 360deg);
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
+    mask:radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
+    animation:spin .9s cubic-bezier(.5,.05,.5,.95) infinite;
+    filter:drop-shadow(0 0 6px var(--accent-soft));
+  }
+  .spinner.show{display:inline-block;}
+  .spinner::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Themed loader: a house with coins settling into it ---------- */
+  .ih-loader{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:36px 20px;
+    gap:6px;
+  }
+  .ih-loader.show{display:flex;}
+  .loader-house{
+    position:relative;
+    width:88px;
+    height:88px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  .loader-house > i{
+    font-size:46px;
+    color:var(--accent);
+    animation:houseBob 1.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 14px var(--accent-soft));
+  }
+  .loader-house > img{
+    width:52px;
+    height:52px;
+    object-fit:contain;
+    animation:houseBob 1.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 14px var(--accent-soft));
+  }
+  .loader-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+    animation:ringSpin 6s linear infinite;
+  }
+  .loader-coin{
+    position:absolute;
+    top:-10px;
+    color:var(--accent-2);
+    font-size:16px;
+    opacity:0;
+    animation:coinDrop 1.8s ease-in infinite;
+  }
+  .coin1{left:14px; animation-delay:.1s;}
+  .coin2{left:50%; margin-left:-8px; animation-delay:.55s;}
+  .coin3{right:14px; animation-delay:1s;}
+  @keyframes houseBob{
+    0%, 100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-4px) scale(1.05);}
+  }
+  @keyframes ringSpin{to{transform:rotate(360deg);}}
+  @keyframes coinDrop{
+    0%{opacity:0; transform:translateY(-6px) rotate(0deg);}
+    15%{opacity:1;}
+    55%{opacity:1; transform:translateY(38px) rotate(180deg);}
+    75%{opacity:0; transform:translateY(44px) rotate(220deg);}
+    100%{opacity:0; transform:translateY(-6px) rotate(0deg);}
+  }
+  .loader-text{
+    font-family:var(--serif);
+    font-size:16px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .loader-sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .dots span{
+    animation:dotFade 1.4s infinite;
+    opacity:0;
+  }
+  .dots span:nth-child(2){animation-delay:.2s;}
+  .dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes dotFade{
+    0%, 100%{opacity:0;}
+    50%{opacity:1;}
+  }
+  .ih-loader.small{padding:14px 10px;}
+  .ih-loader.small .loader-house{width:56px; height:56px; margin-bottom:8px;}
+  .ih-loader.small .loader-house > i{font-size:28px;}
+  .ih-loader.small .loader-house > img{width:32px; height:32px;}
+  .ih-loader.small .loader-coin{font-size:11px; top:-6px;}
+  .ih-loader.small .loader-text{font-size:13px;}
+  @media (prefers-reduced-motion: reduce){
+    .loader-house > i, .loader-house > img, .loader-ring, .loader-coin, .dots span{animation:none;}
+  }
+
+  .card{
+    position:relative;
+    margin-top:22px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    display:none;
+    box-shadow:var(--shadow);
+    animation:fadeUp .25s ease;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .card.show{display:block;}
+  .card.loading .card-content{opacity:.25; filter:blur(1px);}
+  .card-loading-overlay{
+    display:none;
+    position:absolute;
+    inset:0;
+    align-items:center;
+    justify-content:center;
+    border-radius:var(--radius-lg);
+    background:color-mix(in srgb, var(--panel) 70%, transparent);
+  }
+  .card.loading .card-loading-overlay{display:flex;}
+  .card-loading-overlay .ih-loader{display:flex;}
+  .card-title{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .card-header-row{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .fund-avatar{
+    flex-shrink:0;
+    width:48px;
+    height:48px;
+    border-radius:13px;
+    background:linear-gradient(160deg, var(--accent-soft), transparent);
+    border:1px solid var(--border);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    overflow:hidden;
+  }
+  .fund-avatar img.fund-avatar-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    background:#fff;
+    padding:7px;
+    display:block;
+  }
+  .fund-heading{min-width:0; flex:1;}
+  .fund-house-line{
+    color:var(--muted);
+    font-size:12.5px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .card-code{
+    display:inline-block;
+    font-size:11px;
+    color:var(--accent-ink);
+    background:var(--accent);
+    padding:3px 8px;
+    border-radius:6px;
+    font-weight:700;
+    letter-spacing:.5px;
+    margin-top:8px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:18px;
+  }
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    transition:background .2s;
+  }
+  .stat-label{
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .stat-value{
+    font-size:16px;
+    margin-top:4px;
+    font-weight:700;
+  }
+  .nav-highlight{color:var(--accent);}
+  .details-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    margin-top:22px;
+  }
+  .section-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:6px;
+  }
+  .chart-col{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:16px 16px 14px;
+  }
+  .history-col{}
+  .section-label-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .section-label-row .section-label{margin-bottom:0;}
+  .chart-reset-btn{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:4px 9px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(-2px);
+    pointer-events:none;
+    transition:opacity .15s, transform .15s, background .15s, color .15s;
+  }
+  .chart-reset-btn.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+  .chart-reset-btn:hover{background:var(--panel-3); color:var(--accent);}
+  .chart-canvas-wrap{
+    position:relative;
+    width:100%;
+    height:220px;
+    margin-top:8px;
+    touch-action:none;
+    cursor:grab;
+  }
+  .chart-canvas-wrap:active{cursor:grabbing;}
+  canvas{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+  .chart-label{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+    text-align:center;
+  }
+  .chart-hint{
+    font-size:10.5px;
+    color:var(--muted);
+    opacity:.75;
+    margin-top:4px;
+    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+  }
+  @media (max-width:480px){
+    .chart-hint{display:none;}
+  }
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  table.history-table td{font-family:var(--mono);}
+  table.history-table td:first-child{font-family:"Segoe UI",system-ui,sans-serif;}
+  .no-date-match{
+    text-align:center;
+    color:var(--muted);
+    padding:20px 10px !important;
+    font-family:"Segoe UI",system-ui,sans-serif !important;
+  }
+  .history-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+    margin-bottom:8px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .history-title{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+  }
+  .history-count{
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    background:var(--panel-3);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s, transform .1s, color .15s;
+  }
+  .btn:hover{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .btn:active{transform:scale(0.96);}
+  .btn.danger:hover{background:var(--danger); color:#fff; border-color:var(--danger);}
+  .history-table-wrap{
+    max-height:320px;
+    overflow-y:auto;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  table.history-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  table.history-table thead th{
+    position:sticky;
+    top:0;
+    background:var(--panel-2);
+    color:var(--muted);
+    text-align:left;
+    padding:9px 14px;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    border-bottom:1px solid var(--border);
+  }
+  table.history-table td{
+    padding:11px 14px;
+    border-bottom:1px solid var(--border);
+    color:var(--text);
+  }
+  table.history-table td:last-child{
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  table.history-table tbody tr:last-child td{border-bottom:none;}
+  table.history-table tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--panel-2) 55%, transparent);}
+  table.history-table tbody tr:hover td{background:var(--panel-2);}
+  .hist-date{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .hist-day{
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--accent-2);
+    background:color-mix(in srgb, var(--accent-2) 14%, transparent);
+    padding:3px 6px;
+    border-radius:5px;
+    flex-shrink:0;
+    min-width:32px;
+    text-align:center;
+  }
+  .hist-nav-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .hist-nav{
+    font-weight:700;
+  }
+  .nav-change{
+    display:inline-flex;
+    align-items:center;
+    gap:2px;
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 6px;
+    border-radius:5px;
+    font-family:var(--mono);
+    white-space:nowrap;
+  }
+  .nav-change.up{color:#3ecf8e; background:rgba(62,207,142,.13);}
+  .nav-change.down{color:var(--danger); background:color-mix(in srgb, var(--danger) 15%, transparent);}
+  .nav-change.flat{color:var(--muted); background:var(--panel-3);}
+
+  /* Recent tab */
+  .recent-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    gap:10px;
+  }
+  .recent-header h2{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    margin:0;
+  }
+  .recent-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .recent-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:13px 15px;
+    cursor:pointer;
+    transition:background .15s, border-color .15s, transform .1s;
+  }
+  .recent-item:hover{background:var(--panel-2); border-color:var(--accent-2); transform:translateY(-1px);}
+  .recent-icon{
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    background:var(--accent-soft);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .recent-icon.has-logo{background:#fff; border:1px solid var(--border);}
+  .recent-icon img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    padding:5px;
+    display:block;
+  }
+  .recent-info{flex:1; min-width:0;}
+  .recent-name{
+    font-size:13.5px;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .recent-meta{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:2px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .recent-arrow{color:var(--muted); font-size:14px;}
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+  }
+  .empty-state i{
+    font-size:34px;
+    color:var(--border);
+    margin-bottom:12px;
+    display:block;
+  }
+  .empty-state p{font-size:13.5px; margin:0;}
+
+  footer{
+    max-width:680px;
+    margin:0 auto;
+    padding:18px 20px 32px;
+    text-align:center;
+    border-top:1px solid var(--border);
+    width:100%;
+  }
+  .footer-line{
+    font-size:14px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .footer-line + .footer-line{margin-top:6px;}
+  .footer-line b{color:var(--text); font-weight:700;}
+  .footer-line a{color:var(--accent-2); text-decoration:none;}
+  .footer-line a:hover{text-decoration:underline;}
+
+  @media (max-width:480px){
+    .grid{grid-template-columns:1fr 1fr;}
+    .card{padding:18px;border-radius:14px;}
+    h1{font-size:22px;}
+    .wrap{padding:14px 14px 30px;}
+    .icon-group{top:14px;right:12px;}
+    .icon-btn{width:32px;height:32px;font-size:13.5px;}
+    header{padding:26px 14px 14px;}
+    .brand-row{gap:10px;}
+    .brand-mark{width:88px;height:88px;border-radius:20px;}
+  }
+
+  /* Desktop / wide screens */
+  @media (min-width:900px){
+    .wrap{max-width:960px;}
+    footer{max-width:960px;}
+    .card{padding:32px;}
+    .grid{grid-template-columns:repeat(4, 1fr);}
+    .details-grid{grid-template-columns:1fr 1.35fr; align-items:start;}
+    canvas{height:220px;}
+    .chart-col{padding:20px 20px 18px;}
+    .history-table-wrap{max-height:460px;}
+    h1{font-size:32px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="icon-group">
+    <button class="icon-btn active" id="searchTabBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
+    <button class="icon-btn" id="recentTabBtn" title="Recent searches" aria-label="Recent searches"><i class="bi bi-clock-history"></i></button>
+    <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme"><i class="bi bi-moon-stars-fill"></i></button>
+  </div>
+  <div class="brand-row">
+    <div class="brand-mark"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
+    <div class="brand-text">
+      <h1>Invisible House</h1>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tab-panel active" id="searchPanel">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="fund house (e.g. Motilal Oswal, Nippon India...)" autocomplete="off">
+      <button type="button" class="search-icon-btn" id="manualSearchBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div class="status" id="status"><div class="spinner" id="statusSpinner"></div><span id="statusText"></span></div>
+
+    <div class="ih-loader large" id="firstLoadLoader">
+      <div class="loader-house">
+        <img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="">
+        <div class="loader-coin coin1"><i class="bi bi-coin"></i></div>
+        <div class="loader-coin coin2"><i class="bi bi-coin"></i></div>
+        <div class="loader-coin coin3"><i class="bi bi-coin"></i></div>
+        <div class="loader-ring"></div>
+      </div>
+      <div class="loader-text">Opening the ledger<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <div class="loader-sub">Fetching Houses...</div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="card-loading-overlay">
+        <div class="ih-loader small">
+          <div class="loader-house">
+            <img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="">
+            <div class="loader-coin coin1"><i class="bi bi-coin"></i></div>
+            <div class="loader-coin coin2"><i class="bi bi-coin"></i></div>
+            <div class="loader-coin coin3"><i class="bi bi-coin"></i></div>
+            <div class="loader-ring"></div>
+          </div>
+          <div class="loader-text">Fetching NAV history<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="card-header-row">
+          <div class="fund-avatar" id="fundAvatar">₹</div>
+          <div class="fund-heading">
+            <div class="card-title" id="fundName">—</div>
+            <div class="fund-house-line" id="fundHouse"></div>
+            <span class="card-code" id="schemeCodeBadge"></span>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="stat">
+            <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
+            <div class="stat-value nav-highlight" id="latestNav">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
+            <div class="stat-value" id="navDate">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
+            <div class="stat-value" id="schemeType">—</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
+            <div class="stat-value" id="schemeCategory">—</div>
+          </div>
+        </div>
+
+        <div class="details-grid">
+          <div class="chart-col">
+            <div class="section-label-row">
+              <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
+              <button type="button" class="chart-reset-btn" id="chartResetZoom" title="Reset zoom">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+              </button>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="navChart"></canvas>
+            </div>
+            <div class="chart-label" id="chartLabel">NAV trend</div>
+            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values</div>
+          </div>
+
+          <div class="history-col">
+            <div class="history-header">
+              <div>
+                <div class="history-title">Full NAV History</div>
+              </div>
+              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
+            </div>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="recentPanel">
+    <div class="recent-header">
+      <h2><i class="bi bi-clock-history"></i> Recent Searches</h2>
+      <button class="btn danger" id="clearRecentBtn"><i class="bi bi-trash3"></i> Clear</button>
+    </div>
+    <div class="recent-list" id="recentList"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-line">Developed by <b>Microintel</b></div>
+  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from mfapi</a></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
+<script>
+// ---------- Theme (persisted in localStorage) ----------
+const THEME_KEY = 'ih_theme';
+const themeToggle = document.getElementById('themeToggle');
+const storedTheme = localStorage.getItem(THEME_KEY);
+const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
+applyTheme(currentTheme);
+
+themeToggle.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(currentTheme);
+  localStorage.setItem(THEME_KEY, currentTheme);
+});
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.innerHTML = theme === 'dark' ? '<i class="bi bi-moon-stars-fill"></i>' : '<i class="bi bi-sun-fill"></i>';
+  try{
+    if (currentNavData && currentNavData.length){
+      setTimeout(() => drawChart([...currentNavData].reverse()), 50);
+    }
+  } catch(e){ /* not yet loaded on initial theme apply */ }
+}
+
+// ---------- Tabs ----------
+const searchTabBtn = document.getElementById('searchTabBtn');
+const recentTabBtn = document.getElementById('recentTabBtn');
+const searchPanel = document.getElementById('searchPanel');
+const recentPanel = document.getElementById('recentPanel');
+
+searchTabBtn.addEventListener('click', () => switchTab('search'));
+recentTabBtn.addEventListener('click', () => switchTab('recent'));
+
+function switchTab(tab){
+  const isSearch = tab === 'search';
+  searchTabBtn.classList.toggle('active', isSearch);
+  recentTabBtn.classList.toggle('active', !isSearch);
+  searchPanel.classList.toggle('active', isSearch);
+  recentPanel.classList.toggle('active', !isSearch);
+  if (!isSearch) renderRecentList();
+}
+
+// ---------- Recent searches (persisted in localStorage) ----------
+const RECENT_KEY = 'ih_recent_searches';
+const MAX_RECENT = 12;
+
+function getRecent(){
+  try{
+    return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+  }catch(e){ return []; }
+}
+
+function saveRecent(entry){
+  let list = getRecent().filter(r => r.schemeCode !== entry.schemeCode);
+  list.unshift(entry);
+  list = list.slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+}
+
+function renderRecentList(){
+  const list = getRecent();
+  const container = document.getElementById('recentList');
+  if (!list.length){
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No recent searches yet. Funds you look up will show up here.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = list.map(item => {
+    const domain = resolveAmcDomain(item.fundHouse);
+    const iconInner = domain
+      ? `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" referrerpolicy="no-referrer">`
+      : `<i class="bi bi-piggy-bank"></i>`;
+    return `
+    <div class="recent-item" data-code="${item.schemeCode}">
+      <div class="recent-icon${domain ? ' has-logo' : ''}">${iconInner}</div>
+      <div class="recent-info">
+        <div class="recent-name">${escapeHtml(item.schemeName)}</div>
+        <div class="recent-meta">
+          <span><i class="bi bi-hash"></i>${escapeHtml(String(item.schemeCode))}</span>
+          <span><i class="bi bi-clock"></i>${escapeHtml(item.when)}</span>
+        </div>
+      </div>
+      <i class="bi bi-chevron-right recent-arrow"></i>
+    </div>
+  `;
+  }).join('');
+
+  container.querySelectorAll('.recent-icon img').forEach(img => {
+    img.addEventListener('error', () => {
+      const wrap = img.parentElement;
+      wrap.classList.remove('has-logo');
+      wrap.innerHTML = '<i class="bi bi-piggy-bank"></i>';
+    });
+  });
+
+  container.querySelectorAll('.recent-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const code = el.getAttribute('data-code');
+      const entry = getRecent().find(r => String(r.schemeCode) === String(code));
+      if (entry){
+        switchTab('search');
+        searchInput.value = entry.schemeName;
+        loadFundByCode(entry.schemeCode);
+      }
+    });
+  });
+}
+
+document.getElementById('clearRecentBtn').addEventListener('click', () => {
+  localStorage.removeItem(RECENT_KEY);
+  renderRecentList();
+});
+
+// ---------- Search ----------
+const searchInput = document.getElementById('searchInput');
+const manualSearchBtn = document.getElementById('manualSearchBtn');
+const suggestionsBox = document.getElementById('suggestions');
+const statusEl = document.getElementById('status');
+const statusSpinner = document.getElementById('statusSpinner');
+const statusText = document.getElementById('statusText');
+const card = document.getElementById('card');
+const firstLoadLoader = document.getElementById('firstLoadLoader');
+
+let debounceTimer = null;
+let activeIndex = -1;
+let currentItems = [];
+let allFunds = [];
+let fundsLoaded = false;
+let fundsLoading = false;
+let currentNavData = [];
+let currentSchemeName = 'fund';
+let currentFundMeta = null;
+
+function setStatus(msg, isError=false, isLoading=false){
+  statusText.textContent = msg;
+  statusEl.className = 'status' + (isError ? ' error' : '');
+  statusSpinner.classList.toggle('show', isLoading);
+}
+
+function friendlyMessage(err, kind){
+  const isAbort = err && err.name === 'AbortError';
+  const msg = (err && err.message || '').toLowerCase();
+
+  if (isAbort){
+    return "That's taking longer than it should. Please try again.";
+  }
+  if (msg.includes('server responded') || msg.includes('http')){
+    return "The fund data service seems to be having trouble right now. Please try again in a moment.";
+  }
+  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('load failed')){
+    return "Couldn't connect. Please check your internet connection and try again.";
+  }
+  if (msg.includes('no nav history') || msg.includes('empty fund list')){
+    return kind === 'list'
+      ? "We couldn't find any fund data right now. Please try again."
+      : "We couldn't find details for this fund. Please try again or pick another one.";
+  }
+  return "Something went wrong. Please try again.";
+}
+
+async function loadFundList(attempt=1){
+  if (fundsLoaded || fundsLoading) return;
+  fundsLoading = true;
+  searchInput.disabled = true;
+  firstLoadLoader.classList.add('show');
+  const MAX_ATTEMPTS = 3;
+  try{
+    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('Empty fund list returned');
+    allFunds = data;
+    fundsLoaded = true;
+    setStatus('');
+  } catch(err){
+    fundsLoading = false;
+    if (attempt < MAX_ATTEMPTS){
+      firstLoadLoader.classList.remove('show');
+      searchInput.disabled = false;
+      await new Promise(r => setTimeout(r, attempt * 700));
+      return loadFundList(attempt + 1);
+    }
+    showRetryListError(friendlyMessage(err, 'list'));
+  } finally{
+    fundsLoading = false;
+    searchInput.disabled = false;
+    firstLoadLoader.classList.remove('show');
+  }
+}
+
+function showRetryListError(message){
+  statusEl.className = 'status error';
+  statusSpinner.classList.remove('show');
+  statusText.innerHTML = `${escapeHtml(message)} <button type="button" id="statusRetryListBtn" class="status-retry-btn">Retry</button>`;
+  const btn = document.getElementById('statusRetryListBtn');
+  if (btn){
+    btn.addEventListener('click', () => loadFundList());
+  }
+}
+
+loadFundList();
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearTimeout(debounceTimer);
+  activeIndex = -1;
+
+  if (q.length < 3){
+    suggestionsBox.classList.remove('show');
+    suggestionsBox.innerHTML = '';
+    setStatus('');
+    return;
+  }
+
+  setStatus('Searching...', false, true);
+  debounceTimer = setTimeout(() => runSearch(q), 200);
+});
+
+async function runSearch(query){
+  if (!fundsLoaded){
+    setStatus('Fund database still loading, one moment...', false, true);
+    await loadFundList();
+    if (!fundsLoaded) return;
+  }
+
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = allFunds.filter(f => {
+    const name = f.schemeName.toLowerCase();
+    return words.every(w => name.includes(w));
+  });
+
+  currentItems = matches.slice(0, 30);
+  renderSuggestions(currentItems);
+  setStatus(matches.length ? `${matches.length} results${matches.length > 30 ? ' (showing first 30)' : ''}` : 'No matching funds found', !matches.length, false);
+}
+
+manualSearchBtn.addEventListener('click', async () => {
+  const q = searchInput.value.trim();
+  if (q.length < 3){
+    setStatus('Type at least 3 characters to search.', true);
+    searchInput.focus();
+    return;
+  }
+  clearTimeout(debounceTimer);
+  setStatus('Searching...', false, true);
+  if (!fundsLoaded && !fundsLoading){
+    await loadFundList();
+  }
+  await runSearch(q);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  const items = suggestionsBox.querySelectorAll('.suggestion-item');
+  if (!items.length) return;
+
+  if (e.key === 'ArrowDown'){
+    e.preventDefault();
+    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+    updateActive(items);
+  } else if (e.key === 'ArrowUp'){
+    e.preventDefault();
+    activeIndex = Math.max(activeIndex - 1, 0);
+    updateActive(items);
+  } else if (e.key === 'Enter'){
+    if (activeIndex >= 0 && currentItems[activeIndex]){
+      selectFund(currentItems[activeIndex]);
+    }
+  } else if (e.key === 'Escape'){
+    suggestionsBox.classList.remove('show');
+  }
+});
+
+function updateActive(items){
+  items.forEach(i => i.classList.remove('active'));
+  if (activeIndex >= 0){
+    items[activeIndex].classList.add('active');
+    items[activeIndex].scrollIntoView({block:'nearest'});
+  }
+}
+
+function renderSuggestions(items){
+  if (!items.length){
+    suggestionsBox.classList.remove('show');
+    suggestionsBox.innerHTML = '';
+    return;
+  }
+  suggestionsBox.innerHTML = items.map((item, idx) => `
+    <div class="suggestion-item" data-idx="${idx}">
+      <div>${escapeHtml(item.schemeName)}</div>
+      <div class="suggestion-code">Scheme Code: ${item.schemeCode}</div>
+    </div>
+  `).join('');
+  suggestionsBox.classList.add('show');
+
+  suggestionsBox.querySelectorAll('.suggestion-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.getAttribute('data-idx'));
+      selectFund(currentItems[idx]);
+    });
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function selectFund(item){
+  searchInput.value = item.schemeName;
+  suggestionsBox.classList.remove('show');
+  await loadFundByCode(item.schemeCode);
+}
+
+let lastAttemptedSchemeCode = null;
+
+async function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try{
+    return await fetch(url, { signal: controller.signal, cache: 'no-store' });
+  } finally{
+    clearTimeout(timer);
+  }
+}
+
+async function loadFundByCode(schemeCode, attempt=1){
+  const code = String(schemeCode).trim();
+  lastAttemptedSchemeCode = code;
+  setStatus(`Loading data for scheme code ${code}${attempt > 1 ? ` (retry ${attempt - 1})` : ''}...`, false, true);
+  const isFirstLoad = !card.classList.contains('show');
+  if (!isFirstLoad){
+    card.classList.add('loading');
+  }
+
+  const MAX_ATTEMPTS = 3;
+  try{
+    const res = await fetchWithTimeout(`https://api.mfapi.in/mf/${encodeURIComponent(code)}`, 12000);
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.data) || !data.data.length){
+      throw new Error('No NAV history returned for this scheme');
+    }
+    displayFund(data, code);
+    setStatus('');
+  } catch(err){
+    const isAbort = err.name === 'AbortError';
+
+    if (attempt < MAX_ATTEMPTS && (isAbort || (err.message || '').startsWith('Server responded') || (err.message || '').includes('fetch'))){
+      await new Promise(r => setTimeout(r, attempt * 500));
+      card.classList.remove('loading');
+      return loadFundByCode(code, attempt + 1);
+    }
+
+    showRetryableError(friendlyMessage(err, 'detail'));
+  } finally{
+    card.classList.remove('loading');
+  }
+}
+
+function showRetryableError(message){
+  statusEl.className = 'status error';
+  statusSpinner.classList.remove('show');
+  statusText.innerHTML = `${escapeHtml(message)} <button type="button" id="statusRetryBtn" class="status-retry-btn">Retry</button>`;
+  const btn = document.getElementById('statusRetryBtn');
+  if (btn){
+    btn.addEventListener('click', () => {
+      if (lastAttemptedSchemeCode) loadFundByCode(lastAttemptedSchemeCode);
+    });
+  }
+}
+
+// ---------- Fund house logos (via Clearbit's free logo API — no key required) ----------
+// Maps recognizable fragments of an AMC's name to its official domain so we can
+// pull a real logo instead of a generic icon. Falls back to initials if no match
+// is found or the image fails to load.
+const AMC_DOMAINS = {
+  'sbi mutual fund': 'sbimf.com',
+  'hdfc mutual fund': 'hdfcfund.com',
+  'icici prudential': 'icicipruamc.com',
+  'aditya birla sun life': 'mutualfund.adityabirlacapital.com',
+  'axis mutual fund': 'axismf.com',
+  'kotak mahindra': 'kotakmf.com',
+  'nippon india': 'mf.nipponindiaim.com',
+  'uti mutual fund': 'utimf.com',
+  'tata mutual fund': 'tatamutualfund.com',
+  'dsp mutual fund': 'dspim.com',
+  'franklin templeton': 'franklintempletonindia.com',
+  'invesco mutual fund': 'invescomutualfund.com',
+  'mirae asset': 'miraeassetmf.co.in',
+  'motilal oswal': 'motilaloswalmf.com',
+  'pgim india': 'pgimindiamf.com',
+  'quant mutual fund': 'quantmutual.com',
+  'quantum mutual fund': 'quantumamc.com',
+  'edelweiss mutual fund': 'edelweissmf.com',
+  'canara robeco': 'canararobeco.com',
+  'bandhan mutual fund': 'bandhanmutual.com',
+  'idfc mutual fund': 'bandhanmutual.com',
+  'lic mutual fund': 'licmf.com',
+  'baroda bnp paribas': 'barodabnpparibasmf.in',
+  'sundaram mutual fund': 'sundarammutual.com',
+  'hsbc mutual fund': 'assetmanagement.hsbc.co.in',
+  'union mutual fund': 'unionmf.com',
+  'navi mutual fund': 'navi.com',
+  'whiteoak capital': 'whiteoakamc.com',
+  'bank of india mutual fund': 'boiaxamc.com',
+  'jm financial mutual fund': 'jmfinancialmf.com',
+  'mahindra manulife': 'mahindramanulife.com',
+  '360 one mutual fund': '360.one',
+  'groww mutual fund': 'groww.in',
+  'samco mutual fund': 'samco.in',
+  'trust mutual fund': 'trustmf.com',
+  'iti mutual fund': 'itimf.com',
+  'shriram mutual fund': 'shriramamc.com',
+  'nj mutual fund': 'njmutualfund.com',
+  'old bridge mutual fund': 'oldbridgemf.com',
+  'parag parikh': 'ppfas.com',
+  'taurus mutual fund': 'taurusmutualfund.com',
+  'pnb mutual fund': 'pnbamc.com',
+  'indiabulls mutual fund': 'groww.in',
+  'helios mutual fund': 'heliosmf.com',
+  'zerodha mutual fund': 'coin.zerodha.com',
+  'unifi mutual fund': 'unifimf.com'
+};
+const AMC_DOMAIN_KEYS = Object.keys(AMC_DOMAINS).sort((a, b) => b.length - a.length);
+
+function resolveAmcDomain(fundHouseName){
+  if (!fundHouseName) return null;
+  const lower = fundHouseName.toLowerCase();
+  const key = AMC_DOMAIN_KEYS.find(k => lower.includes(k));
+  return key ? AMC_DOMAINS[key] : null;
+}
+
+function setFundAvatar(fundHouseName, schemeName){
+  const avatar = document.getElementById('fundAvatar');
+  const initials = (schemeName.trim().charAt(0) || 'F').toUpperCase();
+  const domain = resolveAmcDomain(fundHouseName);
+  avatar.innerHTML = '';
+  if (!domain){
+    avatar.textContent = initials;
+    return;
+  }
+  const img = document.createElement('img');
+  img.className = 'fund-avatar-img';
+  img.alt = fundHouseName + ' logo';
+  img.referrerPolicy = 'no-referrer';
+  img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  img.onerror = () => { avatar.innerHTML = ''; avatar.textContent = initials; };
+  avatar.appendChild(img);
+}
+
+function displayFund(data, schemeCode){
+  const meta = data.meta || {};
+  const navData = data.data || [];
+  const latest = navData[0] || {};
+
+  currentNavData = navData;
+  currentSchemeName = meta.scheme_name || ('scheme-' + schemeCode);
+  currentFundMeta = {
+    schemeCode: schemeCode,
+    schemeName: currentSchemeName,
+    fundHouse: meta.fund_house || '',
+    schemeType: meta.scheme_type || '',
+    schemeCategory: meta.scheme_category || '',
+    latestNav: latest.nav || '',
+    asOn: latest.date || ''
+  };
+
+  setFundAvatar(meta.fund_house || '', currentSchemeName);
+  document.getElementById('fundName').textContent = meta.scheme_name || '—';
+  document.getElementById('fundHouse').innerHTML = meta.fund_house ? `<i class="bi bi-bank"></i> ${escapeHtml(meta.fund_house)}` : '';
+  document.getElementById('schemeCodeBadge').textContent = `Scheme Code: ${schemeCode}`;
+  document.getElementById('latestNav').textContent = latest.nav ? `₹${latest.nav}` : '—';
+  document.getElementById('navDate').textContent = latest.date || '—';
+  document.getElementById('schemeType').textContent = meta.scheme_type || '—';
+  document.getElementById('schemeCategory').textContent = meta.scheme_category || '—';
+
+  drawChart([...navData].reverse());
+  document.getElementById('chartLabel').textContent = `NAV trend · full history (${navData.length} points)`;
+
+  renderHistoryTable(navData);
+  card.classList.add('show');
+  if (navChartInstance){
+    requestAnimationFrame(() => navChartInstance.resize());
+  }
+
+  saveRecent({
+    schemeCode: schemeCode,
+    schemeName: currentSchemeName,
+    fundHouse: meta.fund_house || '',
+    when: new Date().toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' })
+  });
+}
+
+function parseHistDate(str){
+  // mfapi.in dates are dd-mm-yyyy
+  const parts = (str || '').split('-');
+  if (parts.length !== 3) return null;
+  const [d, m, y] = parts.map(Number);
+  if (!d || !m || !y) return null;
+  const dt = new Date(y, m - 1, d);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
+function renderHistoryTable(navData, isFiltered=false, totalCount=null){
+  const body = document.getElementById('historyBody');
+
+  if (!navData.length){
+    body.innerHTML = `<tr><td colspan="2" class="no-date-match"><i class="bi bi-calendar-x"></i> ${isFiltered ? 'No entries match that date' : 'No history available'}</td></tr>`;
+    return;
+  }
+
+  body.innerHTML = navData.map((row, idx) => {
+    const nav = parseFloat(row.nav);
+    const prevRow = navData[idx + 1]; // next row = the older/previous trading day
+    let changeHtml = '';
+    if (prevRow){
+      const prevNav = parseFloat(prevRow.nav);
+      if (!isNaN(nav) && !isNaN(prevNav) && prevNav !== 0){
+        const pct = ((nav - prevNav) / prevNav) * 100;
+        const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : 'flat';
+        const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+        changeHtml = `<span class="nav-change ${dir}"><i class="bi ${icon}"></i>${Math.abs(pct).toFixed(2)}%</span>`;
+      }
+    }
+    const dt = parseHistDate(row.date);
+    const weekday = dt ? dt.toLocaleDateString(undefined, { weekday: 'short' }) : '';
+    return `
+      <tr>
+        <td>
+          <div class="hist-date">
+            ${weekday ? `<span class="hist-day">${escapeHtml(weekday)}</span>` : ''}
+            <span>${escapeHtml(row.date)}</span>
+          </div>
+        </td>
+        <td>
+          <div class="hist-nav-wrap">
+            ${changeHtml}
+            <span class="hist-nav">₹${escapeHtml(row.nav)}</span>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+// ---------- Download (structured: fund details + full NAV history) ----------
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!currentNavData.length || !currentFundMeta){
+    setStatus('Nothing to download yet — pick a fund first.', true);
+    return;
+  }
+  const payload = {
+    fund: {
+      schemeCode: currentFundMeta.schemeCode,
+      schemeName: currentFundMeta.schemeName,
+      fundHouse: currentFundMeta.fundHouse,
+      schemeType: currentFundMeta.schemeType,
+      schemeCategory: currentFundMeta.schemeCategory,
+      latestNav: currentFundMeta.latestNav,
+      asOn: currentFundMeta.asOn
+    },
+    navHistory: currentNavData.map(row => ({ date: row.date, nav: row.nav })),
+    meta: {
+      source: 'mfapi.in',
+      generatedBy: 'Invisible House · Microintel',
+      downloadedAt: new Date().toISOString()
+    }
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const houseSlug = (currentFundMeta.fundHouse || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const nameSlug = currentSchemeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const safeName = [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${safeName || 'nav-history'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+let navChartInstance = null;
+
+function drawChart(points){
+  const canvas = document.getElementById('navChart');
+  const resetBtn = document.getElementById('chartResetZoom');
+  const hintEl = document.querySelector('.chart-hint');
+  if (!points.length){
+    if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+    return;
+  }
+
+  const rows = points
+    .map(p => ({ date: p.date, nav: parseFloat(p.nav) }))
+    .filter(r => !isNaN(r.nav));
+  if (!rows.length) return;
+
+  if (typeof Chart === 'undefined'){
+    // Chart.js failed to load from every CDN attempt — degrade gracefully to a
+    // simple static line chart instead of breaking fund detail loading.
+    if (resetBtn) resetBtn.classList.remove('show');
+    if (hintEl) hintEl.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Interactive chart library unavailable — showing basic chart';
+    drawPlainFallbackChart(canvas, rows);
+    return;
+  }
+  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values';
+
+  const styles = getComputedStyle(document.documentElement);
+  const accentColor = styles.getPropertyValue('--accent').trim() || '#d1a54c';
+  const accent2Color = styles.getPropertyValue('--accent-2').trim() || '#4fd1c5';
+  const textColor = styles.getPropertyValue('--text').trim() || '#e7eaef';
+  const mutedColor = styles.getPropertyValue('--muted').trim() || '#7d8794';
+  const panelColor = styles.getPropertyValue('--panel').trim() || '#12161d';
+  const borderColor = styles.getPropertyValue('--border').trim() || '#242b37';
+
+  const navs = rows.map(r => r.nav);
+  const min = Math.min(...navs);
+  const max = Math.max(...navs);
+  const padY = (max - min) * 0.08 || max * 0.02 || 1;
+
+  const gradient = canvas.getContext('2d').createLinearGradient(0, 0, 0, canvas.clientHeight || 220);
+  gradient.addColorStop(0, color_mix_fallback(accentColor, 0.28));
+  gradient.addColorStop(1, color_mix_fallback(accentColor, 0));
+
+  const chartData = {
+    labels: rows.map(r => r.date),
+    datasets: [{
+      label: 'NAV',
+      data: navs,
+      borderColor: accentColor,
+      backgroundColor: gradient,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: accent2Color,
+      pointHoverBorderColor: panelColor,
+      pointHoverBorderWidth: 2,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.15,
+      spanGaps: true
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      interaction: { mode: 'index', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: panelColor,
+          titleColor: mutedColor,
+          bodyColor: textColor,
+          borderColor: borderColor,
+          borderWidth: 1,
+          padding: 10,
+          titleFont: { size: 11, family: 'JetBrains Mono, monospace' },
+          bodyFont: { size: 13, weight: '700', family: 'JetBrains Mono, monospace' },
+          displayColors: false,
+          callbacks: {
+            title: (items) => items[0] ? `📅 ${items[0].label}` : '',
+            label: (item) => `NAV ₹${item.parsed.y.toFixed(4)}`
+          }
+        },
+        zoom: {
+          zoom: {
+            wheel: { enabled: true, speed: 0.08 },
+            pinch: { enabled: true },
+            drag: { enabled: false },
+            mode: 'x',
+          },
+          pan: { enabled: true, mode: 'x' },
+          limits: { x: { min: 'original', max: 'original', minRange: 10 } }
+        }
+      },
+      scales: {
+        x: {
+          display: false
+        },
+        y: {
+          min: min - padY,
+          max: max + padY,
+          grid: { color: color_mix_fallback(mutedColor, 0.08) },
+          ticks: {
+            color: mutedColor,
+            font: { size: 10 },
+            maxTicksLimit: 5,
+            callback: (v) => '₹' + Number(v).toFixed(1)
+          }
+        }
+      }
+    }
+  };
+
+  if (navChartInstance){
+    navChartInstance.data = chartData;
+    navChartInstance.options = config.options;
+    navChartInstance.update();
+  } else {
+    navChartInstance = new Chart(canvas.getContext('2d'), config);
+  }
+
+  resetBtn.classList.add('show');
+  resetBtn.onclick = () => {
+    if (navChartInstance){
+      navChartInstance.resetZoom();
+      resetBtn.classList.remove('show');
+    }
+  };
+  canvas.onwheel = () => resetBtn.classList.add('show');
+  canvas.parentElement.addEventListener('pointerdown', () => resetBtn.classList.add('show'));
+}
+
+function drawPlainFallbackChart(canvas, rows){
+  if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+  const dpr = window.devicePixelRatio || 1;
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth || 300;
+  const h = wrap.clientHeight || 220;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const navs = rows.map(r => r.nav);
+  const min = Math.min(...navs);
+  const max = Math.max(...navs);
+  const range = max - min || 1;
+  const padding = 14;
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d1a54c';
+  const panelColor = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#12161d';
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#e7eaef';
+
+  function pointAt(i){
+    const x = padding + (i / (navs.length - 1 || 1)) * (w - padding * 2);
+    const y = h - padding - ((navs[i] - min) / range) * (h - padding * 2);
+    return { x, y };
+  }
+
+  function render(hoverIdx){
+    ctx.clearRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2;
+    navs.forEach((nav, i) => {
+      const { x, y } = pointAt(i);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    const last = pointAt(navs.length - 1);
+    ctx.beginPath();
+    ctx.fillStyle = accentColor;
+    ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (hoverIdx != null && rows[hoverIdx]){
+      const { x, y } = pointAt(hoverIdx);
+      ctx.beginPath();
+      ctx.strokeStyle = accentColor;
+      ctx.setLineDash([3, 3]);
+      ctx.moveTo(x, padding * 0.4);
+      ctx.lineTo(x, h - padding * 0.4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.fillStyle = accentColor;
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      const label = `${rows[hoverIdx].date} · ₹${rows[hoverIdx].nav.toFixed(4)}`;
+      ctx.font = '11px "JetBrains Mono", monospace';
+      const textW = ctx.measureText(label).width;
+      const boxX = Math.min(Math.max(x - textW / 2 - 8, 4), w - textW - 12);
+      const boxY = y > h / 2 ? y - 32 : y + 12;
+      ctx.fillStyle = panelColor;
+      ctx.fillRect(boxX, boxY, textW + 16, 20);
+      ctx.fillStyle = textColor;
+      ctx.fillText(label, boxX + 8, boxY + 14);
+    }
+  }
+
+  render(null);
+
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let closest = 0, closestDist = Infinity;
+    navs.forEach((_, i) => {
+      const { x } = pointAt(i);
+      const d = Math.abs(x - mx);
+      if (d < closestDist){ closestDist = d; closest = i; }
+    });
+    render(closest);
+  };
+  canvas.onmouseleave = () => render(null);
+}
+
+function color_mix_fallback(hexOrColor, alpha){
+  // Builds an rgba-ish overlay without relying on CSS color-mix inside canvas gradients
+  const probe = document.createElement('div');
+  probe.style.color = hexOrColor;
+  document.body.appendChild(probe);
+  const rgb = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  const match = rgb.match(/\d+(\.\d+)?/g);
+  if (!match) return `rgba(209,165,76,${alpha})`;
+  const [r, g, b] = match;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-box')){
+    suggestionsBox.classList.remove('show');
+  }
+});
+
+// Initial render of recent list (in case Recent tab is first interacted with)
+renderRecentList();
+</script>
+
+</body>
+</html>
