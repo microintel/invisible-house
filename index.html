@@ -829,41 +829,30 @@
     .brand-mark{width:88px;height:88px;border-radius:20px;}
   }
 
-  /* Desktop / wide screens */
+  /* Desktop / wide screens — keep everything stacked (same order as mobile),
+     just widen the column and let inner grids breathe instead of splitting
+     into side-by-side panels. */
   @media (min-width:900px){
-    .wrap{max-width:1120px;}
-    footer{max-width:1120px;}
+    .wrap{max-width:920px;}
+    footer{max-width:920px;}
     .card{padding:32px;}
-    .fund-info-col .grid{grid-template-columns:1fr 1fr;}
-    .details-grid{grid-template-columns:1fr 1.35fr; align-items:start;}
-    canvas{height:220px;}
-    .chart-col{padding:20px 20px 18px;}
+    .fund-info-col .grid{grid-template-columns:repeat(4, 1fr);}
+    .details-grid{grid-template-columns:1fr; align-items:stretch;}
+    canvas{height:260px;}
+    .chart-col{padding:22px 24px 20px;}
     .history-table-wrap{max-height:460px;}
     h1{font-size:32px;}
   }
 
-  /* Large desktop: use the full page, priority order left-to-right = fund details, graph, nav history */
+  /* Large desktop: still one section below another, just a bit wider so the
+     stats/chart/table use the extra side space instead of huge margins. */
   @media (min-width:1300px){
-    .wrap{max-width:min(1680px, 96vw);}
-    footer{max-width:min(1680px, 96vw);}
-    .details-grid{
-      grid-template-columns:300px 1.1fr 1fr;
-      align-items:stretch;
-      gap:22px;
-    }
-    .fund-info-col{
-      display:flex;
-      flex-direction:column;
-      background:var(--panel-2);
-      border:1px solid var(--border);
-      border-radius:var(--radius-md);
-      padding:18px;
-    }
-    .fund-info-col .grid{grid-template-columns:1fr; margin-top:18px; flex:1;}
-    .chart-col{display:flex; flex-direction:column;}
-    .chart-canvas-wrap{flex:1;}
-    .history-col{display:flex; flex-direction:column;}
-    .history-table-wrap{flex:1; max-height:none;}
+    .wrap{max-width:1080px;}
+    footer{max-width:1080px;}
+    .details-grid{grid-template-columns:1fr; gap:26px;}
+    .fund-info-col .grid{grid-template-columns:repeat(4, 1fr);}
+    canvas{height:320px;}
+    .history-table-wrap{max-height:520px;}
   }
 </style>
 </head>
