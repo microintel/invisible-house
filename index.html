@@ -455,6 +455,7 @@
     gap:12px;
     margin-top:18px;
   }
+  .fund-info-col{min-width:0;}
   .stat{
     background:var(--panel-2);
     border:1px solid var(--border);
@@ -806,15 +807,39 @@
 
   /* Desktop / wide screens */
   @media (min-width:900px){
-    .wrap{max-width:960px;}
-    footer{max-width:960px;}
+    .wrap{max-width:1120px;}
+    footer{max-width:1120px;}
     .card{padding:32px;}
-    .grid{grid-template-columns:repeat(4, 1fr);}
+    .fund-info-col .grid{grid-template-columns:1fr 1fr;}
     .details-grid{grid-template-columns:1fr 1.35fr; align-items:start;}
     canvas{height:220px;}
     .chart-col{padding:20px 20px 18px;}
     .history-table-wrap{max-height:460px;}
     h1{font-size:32px;}
+  }
+
+  /* Large desktop: use the full page, priority order left-to-right = fund details, graph, nav history */
+  @media (min-width:1300px){
+    .wrap{max-width:min(1680px, 96vw);}
+    footer{max-width:min(1680px, 96vw);}
+    .details-grid{
+      grid-template-columns:300px 1.1fr 1fr;
+      align-items:stretch;
+      gap:22px;
+    }
+    .fund-info-col{
+      display:flex;
+      flex-direction:column;
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      border-radius:var(--radius-md);
+      padding:18px;
+    }
+    .fund-info-col .grid{grid-template-columns:1fr; margin-top:18px; flex:1;}
+    .chart-col{display:flex; flex-direction:column;}
+    .chart-canvas-wrap{flex:1;}
+    .history-col{display:flex; flex-direction:column;}
+    .history-table-wrap{flex:1; max-height:none;}
   }
 </style>
 </head>
@@ -869,35 +894,37 @@
         </div>
       </div>
       <div class="card-content">
-        <div class="card-header-row">
-          <div class="fund-avatar" id="fundAvatar">₹</div>
-          <div class="fund-heading">
-            <div class="card-title" id="fundName">—</div>
-            <div class="fund-house-line" id="fundHouse"></div>
-            <span class="card-code" id="schemeCodeBadge"></span>
-          </div>
-        </div>
-
-        <div class="grid">
-          <div class="stat">
-            <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
-            <div class="stat-value nav-highlight" id="latestNav">—</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
-            <div class="stat-value" id="navDate">—</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
-            <div class="stat-value" id="schemeType">—</div>
-          </div>
-          <div class="stat">
-            <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
-            <div class="stat-value" id="schemeCategory">—</div>
-          </div>
-        </div>
-
         <div class="details-grid">
+          <div class="fund-info-col">
+            <div class="card-header-row">
+              <div class="fund-avatar" id="fundAvatar">₹</div>
+              <div class="fund-heading">
+                <div class="card-title" id="fundName">—</div>
+                <div class="fund-house-line" id="fundHouse"></div>
+                <span class="card-code" id="schemeCodeBadge"></span>
+              </div>
+            </div>
+
+            <div class="grid">
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
+                <div class="stat-value nav-highlight" id="latestNav">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
+                <div class="stat-value" id="navDate">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
+                <div class="stat-value" id="schemeType">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
+                <div class="stat-value" id="schemeCategory">—</div>
+              </div>
+            </div>
+          </div>
+
           <div class="chart-col">
             <div class="section-label-row">
               <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
@@ -927,6 +954,9 @@
                 <tbody id="historyBody"></tbody>
               </table>
             </div>
+            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
+              <i class="bi bi-chevron-down"></i> Load 50 more
+            </button>
           </div>
         </div>
       </div>
@@ -1461,46 +1491,82 @@ function parseHistDate(str){
   return isNaN(dt.getTime()) ? null : dt;
 }
 
+const HISTORY_PAGE_SIZE = 50;
+let historyFullData = [];
+let historyShownCount = 0;
+
+function historyRowHtml(row, idx, fullData){
+  const nav = parseFloat(row.nav);
+  const prevRow = fullData[idx + 1]; // next row = the older/previous trading day
+  let changeHtml = '';
+  if (prevRow){
+    const prevNav = parseFloat(prevRow.nav);
+    if (!isNaN(nav) && !isNaN(prevNav) && prevNav !== 0){
+      const pct = ((nav - prevNav) / prevNav) * 100;
+      const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : 'flat';
+      const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+      changeHtml = `<span class="nav-change ${dir}"><i class="bi ${icon}"></i>${Math.abs(pct).toFixed(2)}%</span>`;
+    }
+  }
+  const dt = parseHistDate(row.date);
+  const weekday = dt ? dt.toLocaleDateString(undefined, { weekday: 'short' }) : '';
+  return `
+    <tr>
+      <td>
+        <div class="hist-date">
+          ${weekday ? `<span class="hist-day">${escapeHtml(weekday)}</span>` : ''}
+          <span>${escapeHtml(row.date)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="hist-nav-wrap">
+          ${changeHtml}
+          <span class="hist-nav">₹${escapeHtml(row.nav)}</span>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function updateLoadMoreButton(){
+  const btn = document.getElementById('loadMoreHistoryBtn');
+  if (!btn) return;
+  const remaining = historyFullData.length - historyShownCount;
+  if (remaining > 0){
+    btn.style.display = 'inline-flex';
+    btn.innerHTML = `<i class="bi bi-chevron-down"></i> Load ${Math.min(HISTORY_PAGE_SIZE, remaining)} more (${remaining} left)`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
 function renderHistoryTable(navData, isFiltered=false, totalCount=null){
   const body = document.getElementById('historyBody');
 
+  historyFullData = navData;
+  historyShownCount = 0;
+
   if (!navData.length){
     body.innerHTML = `<tr><td colspan="2" class="no-date-match"><i class="bi bi-calendar-x"></i> ${isFiltered ? 'No entries match that date' : 'No history available'}</td></tr>`;
+    updateLoadMoreButton();
     return;
   }
 
-  body.innerHTML = navData.map((row, idx) => {
-    const nav = parseFloat(row.nav);
-    const prevRow = navData[idx + 1]; // next row = the older/previous trading day
-    let changeHtml = '';
-    if (prevRow){
-      const prevNav = parseFloat(prevRow.nav);
-      if (!isNaN(nav) && !isNaN(prevNav) && prevNav !== 0){
-        const pct = ((nav - prevNav) / prevNav) * 100;
-        const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : 'flat';
-        const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
-        changeHtml = `<span class="nav-change ${dir}"><i class="bi ${icon}"></i>${Math.abs(pct).toFixed(2)}%</span>`;
-      }
-    }
-    const dt = parseHistDate(row.date);
-    const weekday = dt ? dt.toLocaleDateString(undefined, { weekday: 'short' }) : '';
-    return `
-      <tr>
-        <td>
-          <div class="hist-date">
-            ${weekday ? `<span class="hist-day">${escapeHtml(weekday)}</span>` : ''}
-            <span>${escapeHtml(row.date)}</span>
-          </div>
-        </td>
-        <td>
-          <div class="hist-nav-wrap">
-            ${changeHtml}
-            <span class="hist-nav">₹${escapeHtml(row.nav)}</span>
-          </div>
-        </td>
-      </tr>`;
-  }).join('');
+  const firstPage = navData.slice(0, HISTORY_PAGE_SIZE);
+  body.innerHTML = firstPage.map((row, idx) => historyRowHtml(row, idx, navData)).join('');
+  historyShownCount = firstPage.length;
+  updateLoadMoreButton();
 }
+
+function loadMoreHistoryRows(){
+  const body = document.getElementById('historyBody');
+  const nextBatch = historyFullData.slice(historyShownCount, historyShownCount + HISTORY_PAGE_SIZE);
+  if (!nextBatch.length) { updateLoadMoreButton(); return; }
+  body.insertAdjacentHTML('beforeend', nextBatch.map((row, i) => historyRowHtml(row, historyShownCount + i, historyFullData)).join(''));
+  historyShownCount += nextBatch.length;
+  updateLoadMoreButton();
+}
+
+document.getElementById('loadMoreHistoryBtn').addEventListener('click', loadMoreHistoryRows);
 
 // ---------- Download (structured: fund details + full NAV history) ----------
 document.getElementById('downloadBtn').addEventListener('click', () => {
