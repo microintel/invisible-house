@@ -22,7 +22,7 @@
     --muted:#7d8794;
     --accent:#d1a54c;
     --accent-ink:#221a08;
-    --accent-2:#4fd1c5;
+    --accent-2:#6bd14f;
     --accent-soft:rgba(209,165,76,.10);
     --danger:#f0776b;
     --shadow:0 20px 40px rgba(0,0,0,.45);
@@ -43,7 +43,7 @@
     --muted:#7a7461;
     --accent:#a9711f;
     --accent-ink:#fffaf0;
-    --accent-2:#0f626e;
+    --accent-2:#6bd14f;
     --accent-soft:rgba(169,113,31,.10);
     --danger:#b8382b;
     --shadow:0 20px 40px rgba(40,30,10,.08);
@@ -586,6 +586,37 @@
   @media (max-width:480px){
     .chart-hint{display:none;}
   }
+  .chart-compare{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    margin-top:10px;
+    padding:10px 14px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    color:var(--text);
+    text-align:center;
+    flex-wrap:wrap;
+  }
+  .chart-compare.show{display:flex;}
+  .chart-compare .cc-dates{color:var(--muted); font-size:11px;}
+  .chart-compare .cc-pct{font-weight:700; font-size:14px;}
+  .chart-compare .cc-pct.up{color:var(--accent-2);}
+  .chart-compare .cc-pct.down{color:var(--danger);}
+  .chart-compare .cc-close{
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:13px;
+    padding:2px 4px;
+    line-height:1;
+  }
+  .chart-compare .cc-close:hover{color:var(--text);}
   ::-webkit-scrollbar{width:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
   table.history-table td{font-family:var(--mono);}
@@ -633,6 +664,11 @@
   .btn:hover{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
   .btn:active{transform:scale(0.96);}
   .btn.danger:hover{background:var(--danger); color:#fff; border-color:var(--danger);}
+  .download-btn-group{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
   .history-table-wrap{
     max-height:320px;
     overflow-y:auto;
@@ -958,7 +994,12 @@
               <canvas id="navChart"></canvas>
             </div>
             <div class="chart-label" id="chartLabel">NAV trend</div>
-            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values</div>
+            <div class="chart-hint" id="chartHint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values</div>
+            <div class="chart-compare" id="chartCompare">
+              <span class="cc-dates" id="ccDates"></span>
+              <span class="cc-pct" id="ccPct"></span>
+              <button type="button" class="cc-close" id="ccClose" title="Clear selection"><i class="bi bi-x-lg"></i></button>
+            </div>
           </div>
 
           <div class="history-col">
@@ -966,7 +1007,10 @@
               <div>
                 <div class="history-title">Full NAV History</div>
               </div>
-              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
+              <div class="download-btn-group">
+                <button class="btn" id="downloadBtn"><i class="bi bi-filetype-json"></i> JSON</button>
+                <button class="btn" id="downloadXlsxBtn"><i class="bi bi-file-earmark-spreadsheet"></i> Excel</button>
+              </div>
             </div>
             <div class="history-table-wrap">
               <table class="history-table">
@@ -996,7 +1040,7 @@
 
 <footer>
   <div class="footer-line">Developed by <b>Microintel</b></div>
-  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from mfapi</a></div>
+  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from API</a></div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
@@ -1005,6 +1049,8 @@
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js';document.head.appendChild(s);"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';document.head.appendChild(s);"></script>
 <script>
 // ---------- Theme (persisted in localStorage) ----------
 const THEME_KEY = 'ih_theme';
@@ -1592,12 +1638,9 @@ function loadMoreHistoryRows(){
 document.getElementById('loadMoreHistoryBtn').addEventListener('click', loadMoreHistoryRows);
 
 // ---------- Download (structured: fund details + full NAV history) ----------
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  if (!currentNavData.length || !currentFundMeta){
-    setStatus('Nothing to download yet — pick a fund first.', true);
-    return;
-  }
-  const payload = {
+function getDownloadPayload(){
+  if (!currentNavData.length || !currentFundMeta) return null;
+  return {
     fund: {
       schemeCode: currentFundMeta.schemeCode,
       schemeName: currentFundMeta.schemeName,
@@ -1614,21 +1657,189 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
       downloadedAt: new Date().toISOString()
     }
   };
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+}
+
+function getDownloadFileBaseName(){
   const houseSlug = (currentFundMeta.fundHouse || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const nameSlug = currentSchemeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  const safeName = [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-');
+  return [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-') || 'nav-history';
+}
+
+function triggerBlobDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${safeName || 'nav-history'}.json`;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  const payload = getDownloadPayload();
+  if (!payload){
+    setStatus('Nothing to download yet — pick a fund first.', true);
+    return;
+  }
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  triggerBlobDownload(blob, `${getDownloadFileBaseName()}.json`);
 });
 
+document.getElementById('downloadXlsxBtn').addEventListener('click', () => {
+  const payload = getDownloadPayload();
+  if (!payload){
+    setStatus('Nothing to download yet — pick a fund first.', true);
+    return;
+  }
+  if (typeof XLSX === 'undefined'){
+    setStatus('Excel export library failed to load — check your connection and try again.', true);
+    return;
+  }
+
+  const fund = payload.fund;
+  const aoa = [
+    ['Fund Details'],
+    ['Scheme Code', fund.schemeCode],
+    ['Scheme Name', fund.schemeName],
+    ['Fund House', fund.fundHouse],
+    ['Scheme Type', fund.schemeType],
+    ['Scheme Category', fund.schemeCategory],
+    ['Latest NAV', fund.latestNav],
+    ['As On', fund.asOn],
+    ['Source', payload.meta.source],
+    ['Downloaded At', payload.meta.downloadedAt],
+    [],
+    ['NAV History'],
+    ['Date', 'NAV'],
+    ...payload.navHistory.map(r => [r.date, Number(r.nav)])
+  ];
+  const sheet = XLSX.utils.aoa_to_sheet(aoa);
+  sheet['!cols'] = [{ wch: 18 }, { wch: 42 }];
+  sheet['!merges'] = [
+    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } },
+    { s: { r: 11, c: 0 }, e: { r: 11, c: 1 } }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, sheet, 'Fund Data');
+
+  XLSX.writeFile(wb, `${getDownloadFileBaseName()}.xlsx`);
+});
+
+
 let navChartInstance = null;
+let chartSelection = [];       // up to 2 indices into currentChartRows, the points picked for comparison
+let currentChartRows = [];     // the {date, nav} rows currently plotted
+
+const pointComparePlugin = {
+  id: 'pointCompare',
+  afterDatasetsDraw(chart){
+    if (!chartSelection.length) return;
+    const meta = chart.getDatasetMeta(0);
+    const ctx = chart.ctx;
+    const styles = getComputedStyle(document.documentElement);
+    const accent2 = styles.getPropertyValue('--accent-2').trim() || '#4fd1c5';
+    const danger = styles.getPropertyValue('--danger').trim() || '#f0776b';
+    const muted = styles.getPropertyValue('--muted').trim() || '#7d8794';
+    const panel = styles.getPropertyValue('--panel').trim() || '#12161d';
+    const top = chart.chartArea.top;
+    const bottom = chart.chartArea.bottom;
+
+    let color = accent2;
+    if (chartSelection.length === 2){
+      const [i1, i2] = [...chartSelection].sort((a, b) => a - b);
+      const r1 = currentChartRows[i1];
+      const r2 = currentChartRows[i2];
+      if (r1 && r2) color = r2.nav >= r1.nav ? accent2 : danger;
+      const p1 = meta.data[i1];
+      const p2 = meta.data[i2];
+      if (p1 && p2){
+        ctx.save();
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    chartSelection.forEach((idx) => {
+      const pt = meta.data[idx];
+      if (!pt) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = muted;
+      ctx.setLineDash([3, 3]);
+      ctx.lineWidth = 1;
+      ctx.moveTo(pt.x, top);
+      ctx.lineTo(pt.x, bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.fillStyle = color;
+      ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = panel;
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+};
+if (typeof Chart !== 'undefined') Chart.register(pointComparePlugin);
+
+function updateCompareUI(){
+  const badge = document.getElementById('chartCompare');
+  if (chartSelection.length < 2){
+    badge.classList.remove('show');
+    return;
+  }
+  const [i1, i2] = [...chartSelection].sort((a, b) => a - b);
+  const r1 = currentChartRows[i1];
+  const r2 = currentChartRows[i2];
+  if (!r1 || !r2){
+    badge.classList.remove('show');
+    return;
+  }
+  const pct = ((r2.nav - r1.nav) / r1.nav) * 100;
+  const sign = pct >= 0 ? '+' : '';
+  const pctEl = document.getElementById('ccPct');
+  pctEl.textContent = `${sign}${pct.toFixed(2)}%  (₹${r1.nav.toFixed(2)} → ₹${r2.nav.toFixed(2)})`;
+  pctEl.className = 'cc-pct ' + (pct >= 0 ? 'up' : 'down');
+  document.getElementById('ccDates').textContent = `${r1.date} → ${r2.date}`;
+  badge.classList.add('show');
+}
+
+function clearChartSelection(){
+  chartSelection = [];
+  const badge = document.getElementById('chartCompare');
+  if (badge) badge.classList.remove('show');
+  if (navChartInstance) navChartInstance.update();
+}
+
+function handleChartPointClick(e){
+  if (!navChartInstance) return;
+  const points = navChartInstance.getElementsAtEventForMode(e, 'index', { intersect: false }, true);
+  if (!points.length) return;
+  const idx = points[0].index;
+
+  if (chartSelection.length === 0){
+    chartSelection = [idx];
+  } else if (chartSelection.length === 1){
+    chartSelection = (idx === chartSelection[0]) ? [] : [chartSelection[0], idx];
+  } else {
+    // A 3rd click: drop the old pair and start a fresh selection from this point
+    chartSelection = [idx];
+  }
+  updateCompareUI();
+  navChartInstance.update();
+}
+
+document.getElementById('ccClose')?.addEventListener('click', clearChartSelection);
 
 function getRangeCutoffDate(latestDate, range){
   const d = new Date(latestDate.getTime());
@@ -1679,6 +1890,8 @@ function drawChart(points){
   const canvas = document.getElementById('navChart');
   const resetBtn = document.getElementById('chartResetZoom');
   const hintEl = document.querySelector('.chart-hint');
+  clearChartSelection();
+
   if (!points.length){
     if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
     return;
@@ -1688,6 +1901,7 @@ function drawChart(points){
     .map(p => ({ date: p.date, nav: parseFloat(p.nav) }))
     .filter(r => !isNaN(r.nav));
   if (!rows.length) return;
+  currentChartRows = rows;
 
   if (typeof Chart === 'undefined'){
     // Chart.js failed to load from every CDN attempt — degrade gracefully to a
@@ -1697,7 +1911,7 @@ function drawChart(points){
     drawPlainFallbackChart(canvas, rows);
     return;
   }
-  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values';
+  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll/pinch to zoom · drag to pan · tap 2 points to compare';
 
   const styles = getComputedStyle(document.documentElement);
   const accentColor = styles.getPropertyValue('--accent').trim() || '#d1a54c';
@@ -1807,6 +2021,7 @@ function drawChart(points){
   };
   canvas.onwheel = () => resetBtn.classList.add('show');
   canvas.parentElement.addEventListener('pointerdown', () => resetBtn.classList.add('show'));
+  canvas.onclick = handleChartPointClick;
 }
 
 function drawPlainFallbackChart(canvas, rows){
