@@ -22,7 +22,7 @@
     --muted:#7d8794;
     --accent:#d1a54c;
     --accent-ink:#221a08;
-    --accent-2:#6bd14f;
+    --accent-2:#4fd1c5;
     --accent-soft:rgba(209,165,76,.10);
     --danger:#f0776b;
     --shadow:0 20px 40px rgba(0,0,0,.45);
@@ -43,7 +43,7 @@
     --muted:#7a7461;
     --accent:#a9711f;
     --accent-ink:#fffaf0;
-    --accent-2:#6bd14f;
+    --accent-2:#0f626e;
     --accent-soft:rgba(169,113,31,.10);
     --danger:#b8382b;
     --shadow:0 20px 40px rgba(40,30,10,.08);
@@ -79,35 +79,69 @@
     margin:0 auto;
     text-align:center;
   }
-  .icon-group{
+  .menu-wrap{
     position:absolute;
     top:18px;
     right:18px;
-    display:flex;
-    gap:6px;
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:4px;
-    box-shadow:var(--shadow);
   }
-  .icon-btn{
-    width:36px;
-    height:36px;
-    border-radius:9px;
-    border:none;
-    background:transparent;
+  .menu-toggle-btn{
+    width:40px;
+    height:40px;
+    border-radius:11px;
+    border:1px solid var(--border);
+    background:var(--panel);
     color:var(--muted);
     display:flex;
     align-items:center;
     justify-content:center;
     cursor:pointer;
-    font-size:15px;
-    transition:background .15s, color .15s, transform .1s;
+    font-size:16px;
+    box-shadow:var(--shadow);
+    transition:background .15s, color .15s, transform .1s, border-color .15s;
   }
-  .icon-btn:hover{background:var(--panel-2); color:var(--text);}
-  .icon-btn:active{transform:scale(0.92);}
-  .icon-btn.active{background:var(--accent); color:var(--accent-ink);}
+  .menu-toggle-btn:hover{background:var(--panel-2); color:var(--text);}
+  .menu-toggle-btn:active{transform:scale(0.94);}
+  .menu-toggle-btn.open{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .menu-dropdown{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:190px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:6px;
+    box-shadow:var(--shadow);
+    display:none;
+    flex-direction:column;
+    gap:2px;
+    z-index:20;
+  }
+  .menu-dropdown.show{display:flex;}
+  .menu-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font-size:13.5px;
+    text-align:left;
+    cursor:pointer;
+    transition:background .12s, color .12s;
+  }
+  .menu-item i{width:16px; text-align:center; color:var(--muted); font-size:14px;}
+  .menu-item:hover{background:var(--panel-2);}
+  .menu-item.active{background:var(--accent-soft); color:var(--accent);}
+  .menu-item.active i{color:var(--accent);}
+  .menu-divider{
+    height:1px;
+    background:var(--border);
+    margin:4px 2px;
+  }
   .brand-mark{
     width:120px;
     height:120px;
@@ -588,35 +622,69 @@
   }
   .chart-compare{
     display:none;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
     margin-top:10px;
-    padding:10px 14px;
+    padding:12px 14px;
     background:var(--panel-2);
     border:1px solid var(--border);
-    border-radius:12px;
-    font-family:var(--mono);
+    border-radius:var(--radius-md);
     font-size:12.5px;
-    color:var(--text);
-    text-align:center;
+  }
+  .chart-compare.show{display:block;}
+  .chart-compare-hint{
+    color:var(--muted);
+    font-size:11.5px;
+  }
+  .chart-compare-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
     flex-wrap:wrap;
   }
-  .chart-compare.show{display:flex;}
-  .chart-compare .cc-dates{color:var(--muted); font-size:11px;}
-  .chart-compare .cc-pct{font-weight:700; font-size:14px;}
-  .chart-compare .cc-pct.up{color:var(--accent-2);}
-  .chart-compare .cc-pct.down{color:var(--danger);}
-  .chart-compare .cc-close{
-    border:none;
+  .chart-compare-dates{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--muted);
+    font-family:var(--mono);
+    font-size:11.5px;
+  }
+  .chart-compare-dates .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    display:inline-block;
+  }
+  .chart-compare-dates .dot.a{background:var(--accent-2);}
+  .chart-compare-dates .dot.b{background:var(--accent);}
+  .chart-compare-figures{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .chart-compare-figures .pct{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:16px;
+  }
+  .chart-compare-figures .pct.up{color:#3ec98f;}
+  .chart-compare-figures .pct.down{color:var(--danger);}
+  .chart-compare-figures .abs{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:11.5px;
+  }
+  .chart-compare-clear{
+    border:1px solid var(--border);
     background:transparent;
     color:var(--muted);
+    font-size:11px;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:7px;
     cursor:pointer;
-    font-size:13px;
-    padding:2px 4px;
-    line-height:1;
   }
-  .chart-compare .cc-close:hover{color:var(--text);}
+  .chart-compare-clear:hover{background:var(--panel-3); color:var(--text);}
   ::-webkit-scrollbar{width:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
   table.history-table td{font-family:var(--mono);}
@@ -664,11 +732,6 @@
   .btn:hover{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
   .btn:active{transform:scale(0.96);}
   .btn.danger:hover{background:var(--danger); color:#fff; border-color:var(--danger);}
-  .download-btn-group{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-  }
   .history-table-wrap{
     max-height:320px;
     overflow-y:auto;
@@ -858,47 +921,64 @@
     .card{padding:18px;border-radius:14px;}
     h1{font-size:22px;}
     .wrap{padding:14px 14px 30px;}
-    .icon-group{top:14px;right:12px;}
-    .icon-btn{width:32px;height:32px;font-size:13.5px;}
+    .menu-wrap{top:14px;right:12px;}
+    .menu-toggle-btn{width:34px;height:34px;font-size:14px;}
     header{padding:26px 14px 14px;}
     .brand-row{gap:10px;}
     .brand-mark{width:88px;height:88px;border-radius:20px;}
   }
 
-  /* Desktop / wide screens — keep everything stacked (same order as mobile),
-     just widen the column and let inner grids breathe instead of splitting
-     into side-by-side panels. */
+  /* Desktop / wide screens */
   @media (min-width:900px){
-    .wrap{max-width:90vw;}
-    footer{max-width:90vw;}
+    .wrap{max-width:1120px;}
+    footer{max-width:1120px;}
     .card{padding:32px;}
-    .fund-info-col .grid{grid-template-columns:repeat(4, 1fr);}
-    .details-grid{grid-template-columns:1fr; align-items:stretch;}
-    canvas{height:260px;}
-    .chart-col{padding:22px 24px 20px;}
+    .fund-info-col .grid{grid-template-columns:1fr 1fr;}
+    .details-grid{grid-template-columns:1fr 1.35fr; align-items:start;}
+    canvas{height:220px;}
+    .chart-col{padding:20px 20px 18px;}
     .history-table-wrap{max-height:460px;}
     h1{font-size:32px;}
   }
 
-  /* Large desktop: still one section below another, just a bit wider so the
-     stats/chart/table use the extra side space instead of huge margins. */
+  /* Large desktop: use the full page, priority order left-to-right = fund details, graph, nav history */
   @media (min-width:1300px){
-    .wrap{max-width:90vw;}
-    footer{max-width:90vw;}
-    .details-grid{grid-template-columns:1fr; gap:26px;}
-    .fund-info-col .grid{grid-template-columns:repeat(4, 1fr);}
-    canvas{height:320px;}
-    .history-table-wrap{max-height:520px;}
+    .wrap{max-width:min(1680px, 96vw);}
+    footer{max-width:min(1680px, 96vw);}
+    .details-grid{
+      grid-template-columns:300px 1.1fr 1fr;
+      align-items:stretch;
+      gap:22px;
+    }
+    .fund-info-col{
+      display:flex;
+      flex-direction:column;
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      border-radius:var(--radius-md);
+      padding:18px;
+    }
+    .fund-info-col .grid{grid-template-columns:1fr; margin-top:18px; flex:1;}
+    .chart-col{display:flex; flex-direction:column;}
+    .chart-canvas-wrap{flex:1;}
+    .history-col{display:flex; flex-direction:column;}
+    .history-table-wrap{flex:1; max-height:none;}
   }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="icon-group">
-    <button class="icon-btn active" id="searchTabBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
-    <button class="icon-btn" id="recentTabBtn" title="Recent searches" aria-label="Recent searches"><i class="bi bi-clock-history"></i></button>
-    <button class="icon-btn" id="themeToggle" title="Toggle theme" aria-label="Toggle theme"><i class="bi bi-moon-stars-fill"></i></button>
+  <div class="menu-wrap" id="menuWrap">
+    <button class="menu-toggle-btn" id="menuToggleBtn" title="Menu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <button class="menu-item active" id="searchTabBtn"><i class="bi bi-search"></i> Search</button>
+      <button class="menu-item" id="recentTabBtn"><i class="bi bi-clock-history"></i> Recent Searches</button>
+      <div class="menu-divider"></div>
+      <button class="menu-item" id="themeToggle"><i class="bi bi-moon-stars-fill"></i> Dark Mode</button>
+    </div>
   </div>
   <div class="brand-row">
     <div class="brand-mark"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
@@ -994,12 +1074,8 @@
               <canvas id="navChart"></canvas>
             </div>
             <div class="chart-label" id="chartLabel">NAV trend</div>
-            <div class="chart-hint" id="chartHint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values</div>
-            <div class="chart-compare" id="chartCompare">
-              <span class="cc-dates" id="ccDates"></span>
-              <span class="cc-pct" id="ccPct"></span>
-              <button type="button" class="cc-close" id="ccClose" title="Clear selection"><i class="bi bi-x-lg"></i></button>
-            </div>
+            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
+            <div class="chart-compare" id="chartCompare"></div>
           </div>
 
           <div class="history-col">
@@ -1007,10 +1083,7 @@
               <div>
                 <div class="history-title">Full NAV History</div>
               </div>
-              <div class="download-btn-group">
-                <button class="btn" id="downloadBtn"><i class="bi bi-filetype-json"></i> JSON</button>
-                <button class="btn" id="downloadXlsxBtn"><i class="bi bi-file-earmark-spreadsheet"></i> Excel</button>
-              </div>
+              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
             </div>
             <div class="history-table-wrap">
               <table class="history-table">
@@ -1040,7 +1113,7 @@
 
 <footer>
   <div class="footer-line">Developed by <b>Microintel</b></div>
-  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from API</a></div>
+  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from mfapi</a></div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
@@ -1049,8 +1122,6 @@
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js';document.head.appendChild(s);"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
-        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';document.head.appendChild(s);"></script>
 <script>
 // ---------- Theme (persisted in localStorage) ----------
 const THEME_KEY = 'ih_theme';
@@ -1060,6 +1131,36 @@ const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-sche
 let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
 applyTheme(currentTheme);
 
+// ---------- Top menu (Search / Recent / Theme) ----------
+const menuToggleBtn = document.getElementById('menuToggleBtn');
+const menuDropdown = document.getElementById('menuDropdown');
+const menuWrap = document.getElementById('menuWrap');
+
+function openMenu(){
+  menuDropdown.classList.add('show');
+  menuToggleBtn.classList.add('open');
+  menuToggleBtn.setAttribute('aria-expanded', 'true');
+}
+function closeMenu(){
+  menuDropdown.classList.remove('show');
+  menuToggleBtn.classList.remove('open');
+  menuToggleBtn.setAttribute('aria-expanded', 'false');
+}
+menuToggleBtn.addEventListener('click', () => {
+  if (menuDropdown.classList.contains('show')) closeMenu(); else openMenu();
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#menuWrap')) closeMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenu();
+});
+// Any item inside the dropdown closes it after acting, so the menu never
+// lingers open once the user has made a choice.
+menuDropdown.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', closeMenu);
+});
+
 themeToggle.addEventListener('click', () => {
   currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
   applyTheme(currentTheme);
@@ -1068,7 +1169,9 @@ themeToggle.addEventListener('click', () => {
 
 function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
-  themeToggle.innerHTML = theme === 'dark' ? '<i class="bi bi-moon-stars-fill"></i>' : '<i class="bi bi-sun-fill"></i>';
+  themeToggle.innerHTML = theme === 'dark'
+    ? '<i class="bi bi-moon-stars-fill"></i> Dark Mode'
+    : '<i class="bi bi-sun-fill"></i> Light Mode';
   try{
     if (currentNavData && currentNavData.length){
       setTimeout(() => drawChart(getChartDataForRange(currentChartRange)), 50);
@@ -1168,6 +1271,58 @@ document.getElementById('clearRecentBtn').addEventListener('click', () => {
   renderRecentList();
 });
 
+// ---------- IndexedDB cache layer ----------
+// Two stores: 'fundList' holds the large master list of schemes (one row,
+// key 'all'), and 'navCache' holds per-scheme NAV history keyed by code.
+// Everything here degrades silently to "no cache" if IndexedDB is
+// unavailable (private browsing, old browsers, etc.) — caching is a
+// performance layer, never a hard requirement.
+const IDB_NAME = 'sipTrackerCache';
+const IDB_VERSION = 1;
+const FUND_LIST_TTL_MS = 24 * 60 * 60 * 1000; // refresh the master list at most once a day in the background
+
+let idbPromise = null;
+function openIdb(){
+  if (idbPromise) return idbPromise;
+  idbPromise = new Promise((resolve) => {
+    if (!('indexedDB' in window)){ resolve(null); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('fundList')) db.createObjectStore('fundList', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('navCache')) db.createObjectStore('navCache', { keyPath: 'code' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+  return idbPromise;
+}
+
+async function idbGet(storeName, key){
+  const db = await openIdb();
+  if (!db) return null;
+  return new Promise((resolve) => {
+    try{
+      const req = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    } catch(e){ resolve(null); }
+  });
+}
+
+async function idbSet(storeName, value){
+  const db = await openIdb();
+  if (!db) return;
+  return new Promise((resolve) => {
+    try{
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).put(value);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch(e){ resolve(); }
+  });
+}
+
 // ---------- Search ----------
 const searchInput = document.getElementById('searchInput');
 const manualSearchBtn = document.getElementById('manualSearchBtn');
@@ -1188,6 +1343,35 @@ let currentNavData = [];
 let currentSchemeName = 'fund';
 let currentFundMeta = null;
 let currentChartRange = 'max';
+
+// Lowercased scheme names (parallel array to allFunds, built once per list
+// load) plus a Map from 3-char word-prefix -> candidate indices. Typing a
+// query narrows ~40k funds down to a small bucket before any string
+// comparison happens, instead of scanning the entire list on every keystroke.
+let searchIndex = [];
+let prefixIndex = new Map();
+
+function buildSearchIndex(){
+  const n = allFunds.length;
+  searchIndex = new Array(n);
+  prefixIndex = new Map();
+  for (let i = 0; i < n; i++){
+    const lname = (allFunds[i].schemeName || '').toLowerCase();
+    searchIndex[i] = lname;
+    const tokens = lname.split(/[^a-z0-9]+/);
+    const seenPrefixes = new Set();
+    for (let t = 0; t < tokens.length; t++){
+      const tok = tokens[t];
+      if (tok.length < 3) continue;
+      const prefix = tok.slice(0, 3);
+      if (seenPrefixes.has(prefix)) continue;
+      seenPrefixes.add(prefix);
+      let bucket = prefixIndex.get(prefix);
+      if (!bucket){ bucket = []; prefixIndex.set(prefix, bucket); }
+      bucket.push(i);
+    }
+  }
+}
 
 function setStatus(msg, isError=false, isLoading=false){
   statusText.textContent = msg;
@@ -1219,6 +1403,28 @@ function friendlyMessage(err, kind){
 async function loadFundList(attempt=1){
   if (fundsLoaded || fundsLoading) return;
   fundsLoading = true;
+
+  // Serve straight from the cache when we have one — this is what makes
+  // search usable immediately on repeat visits instead of waiting on a
+  // multi-MB network fetch every single time. A background refresh keeps
+  // it from ever going too stale.
+  if (attempt === 1){
+    const cached = await idbGet('fundList', 'all');
+    if (cached && Array.isArray(cached.data) && cached.data.length){
+      allFunds = cached.data;
+      fundsLoaded = true;
+      fundsLoading = false;
+      buildSearchIndex();
+      setStatus('');
+      searchInput.disabled = false;
+      firstLoadLoader.classList.remove('show');
+      if (Date.now() - (cached.ts || 0) > FUND_LIST_TTL_MS){
+        refreshFundListInBackground();
+      }
+      return;
+    }
+  }
+
   searchInput.disabled = true;
   firstLoadLoader.classList.add('show');
   const MAX_ATTEMPTS = 3;
@@ -1229,6 +1435,8 @@ async function loadFundList(attempt=1){
     if (!Array.isArray(data) || !data.length) throw new Error('Empty fund list returned');
     allFunds = data;
     fundsLoaded = true;
+    buildSearchIndex();
+    idbSet('fundList', { key: 'all', data, ts: Date.now() });
     setStatus('');
   } catch(err){
     fundsLoading = false;
@@ -1244,6 +1452,18 @@ async function loadFundList(attempt=1){
     searchInput.disabled = false;
     firstLoadLoader.classList.remove('show');
   }
+}
+
+async function refreshFundListInBackground(){
+  try{
+    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return;
+    allFunds = data;
+    buildSearchIndex();
+    idbSet('fundList', { key: 'all', data, ts: Date.now() });
+  } catch(e){ /* stale cache is still fine — try again next visit */ }
 }
 
 function showRetryListError(message){
@@ -1271,7 +1491,7 @@ searchInput.addEventListener('input', () => {
   }
 
   setStatus('Searching...', false, true);
-  debounceTimer = setTimeout(() => runSearch(q), 200);
+  debounceTimer = setTimeout(() => runSearch(q), 120);
 });
 
 async function runSearch(query){
@@ -1282,14 +1502,40 @@ async function runSearch(query){
   }
 
   const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const matches = allFunds.filter(f => {
-    const name = f.schemeName.toLowerCase();
-    return words.every(w => name.includes(w));
-  });
+  if (!words.length){
+    currentItems = [];
+    renderSuggestions(currentItems);
+    setStatus('');
+    return;
+  }
 
-  currentItems = matches.slice(0, 30);
+  // Narrow the field with the prefix index first (near-instant for a
+  // ~40k-row list), then confirm real matches with a direct substring
+  // check against the precomputed lowercase names. Falls back to a full
+  // scan only when the first word is too short to have been indexed.
+  const firstPrefix = words[0].length >= 3 ? words[0].slice(0, 3) : null;
+  const candidates = (firstPrefix && prefixIndex.has(firstPrefix)) ? prefixIndex.get(firstPrefix) : null;
+  const scanLength = candidates ? candidates.length : searchIndex.length;
+  const limit = 30;
+  const matches = [];
+  let matchCount = 0;
+
+  for (let k = 0; k < scanLength; k++){
+    const i = candidates ? candidates[k] : k;
+    const lname = searchIndex[i];
+    let ok = true;
+    for (let w = 0; w < words.length; w++){
+      if (lname.indexOf(words[w]) === -1){ ok = false; break; }
+    }
+    if (ok){
+      matchCount++;
+      if (matches.length < limit) matches.push(allFunds[i]);
+    }
+  }
+
+  currentItems = matches;
   renderSuggestions(currentItems);
-  setStatus(matches.length ? `${matches.length} results${matches.length > 30 ? ' (showing first 30)' : ''}` : 'No matching funds found', !matches.length, false);
+  setStatus(matchCount ? `${matchCount} results${matchCount > limit ? ` (showing first ${limit})` : ''}` : 'No matching funds found', !matchCount, false);
 }
 
 manualSearchBtn.addEventListener('click', async () => {
@@ -1385,10 +1631,24 @@ async function fetchWithTimeout(url, ms){
 async function loadFundByCode(schemeCode, attempt=1){
   const code = String(schemeCode).trim();
   lastAttemptedSchemeCode = code;
-  setStatus(`Loading data for scheme code ${code}${attempt > 1 ? ` (retry ${attempt - 1})` : ''}...`, false, true);
   const isFirstLoad = !card.classList.contains('show');
-  if (!isFirstLoad){
-    card.classList.add('loading');
+
+  // If we already have this fund's NAV history cached, show it immediately
+  // — no spinner, no wait — then quietly fetch a fresh copy underneath so
+  // it's never more than one visit out of date.
+  let usedCache = false;
+  if (attempt === 1){
+    const cached = await idbGet('navCache', code);
+    if (cached && cached.data){
+      displayFund(cached.data, code);
+      setStatus('');
+      usedCache = true;
+    }
+  }
+
+  if (!usedCache){
+    setStatus(`Loading data for scheme code ${code}${attempt > 1 ? ` (retry ${attempt - 1})` : ''}...`, false, true);
+    if (!isFirstLoad) card.classList.add('loading');
   }
 
   const MAX_ATTEMPTS = 3;
@@ -1399,11 +1659,24 @@ async function loadFundByCode(schemeCode, attempt=1){
     if (!data || !Array.isArray(data.data) || !data.data.length){
       throw new Error('No NAV history returned for this scheme');
     }
-    displayFund(data, code);
+
+    const freshLatest = data.data[0] || {};
+    const cachedLatest = usedCache ? (currentNavData[0] || {}) : null;
+    const isNewData = !usedCache
+      || currentNavData.length !== data.data.length
+      || cachedLatest.date !== freshLatest.date
+      || cachedLatest.nav !== freshLatest.nav;
+    if (isNewData){
+      displayFund(data, code);
+    }
+    idbSet('navCache', { code, data, ts: Date.now() });
     setStatus('');
   } catch(err){
-    const isAbort = err.name === 'AbortError';
+    // Already showing cached data — a failed background refresh shouldn't
+    // disturb it or throw up an error the user didn't ask to see.
+    if (usedCache) return;
 
+    const isAbort = err.name === 'AbortError';
     if (attempt < MAX_ATTEMPTS && (isAbort || (err.message || '').startsWith('Server responded') || (err.message || '').includes('fetch'))){
       await new Promise(r => setTimeout(r, attempt * 500));
       card.classList.remove('loading');
@@ -1638,9 +1911,12 @@ function loadMoreHistoryRows(){
 document.getElementById('loadMoreHistoryBtn').addEventListener('click', loadMoreHistoryRows);
 
 // ---------- Download (structured: fund details + full NAV history) ----------
-function getDownloadPayload(){
-  if (!currentNavData.length || !currentFundMeta) return null;
-  return {
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!currentNavData.length || !currentFundMeta){
+    setStatus('Nothing to download yet — pick a fund first.', true);
+    return;
+  }
+  const payload = {
     fund: {
       schemeCode: currentFundMeta.schemeCode,
       schemeName: currentFundMeta.schemeName,
@@ -1657,189 +1933,138 @@ function getDownloadPayload(){
       downloadedAt: new Date().toISOString()
     }
   };
-}
-
-function getDownloadFileBaseName(){
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
   const houseSlug = (currentFundMeta.fundHouse || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
   const nameSlug = currentSchemeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-  return [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-') || 'nav-history';
-}
-
-function triggerBlobDownload(blob, filename){
-  const url = URL.createObjectURL(blob);
+  const safeName = [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-');
   const a = document.createElement('a');
   a.href = url;
-  a.download = filename;
+  a.download = `${safeName || 'nav-history'}.json`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-}
-
-document.getElementById('downloadBtn').addEventListener('click', () => {
-  const payload = getDownloadPayload();
-  if (!payload){
-    setStatus('Nothing to download yet — pick a fund first.', true);
-    return;
-  }
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-  triggerBlobDownload(blob, `${getDownloadFileBaseName()}.json`);
 });
-
-document.getElementById('downloadXlsxBtn').addEventListener('click', () => {
-  const payload = getDownloadPayload();
-  if (!payload){
-    setStatus('Nothing to download yet — pick a fund first.', true);
-    return;
-  }
-  if (typeof XLSX === 'undefined'){
-    setStatus('Excel export library failed to load — check your connection and try again.', true);
-    return;
-  }
-
-  const fund = payload.fund;
-  const aoa = [
-    ['Fund Details'],
-    ['Scheme Code', fund.schemeCode],
-    ['Scheme Name', fund.schemeName],
-    ['Fund House', fund.fundHouse],
-    ['Scheme Type', fund.schemeType],
-    ['Scheme Category', fund.schemeCategory],
-    ['Latest NAV', fund.latestNav],
-    ['As On', fund.asOn],
-    ['Source', payload.meta.source],
-    ['Downloaded At', payload.meta.downloadedAt],
-    [],
-    ['NAV History'],
-    ['Date', 'NAV'],
-    ...payload.navHistory.map(r => [r.date, Number(r.nav)])
-  ];
-  const sheet = XLSX.utils.aoa_to_sheet(aoa);
-  sheet['!cols'] = [{ wch: 18 }, { wch: 42 }];
-  sheet['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: 1 } },
-    { s: { r: 11, c: 0 }, e: { r: 11, c: 1 } }
-  ];
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, sheet, 'Fund Data');
-
-  XLSX.writeFile(wb, `${getDownloadFileBaseName()}.xlsx`);
-});
-
 
 let navChartInstance = null;
-let chartSelection = [];       // up to 2 indices into currentChartRows, the points picked for comparison
-let currentChartRows = [];     // the {date, nav} rows currently plotted
 
-const pointComparePlugin = {
-  id: 'pointCompare',
+// ---------- Two-point NAV comparison ----------
+// currentChartRows mirrors whatever points are currently plotted (either
+// path — Chart.js or the plain-canvas fallback), so a click index always
+// resolves to the right {date, nav}. chartSelection holds up to 2 picks;
+// a 3rd tap starts a fresh pair.
+let currentChartRows = [];
+let chartSelection = [];
+let twoPointPluginRegistered = false;
+let redrawFallbackMarkers = null;
+
+const twoPointSelectionPlugin = {
+  id: 'twoPointSelection',
   afterDatasetsDraw(chart){
     if (!chartSelection.length) return;
     const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data) return;
     const ctx = chart.ctx;
-    const styles = getComputedStyle(document.documentElement);
-    const accent2 = styles.getPropertyValue('--accent-2').trim() || '#4fd1c5';
-    const danger = styles.getPropertyValue('--danger').trim() || '#f0776b';
-    const muted = styles.getPropertyValue('--muted').trim() || '#7d8794';
-    const panel = styles.getPropertyValue('--panel').trim() || '#12161d';
-    const top = chart.chartArea.top;
-    const bottom = chart.chartArea.bottom;
+    const colors = ['#4fd1c5', '#d1a54c'];
 
-    let color = accent2;
     if (chartSelection.length === 2){
-      const [i1, i2] = [...chartSelection].sort((a, b) => a - b);
-      const r1 = currentChartRows[i1];
-      const r2 = currentChartRows[i2];
-      if (r1 && r2) color = r2.nav >= r1.nav ? accent2 : danger;
-      const p1 = meta.data[i1];
-      const p2 = meta.data[i2];
-      if (p1 && p2){
+      const elA = meta.data[chartSelection[0].index];
+      const elB = meta.data[chartSelection[1].index];
+      if (elA && elB){
         ctx.save();
         ctx.beginPath();
-        ctx.strokeStyle = color;
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = '#ffffff';
         ctx.lineWidth = 2;
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
+        ctx.moveTo(elA.x, elA.y);
+        ctx.lineTo(elB.x, elB.y);
         ctx.stroke();
         ctx.restore();
       }
     }
 
-    chartSelection.forEach((idx) => {
-      const pt = meta.data[idx];
-      if (!pt) return;
+    chartSelection.forEach((sel, i) => {
+      const el = meta.data[sel.index];
+      if (!el) return;
       ctx.save();
       ctx.beginPath();
-      ctx.strokeStyle = muted;
-      ctx.setLineDash([3, 3]);
-      ctx.lineWidth = 1;
-      ctx.moveTo(pt.x, top);
-      ctx.lineTo(pt.x, bottom);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      ctx.beginPath();
-      ctx.fillStyle = color;
-      ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+      ctx.arc(el.x, el.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = colors[i] || colors[0];
       ctx.fill();
       ctx.lineWidth = 2;
-      ctx.strokeStyle = panel;
+      ctx.strokeStyle = '#ffffff';
       ctx.stroke();
       ctx.restore();
     });
   }
 };
-if (typeof Chart !== 'undefined') Chart.register(pointComparePlugin);
 
-function updateCompareUI(){
-  const badge = document.getElementById('chartCompare');
-  if (chartSelection.length < 2){
-    badge.classList.remove('show');
-    return;
-  }
-  const [i1, i2] = [...chartSelection].sort((a, b) => a - b);
-  const r1 = currentChartRows[i1];
-  const r2 = currentChartRows[i2];
-  if (!r1 || !r2){
-    badge.classList.remove('show');
-    return;
-  }
-  const pct = ((r2.nav - r1.nav) / r1.nav) * 100;
-  const sign = pct >= 0 ? '+' : '';
-  const pctEl = document.getElementById('ccPct');
-  pctEl.textContent = `${sign}${pct.toFixed(2)}%  (₹${r1.nav.toFixed(2)} → ₹${r2.nav.toFixed(2)})`;
-  pctEl.className = 'cc-pct ' + (pct >= 0 ? 'up' : 'down');
-  document.getElementById('ccDates').textContent = `${r1.date} → ${r2.date}`;
-  badge.classList.add('show');
-}
-
-function clearChartSelection(){
+function resetChartSelection(){
   chartSelection = [];
-  const badge = document.getElementById('chartCompare');
-  if (badge) badge.classList.remove('show');
-  if (navChartInstance) navChartInstance.update();
+  renderChartCompare();
+  if (navChartInstance) navChartInstance.update('none');
+  else if (typeof redrawFallbackMarkers === 'function') redrawFallbackMarkers();
 }
 
-function handleChartPointClick(e){
-  if (!navChartInstance) return;
-  const points = navChartInstance.getElementsAtEventForMode(e, 'index', { intersect: false }, true);
-  if (!points.length) return;
-  const idx = points[0].index;
+function handleChartPointPick(idx){
+  if (!currentChartRows[idx]) return;
+  if (chartSelection.length >= 2) chartSelection = [];
+  if (chartSelection.length === 1 && chartSelection[0].index === idx) return; // tapped the same point again
 
-  if (chartSelection.length === 0){
-    chartSelection = [idx];
-  } else if (chartSelection.length === 1){
-    chartSelection = (idx === chartSelection[0]) ? [] : [chartSelection[0], idx];
-  } else {
-    // A 3rd click: drop the old pair and start a fresh selection from this point
-    chartSelection = [idx];
+  chartSelection.push({ index: idx, date: currentChartRows[idx].date, nav: currentChartRows[idx].nav });
+  if (chartSelection.length === 2){
+    chartSelection.sort((a, b) => a.index - b.index);
   }
-  updateCompareUI();
-  navChartInstance.update();
+
+  renderChartCompare();
+  if (navChartInstance) navChartInstance.update('none');
+  else if (typeof redrawFallbackMarkers === 'function') redrawFallbackMarkers();
 }
 
-document.getElementById('ccClose')?.addEventListener('click', clearChartSelection);
+function renderChartCompare(){
+  const el = document.getElementById('chartCompare');
+  if (!el) return;
+
+  if (!chartSelection.length){
+    el.classList.remove('show');
+    el.innerHTML = '';
+    return;
+  }
+
+  if (chartSelection.length === 1){
+    el.classList.add('show');
+    el.innerHTML = `<div class="chart-compare-hint"><span class="dot a" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);"></span> ${escapeHtml(chartSelection[0].date)} selected — tap a second point to compare</div>`;
+    return;
+  }
+
+  const [a, b] = chartSelection;
+  const navA = parseFloat(a.nav);
+  const navB = parseFloat(b.nav);
+  const pct = navA !== 0 ? ((navB - navA) / navA) * 100 : 0;
+  const absChange = navB - navA;
+  const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : '';
+  const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+
+  el.classList.add('show');
+  el.innerHTML = `
+    <div class="chart-compare-row">
+      <div class="chart-compare-dates">
+        <span><span class="dot a"></span> ${escapeHtml(a.date)} · ₹${escapeHtml(String(a.nav))}</span>
+        <i class="bi bi-arrow-right"></i>
+        <span><span class="dot b"></span> ${escapeHtml(b.date)} · ₹${escapeHtml(String(b.nav))}</span>
+      </div>
+      <button type="button" class="chart-compare-clear" id="chartCompareClear">Clear</button>
+    </div>
+    <div class="chart-compare-figures" style="margin-top:8px;">
+      <span class="pct ${dir}"><i class="bi ${icon}"></i> ${Math.abs(pct).toFixed(2)}%</span>
+      <span class="abs">${absChange >= 0 ? '+' : ''}₹${absChange.toFixed(4)} change</span>
+    </div>
+  `;
+
+  const clearBtn = document.getElementById('chartCompareClear');
+  if (clearBtn) clearBtn.addEventListener('click', resetChartSelection);
+}
 
 function getRangeCutoffDate(latestDate, range){
   const d = new Date(latestDate.getTime());
@@ -1890,10 +2115,15 @@ function drawChart(points){
   const canvas = document.getElementById('navChart');
   const resetBtn = document.getElementById('chartResetZoom');
   const hintEl = document.querySelector('.chart-hint');
-  clearChartSelection();
+
+  // A new range or a newly loaded fund invalidates any point indices from
+  // the previous chart, so start the comparison fresh each time.
+  chartSelection = [];
+  renderChartCompare();
 
   if (!points.length){
     if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+    currentChartRows = [];
     return;
   }
 
@@ -1911,7 +2141,7 @@ function drawChart(points){
     drawPlainFallbackChart(canvas, rows);
     return;
   }
-  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll/pinch to zoom · drag to pan · tap 2 points to compare';
+  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare';
 
   const styles = getComputedStyle(document.documentElement);
   const accentColor = styles.getPropertyValue('--accent').trim() || '#d1a54c';
@@ -2021,11 +2251,22 @@ function drawChart(points){
   };
   canvas.onwheel = () => resetBtn.classList.add('show');
   canvas.parentElement.addEventListener('pointerdown', () => resetBtn.classList.add('show'));
-  canvas.onclick = handleChartPointClick;
+
+  if (!twoPointPluginRegistered){
+    Chart.register(twoPointSelectionPlugin);
+    twoPointPluginRegistered = true;
+  }
+  canvas.onclick = (evt) => {
+    if (!navChartInstance) return;
+    const els = navChartInstance.getElementsAtEventForMode(evt, 'nearest', { intersect: false, axis: 'x' }, true);
+    if (!els.length) return;
+    handleChartPointPick(els[0].index);
+  };
 }
 
 function drawPlainFallbackChart(canvas, rows){
   if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+  currentChartRows = rows;
   const dpr = window.devicePixelRatio || 1;
   const wrap = canvas.parentElement;
   const w = wrap.clientWidth || 300;
@@ -2094,6 +2335,34 @@ function drawPlainFallbackChart(canvas, rows){
       ctx.fillStyle = textColor;
       ctx.fillText(label, boxX + 8, boxY + 14);
     }
+
+    if (chartSelection.length){
+      if (chartSelection.length === 2 && rows[chartSelection[0].index] && rows[chartSelection[1].index]){
+        const pA = pointAt(chartSelection[0].index);
+        const pB = pointAt(chartSelection[1].index);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 2;
+        ctx.moveTo(pA.x, pA.y);
+        ctx.lineTo(pB.x, pB.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+      const colors = ['#4fd1c5', '#d1a54c'];
+      chartSelection.forEach((sel, i) => {
+        if (!rows[sel.index]) return;
+        const { x, y } = pointAt(sel.index);
+        ctx.beginPath();
+        ctx.fillStyle = colors[i] || colors[0];
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+      });
+    }
   }
 
   render(null);
@@ -2110,6 +2379,18 @@ function drawPlainFallbackChart(canvas, rows){
     render(closest);
   };
   canvas.onmouseleave = () => render(null);
+  canvas.onclick = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let closest = 0, closestDist = Infinity;
+    navs.forEach((_, i) => {
+      const { x } = pointAt(i);
+      const d = Math.abs(x - mx);
+      if (d < closestDist){ closestDist = d; closest = i; }
+    });
+    handleChartPointPick(closest);
+  };
+  redrawFallbackMarkers = () => render(null);
 }
 
 function color_mix_fallback(hexOrColor, alpha){
