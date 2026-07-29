@@ -1222,7 +1222,7 @@
       <i class="bi bi-bar-chart-line"></i>
       <p>Add up to 4 funds from Search to compare their NAV trends.</p>
     </div>
-    <div class="card compare-card" id="compareCard" style="display:none;">
+    <div class="card compare-card" id="compareCard">
       <div class="compare-legend" id="compareLegend"></div>
       <div class="chart-canvas-wrap" style="margin-top:16px;">
         <canvas id="compareChart"></canvas>
@@ -2289,13 +2289,13 @@ function renderCompareUI(){
 
   if (!compareFunds.length){
     empty.style.display = '';
-    card.style.display = 'none';
+    card.classList.remove('show');
     if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
     return;
   }
 
   empty.style.display = 'none';
-  card.style.display = '';
+  card.classList.add('show');
 
   legend.innerHTML = compareFunds.map(f => `
     <div class="compare-legend-item">
