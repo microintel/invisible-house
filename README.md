@@ -68,6 +68,19 @@ All of this runs directly in the browser, with no sign-up and no account require
 
 ---
 
+## How to Access It
+
+Invisible House is hosted as one of Microintel's projects. To find and use it:
+
+1. **Search "Microintel" on Google.**
+2. **Open the Microintel page** from the search results.
+3. **Select Projects** on the Microintel page.
+4. **Search for "Invisible"** within the projects list and open it.
+
+That's it — no installation, sign-up, or account needed. It runs directly in your browser.
+
+---
+
 ## Data Source
 
 All NAV data is fetched live from **[mfapi.in](https://www.mfapi.in)**, a free public API for Indian mutual fund NAV history. Invisible House does not store or modify this data — it simply presents it in a fast, readable, comparable form.
