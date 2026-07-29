@@ -938,6 +938,32 @@
     flex-wrap:wrap;
     gap:10px;
   }
+  .compare-mode-toggle{
+    display:flex;
+    gap:8px;
+    margin-top:14px;
+    flex-wrap:wrap;
+  }
+  .compare-mode-btn{
+    flex:1 1 auto;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    padding:9px 12px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--muted);
+    font-size:12.5px;
+    font-weight:700;
+    border-radius:9px;
+    cursor:pointer;
+    text-align:center;
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .compare-mode-btn:hover{background:var(--panel-3); color:var(--text);}
+  .compare-mode-btn:active{transform:scale(0.97);}
+  .compare-mode-btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
   .compare-legend-item{
     display:flex;
     align-items:center;
@@ -1224,6 +1250,10 @@
     </div>
     <div class="card compare-card" id="compareCard">
       <div class="compare-legend" id="compareLegend"></div>
+      <div class="compare-mode-toggle" id="compareModeToggle">
+        <button type="button" class="compare-mode-btn active" data-mode="nav"><i class="bi bi-currency-rupee"></i> NAV Compare</button>
+        <button type="button" class="compare-mode-btn" data-mode="growth"><i class="bi bi-graph-up-arrow"></i> Growth/Loss Compare</button>
+      </div>
       <div class="section-label-row" style="margin-top:16px;">
         <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
         <button type="button" class="chart-reset-btn" id="compareChartResetZoom" title="Reset zoom">
@@ -2220,6 +2250,7 @@ let compareChartInstance = null;
 let compareChartRowsByFund = []; // per-fund rows aligned to compareChartLabels, for point-pick lookup
 let compareChartLabels = [];
 let compareChartRange = 'max';
+let compareViewMode = 'nav'; // 'nav' (raw NAV) or 'growth' (% growth/loss since range start)
 let compareSelection = []; // up to 2 { index, date }
 let compareTwoPointPluginRegistered = false;
 
@@ -2590,7 +2621,8 @@ function drawCompareChart(){
 
   const { labels } = buildCompareDataset(compareChartRange);
   const labelEl = document.getElementById('compareChartLabel');
-  if (labelEl) labelEl.textContent = `NAV trend · ${CHART_RANGE_LABELS[compareChartRange] || 'full history'} (${labels.length} points)`;
+  const modeLabel = compareViewMode === 'growth' ? 'Growth/Loss trend' : 'NAV trend';
+  if (labelEl) labelEl.textContent = `${modeLabel} · ${CHART_RANGE_LABELS[compareChartRange] || 'full history'} (${labels.length} points)`;
 
   const styles = getComputedStyle(document.documentElement);
   const textColor = styles.getPropertyValue('--text').trim() || '#e7eaef';
@@ -2598,9 +2630,21 @@ function drawCompareChart(){
   const panelColor = styles.getPropertyValue('--panel').trim() || '#12161d';
   const borderColor = styles.getPropertyValue('--border').trim() || '#242b37';
 
+  // In "growth" mode, rebase each fund's line to % change from its first
+  // available NAV in the current range, so funds with very different NAV
+  // levels can be compared on the same relative scale. compareChartRowsByFund
+  // itself always stays as raw NAV — used for the two-point comparison math —
+  // only the plotted values change here.
+  const displayRowsByFund = compareChartRowsByFund.map(rows => {
+    if (compareViewMode !== 'growth') return rows;
+    const baseVal = rows.find(v => v !== null && v !== undefined);
+    if (baseVal === undefined || baseVal === 0) return rows.map(() => null);
+    return rows.map(v => (v === null || v === undefined) ? null : ((v - baseVal) / baseVal) * 100);
+  });
+
   const datasets = compareFunds.map((f, i) => ({
     label: f.schemeName,
-    data: compareChartRowsByFund[i],
+    data: displayRowsByFund[i],
     borderColor: f.color,
     backgroundColor: 'transparent',
     pointRadius: 0,
@@ -2641,7 +2685,12 @@ function drawCompareChart(){
           displayColors: true,
           callbacks: {
             title: (items) => items[0] ? `📅 ${items[0].label}` : '',
-            label: (item) => `${item.dataset.label}: ₹${item.parsed.y !== null ? item.parsed.y.toFixed(4) : '—'}`
+            label: (item) => {
+              if (item.parsed.y === null || item.parsed.y === undefined) return `${item.dataset.label}: —`;
+              return compareViewMode === 'growth'
+                ? `${item.dataset.label}: ${item.parsed.y >= 0 ? '+' : ''}${item.parsed.y.toFixed(2)}%`
+                : `${item.dataset.label}: ₹${item.parsed.y.toFixed(4)}`;
+            }
           }
         },
         zoom: {
@@ -2665,7 +2714,9 @@ function drawCompareChart(){
             color: mutedColor,
             font: { size: 10 },
             maxTicksLimit: 5,
-            callback: (v) => '₹' + Number(v).toFixed(1)
+            callback: (v) => compareViewMode === 'growth'
+              ? `${Number(v) >= 0 ? '+' : ''}${Number(v).toFixed(1)}%`
+              : '₹' + Number(v).toFixed(1)
           }
         }
       }
@@ -2752,6 +2803,16 @@ function applyCompareChartRange(range){
 
 document.querySelectorAll('.compare-range-btn').forEach(btn => {
   btn.addEventListener('click', () => applyCompareChartRange(btn.dataset.range));
+});
+
+function applyCompareViewMode(mode){
+  compareViewMode = mode;
+  document.querySelectorAll('.compare-mode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  drawCompareChart();
+}
+
+document.querySelectorAll('.compare-mode-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyCompareViewMode(btn.dataset.mode));
 });
 
 function drawChart(points){
