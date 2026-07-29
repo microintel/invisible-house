@@ -20,17 +20,20 @@
     --grid-line:rgba(79,209,197,.05);
     --text:#e7eaef;
     --muted:#7d8794;
-    --accent:#d1a54c;
-    --accent-ink:#221a08;
-    --accent-2:#4fd1c5;
-    --accent-soft:rgba(209,165,76,.10);
     --danger:#f0776b;
     --shadow:0 20px 40px rgba(0,0,0,.45);
     --radius-lg:18px;
     --radius-md:12px;
     --serif:"Fraunces", Georgia, serif;
     --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+
+    /* --- Palette 1: Default (Gold & Cyan) --- */
+    --accent:#d1a54c;
+    --accent-ink:#221a08;
+    --accent-2:#4fd1c5;
+    --accent-soft:rgba(209,165,76,.12);
   }
+
   html[data-theme="light"]{
     --bg:#f7f3e9;
     --bg-2:#efe9da;
@@ -41,13 +44,30 @@
     --grid-line:rgba(15,98,110,.05);
     --text:#20241f;
     --muted:#7a7461;
-    --accent:#a9711f;
-    --accent-ink:#fffaf0;
-    --accent-2:#0f626e;
-    --accent-soft:rgba(169,113,31,.10);
     --danger:#b8382b;
     --shadow:0 20px 40px rgba(40,30,10,.08);
   }
+
+  /* --- COLOR PALETTE OPTIONS (Works on both Light & Dark themes) --- */
+  html[data-palette="emerald"]{
+    --accent:#3ecf8e;
+    --accent-ink:#062316;
+    --accent-2:#38bdf8;
+    --accent-soft:rgba(62,207,142,.13);
+  }
+  html[data-palette="sunset"]{
+    --accent:#f97316;
+    --accent-ink:#2b1202;
+    --accent-2:#fb7185;
+    --accent-soft:rgba(249,115,22,.14);
+  }
+  html[data-palette="violet"]{
+    --accent:#a855f7;
+    --accent-ink:#1e0735;
+    --accent-2:#ec4899;
+    --accent-soft:rgba(168,85,247,.14);
+  }
+
   *{box-sizing:border-box;}
   html,body{height:100%;}
   body{
@@ -106,7 +126,7 @@
     position:absolute;
     top:calc(100% + 8px);
     right:0;
-    min-width:190px;
+    min-width:210px;
     background:var(--panel);
     border:1px solid var(--border);
     border-radius:12px;
@@ -142,6 +162,41 @@
     background:var(--border);
     margin:4px 2px;
   }
+
+  /* --- NEW: Palette Picker Swatches inside Dropdown --- */
+  .menu-section-title{
+    font-size:10.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    padding:6px 12px 2px;
+  }
+  .palette-picker-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:6px 12px 10px;
+    gap:8px;
+  }
+  .palette-swatch{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:2px solid transparent;
+    cursor:pointer;
+    position:relative;
+    transition:transform .15s, border-color .15s;
+  }
+  .palette-swatch:hover{transform:scale(1.12);}
+  .palette-swatch.active{border-color:var(--text); transform:scale(1.15); box-shadow:0 0 0 2px var(--panel), 0 0 0 4px var(--accent);}
+  
+  /* Individual Gradients for Swatch Buttons */
+  .palette-swatch[data-color="default"]{background:linear-gradient(135deg, #d1a54c, #4fd1c5);}
+  .palette-swatch[data-color="emerald"]{background:linear-gradient(135deg, #3ecf8e, #38bdf8);}
+  .palette-swatch[data-color="sunset"]{background:linear-gradient(135deg, #f97316, #fb7185);}
+  .palette-swatch[data-color="violet"]{background:linear-gradient(135deg, #a855f7, #ec4899);}
+
   .brand-mark{
     width:120px;
     height:120px;
@@ -308,7 +363,6 @@
   }
   @keyframes spin{to{transform:rotate(360deg);}}
 
-  /* ---------- Themed loader: a house with coins settling into it ---------- */
   .ih-loader{
     display:none;
     flex-direction:column;
@@ -512,6 +566,7 @@
     font-weight:700;
   }
   .nav-highlight{color:var(--accent);}
+  
   .details-grid{
     display:grid;
     grid-template-columns:1fr;
@@ -535,7 +590,6 @@
     border-radius:var(--radius-md);
     padding:16px 16px 14px;
   }
-  .history-col{}
   .section-label-row{
     display:flex;
     align-items:center;
@@ -586,10 +640,12 @@
   .range-btn:hover, .compare-range-btn:hover{background:var(--panel-3); color:var(--text);}
   .range-btn:active, .compare-range-btn:active{transform:scale(0.95);}
   .range-btn.active, .compare-range-btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  
   .chart-canvas-wrap{
     position:relative;
     width:100%;
-    height:220px;
+    height:360px;
+    min-height:360px;
     margin-top:8px;
     touch-action:none;
     cursor:grab;
@@ -685,7 +741,7 @@
     cursor:pointer;
   }
   .chart-compare-clear:hover{background:var(--panel-3); color:var(--text);}
-  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
   ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
   table.history-table td{font-family:var(--mono);}
   table.history-table td:first-child{font-family:"Segoe UI",system-ui,sans-serif;}
@@ -699,7 +755,7 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-top:26px;
+    margin-top:0;
     margin-bottom:8px;
     gap:10px;
     flex-wrap:wrap;
@@ -1040,41 +1096,33 @@
   .footer-line a{color:var(--accent-2); text-decoration:none;}
   .footer-line a:hover{text-decoration:underline;}
 
-  @media (max-width:480px){
-    .grid{grid-template-columns:1fr 1fr;}
-    .card{padding:18px;border-radius:14px;}
-    h1{font-size:22px;}
+  /* --- RESPONSIVE MEDIA QUERIES --- */
+  @media (max-width:600px){
     .wrap{padding:14px 14px 30px;}
-    .menu-wrap{top:14px;right:12px;}
-    .menu-toggle-btn{width:34px;height:34px;font-size:14px;}
-    header{padding:26px 14px 14px;}
-    .brand-row{gap:10px;}
+    header{padding:24px 14px 14px;}
     .brand-mark{width:88px;height:88px;border-radius:20px;}
+    h1{font-size:24px;}
+    .grid{grid-template-columns:1fr 1fr; gap:8px;}
+    .stat{padding:10px 12px;}
+    .stat-value{font-size:14px;}
+    .card{padding:16px; border-radius:14px;}
+    .chart-canvas-wrap{height:280px; min-height:280px;}
+    .history-table-wrap{max-height:280px; overflow-x:auto;}
   }
 
-  /* Desktop / wide screens */
-  @media (min-width:900px){
-    .wrap{max-width:1120px;}
-    footer{max-width:1120px;}
-    .card{padding:32px;}
-    .fund-info-col .grid{grid-template-columns:1fr 1fr;}
-    .details-grid{grid-template-columns:1fr; align-items:start;}
-    canvas{height:220px;}
-    .chart-col{padding:20px 20px 18px;}
-    .history-table-wrap{max-height:460px;}
-    h1{font-size:32px;}
-  }
-
-  /* Large desktop: use the full page, priority order left-to-right = fund details, graph, nav history */
-  @media (min-width:1300px){
-    .wrap{max-width:min(1680px, 96vw);}
-    footer{max-width:min(1680px, 96vw);}
+  @media (min-width:601px) and (max-width:1199px){
+    .wrap{max-width:96vw; padding:24px 28px 40px;}
+    footer{max-width:96vw;}
+    .card{padding:28px;}
     .details-grid{
-      grid-template-columns:1fr;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:auto auto;
+      gap:24px;
       align-items:stretch;
-      gap:22px;
     }
     .fund-info-col{
+      grid-column: 1 / 2;
       display:flex;
       flex-direction:column;
       background:var(--panel-2);
@@ -1083,10 +1131,39 @@
       padding:18px;
     }
     .fund-info-col .grid{grid-template-columns:1fr 1fr; margin-top:18px; flex:1;}
-    .chart-col{display:flex; flex-direction:column;}
-    .chart-canvas-wrap{flex:1;}
-    .history-col{display:flex; flex-direction:column;}
-    .history-table-wrap{flex:1; max-height:460px;}
+    .chart-col{grid-column: 2 / 3; display:flex; flex-direction:column;}
+    .chart-canvas-wrap{flex:1; min-height:340px;}
+    .history-col{grid-column: 1 / -1; display:flex; flex-direction:column;}
+    .history-table-wrap{max-height:360px;}
+  }
+
+  @media (min-width:1200px){
+    .wrap{max-width:min(1680px, 96vw);}
+    footer{max-width:min(1680px, 96vw);}
+    .card{padding:32px;}
+    .details-grid{
+      display:grid;
+      grid-template-columns:420px 1fr;
+      grid-template-rows:auto auto;
+      align-items:stretch;
+      gap:24px;
+    }
+    .fund-info-col{
+      grid-column: 1 / 2;
+      display:flex;
+      flex-direction:column;
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      border-radius:var(--radius-md);
+      padding:20px;
+    }
+    .fund-info-col .grid{grid-template-columns:1fr 1fr; margin-top:18px; flex:1;}
+    .history-col{grid-column: 2 / -1; display:flex; flex-direction:column;}
+    .history-table-wrap{flex:1; max-height:420px;}
+    .chart-col{grid-column: 1 / -1; display:flex; flex-direction:column; min-height:500px;}
+    .chart-canvas-wrap{flex:1; height:auto; min-height:420px;}
+    #compareCard {width: 100%; min-height: calc(100vh - 140px); display: flex; flex-direction: column;}
+    #compareCard .chart-canvas-wrap {flex: 1; height: auto; min-height: 480px;}
   }
 </style>
 </head>
@@ -1102,6 +1179,17 @@
       <button class="menu-item" id="recentTabBtn"><i class="bi bi-clock-history"></i> Recent Searches</button>
       <button class="menu-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i> Compare <span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
       <div class="menu-divider"></div>
+      
+      <!-- --- NEW: Color Combination & Gradient Theme Picker --- -->
+      <div class="menu-section-title">Color Combination</div>
+      <div class="palette-picker-row">
+        <button type="button" class="palette-swatch active" data-color="default" title="Gold & Cyan"></button>
+        <button type="button" class="palette-swatch" data-color="emerald" title="Emerald & Mint"></button>
+        <button type="button" class="palette-swatch" data-color="sunset" title="Sunset & Rose"></button>
+        <button type="button" class="palette-swatch" data-color="violet" title="Violet & Pink"></button>
+      </div>
+      <div class="menu-divider"></div>
+
       <button class="menu-item" id="themeToggle"><i class="bi bi-moon-stars-fill"></i> Dark Mode</button>
     </div>
   </div>
@@ -1183,6 +1271,26 @@
             </div>
           </div>
 
+          <div class="history-col">
+            <div class="history-header">
+              <div>
+                <div class="history-title">Full NAV History</div>
+              </div>
+              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
+            </div>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
+              <i class="bi bi-chevron-down"></i> Load 50 more
+            </button>
+          </div>
+
           <div class="chart-col">
             <div class="section-label-row">
               <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
@@ -1206,26 +1314,6 @@
             <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
             <div class="chart-compare" id="chartCompare"></div>
           </div>
-
-          <div class="history-col">
-            <div class="history-header">
-              <div>
-                <div class="history-title">Full NAV History</div>
-              </div>
-              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
-            </div>
-            <div class="history-table-wrap">
-              <table class="history-table">
-                <thead>
-                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
-                </thead>
-                <tbody id="historyBody"></tbody>
-              </table>
-            </div>
-            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
-              <i class="bi bi-chevron-down"></i> Load 50 more
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -1244,6 +1332,14 @@
       <h2><i class="bi bi-bar-chart-line"></i> Compare Funds</h2>
       <button class="btn danger" id="clearCompareBtn"><i class="bi bi-trash3"></i> Clear All</button>
     </div>
+    
+    <!-- Compare Section Search -->
+    <div class="search-box" style="margin-bottom: 16px;">
+      <input type="text" id="compareSearchInput" placeholder="Search fund to add to compare (e.g. HDFC, SBI...)" autocomplete="off">
+      <button type="button" class="search-icon-btn" id="compareManualSearchBtn" title="Search"><i class="bi bi-search"></i></button>
+      <div class="suggestions" id="compareSuggestions"></div>
+    </div>
+
     <div class="empty-state" id="compareEmpty">
       <i class="bi bi-bar-chart-line"></i>
       <p>Add up to 4 funds from Search to compare their NAV trends.</p>
@@ -1291,15 +1387,59 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
 <script>
-// ---------- Theme (persisted in localStorage) ----------
+// ---------- Theme & Color Palette Controller ----------
 const THEME_KEY = 'ih_theme';
+const PALETTE_KEY = 'ih_palette';
 const themeToggle = document.getElementById('themeToggle');
 const storedTheme = localStorage.getItem(THEME_KEY);
+const storedPalette = localStorage.getItem(PALETTE_KEY) || 'default';
 const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
-let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
-applyTheme(currentTheme);
 
-// ---------- Top menu (Search / Recent / Theme) ----------
+let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
+let currentPalette = storedPalette;
+
+applyTheme(currentTheme, currentPalette);
+
+function applyTheme(theme, palette){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.documentElement.setAttribute('data-palette', palette);
+  
+  themeToggle.innerHTML = theme === 'dark'
+    ? '<i class="bi bi-moon-stars-fill"></i> Dark Mode'
+    : '<i class="bi bi-sun-fill"></i> Light Mode';
+
+  // Highlight the active swatch inside the menu
+  document.querySelectorAll('.palette-swatch').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.color === palette);
+  });
+
+  // Repaint active charts with the new CSS variable colors
+  try{
+    if (currentNavData && currentNavData.length){
+      setTimeout(() => drawChart(getChartDataForRange(currentChartRange)), 50);
+    }
+    if (compareFunds && compareFunds.length && comparePanel.classList.contains('active')){
+      setTimeout(() => drawCompareChart(), 50);
+    }
+  } catch(e){}
+}
+
+// Swatch click events
+document.querySelectorAll('.palette-swatch').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentPalette = btn.dataset.color;
+    applyTheme(currentTheme, currentPalette);
+    localStorage.setItem(PALETTE_KEY, currentPalette);
+  });
+});
+
+themeToggle.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(currentTheme, currentPalette);
+  localStorage.setItem(THEME_KEY, currentTheme);
+});
+
+// ---------- Top menu ----------
 const menuToggleBtn = document.getElementById('menuToggleBtn');
 const menuDropdown = document.getElementById('menuDropdown');
 const menuWrap = document.getElementById('menuWrap');
@@ -1323,29 +1463,10 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeMenu();
 });
-// Any item inside the dropdown closes it after acting, so the menu never
-// lingers open once the user has made a choice.
+// Close dropdown when navigation items are clicked (ignore clicks on swatches)
 menuDropdown.querySelectorAll('.menu-item').forEach(item => {
   item.addEventListener('click', closeMenu);
 });
-
-themeToggle.addEventListener('click', () => {
-  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme(currentTheme);
-  localStorage.setItem(THEME_KEY, currentTheme);
-});
-
-function applyTheme(theme){
-  document.documentElement.setAttribute('data-theme', theme);
-  themeToggle.innerHTML = theme === 'dark'
-    ? '<i class="bi bi-moon-stars-fill"></i> Dark Mode'
-    : '<i class="bi bi-sun-fill"></i> Light Mode';
-  try{
-    if (currentNavData && currentNavData.length){
-      setTimeout(() => drawChart(getChartDataForRange(currentChartRange)), 50);
-    }
-  } catch(e){ /* not yet loaded on initial theme apply */ }
-}
 
 // ---------- Tabs ----------
 const searchTabBtn = document.getElementById('searchTabBtn');
@@ -1370,7 +1491,7 @@ function switchTab(tab){
   if (tab === 'compare') renderCompareUI();
 }
 
-// ---------- Recent searches (persisted in localStorage) ----------
+// ---------- Recent searches ----------
 const RECENT_KEY = 'ih_recent_searches';
 const MAX_RECENT = 12;
 
@@ -1445,14 +1566,9 @@ document.getElementById('clearRecentBtn').addEventListener('click', () => {
 });
 
 // ---------- IndexedDB cache layer ----------
-// Two stores: 'fundList' holds the large master list of schemes (one row,
-// key 'all'), and 'navCache' holds per-scheme NAV history keyed by code.
-// Everything here degrades silently to "no cache" if IndexedDB is
-// unavailable (private browsing, old browsers, etc.) — caching is a
-// performance layer, never a hard requirement.
 const IDB_NAME = 'sipTrackerCache';
 const IDB_VERSION = 1;
-const FUND_LIST_TTL_MS = 24 * 60 * 60 * 1000; // refresh the master list at most once a day in the background
+const FUND_LIST_TTL_MS = 24 * 60 * 60 * 1000;
 
 let idbPromise = null;
 function openIdb(){
@@ -1517,10 +1633,6 @@ let currentSchemeName = 'fund';
 let currentFundMeta = null;
 let currentChartRange = 'max';
 
-// Lowercased scheme names (parallel array to allFunds, built once per list
-// load) plus a Map from 3-char word-prefix -> candidate indices. Typing a
-// query narrows ~40k funds down to a small bucket before any string
-// comparison happens, instead of scanning the entire list on every keystroke.
 let searchIndex = [];
 let prefixIndex = new Map();
 
@@ -1577,10 +1689,6 @@ async function loadFundList(attempt=1){
   if (fundsLoaded || fundsLoading) return;
   fundsLoading = true;
 
-  // Serve straight from the cache when we have one — this is what makes
-  // search usable immediately on repeat visits instead of waiting on a
-  // multi-MB network fetch every single time. A background refresh keeps
-  // it from ever going too stale.
   if (attempt === 1){
     const cached = await idbGet('fundList', 'all');
     if (cached && Array.isArray(cached.data) && cached.data.length){
@@ -1636,7 +1744,7 @@ async function refreshFundListInBackground(){
     allFunds = data;
     buildSearchIndex();
     idbSet('fundList', { key: 'all', data, ts: Date.now() });
-  } catch(e){ /* stale cache is still fine — try again next visit */ }
+  } catch(e){}
 }
 
 function showRetryListError(message){
@@ -1682,10 +1790,6 @@ async function runSearch(query){
     return;
   }
 
-  // Narrow the field with the prefix index first (near-instant for a
-  // ~40k-row list), then confirm real matches with a direct substring
-  // check against the precomputed lowercase names. Falls back to a full
-  // scan only when the first word is too short to have been indexed.
   const firstPrefix = words[0].length >= 3 ? words[0].slice(0, 3) : null;
   const candidates = (firstPrefix && prefixIndex.has(firstPrefix)) ? prefixIndex.get(firstPrefix) : null;
   const scanLength = candidates ? candidates.length : searchIndex.length;
@@ -1806,9 +1910,6 @@ async function loadFundByCode(schemeCode, attempt=1){
   lastAttemptedSchemeCode = code;
   const isFirstLoad = !card.classList.contains('show');
 
-  // If we already have this fund's NAV history cached, show it immediately
-  // — no spinner, no wait — then quietly fetch a fresh copy underneath so
-  // it's never more than one visit out of date.
   let usedCache = false;
   if (attempt === 1){
     const cached = await idbGet('navCache', code);
@@ -1845,8 +1946,6 @@ async function loadFundByCode(schemeCode, attempt=1){
     idbSet('navCache', { code, data, ts: Date.now() });
     setStatus('');
   } catch(err){
-    // Already showing cached data — a failed background refresh shouldn't
-    // disturb it or throw up an error the user didn't ask to see.
     if (usedCache) return;
 
     const isAbort = err.name === 'AbortError';
@@ -1874,10 +1973,6 @@ function showRetryableError(message){
   }
 }
 
-// ---------- Fund house logos (via Clearbit's free logo API — no key required) ----------
-// Maps recognizable fragments of an AMC's name to its official domain so we can
-// pull a real logo instead of a generic icon. Falls back to initials if no match
-// is found or the image fails to load.
 const AMC_DOMAINS = {
   'sbi mutual fund': 'sbimf.com',
   'hdfc mutual fund': 'hdfcfund.com',
@@ -1998,7 +2093,6 @@ function displayFund(data, schemeCode){
 }
 
 function parseHistDate(str){
-  // mfapi.in dates are dd-mm-yyyy
   const parts = (str || '').split('-');
   if (parts.length !== 3) return null;
   const [d, m, y] = parts.map(Number);
@@ -2013,7 +2107,7 @@ let historyShownCount = 0;
 
 function historyRowHtml(row, idx, fullData){
   const nav = parseFloat(row.nav);
-  const prevRow = fullData[idx + 1]; // next row = the older/previous trading day
+  const prevRow = fullData[idx + 1];
   let changeHtml = '';
   if (prevRow){
     const prevNav = parseFloat(prevRow.nav);
@@ -2084,7 +2178,7 @@ function loadMoreHistoryRows(){
 
 document.getElementById('loadMoreHistoryBtn').addEventListener('click', loadMoreHistoryRows);
 
-// ---------- Download (structured: fund details + full NAV history) ----------
+// ---------- Download ----------
 document.getElementById('downloadBtn').addEventListener('click', () => {
   if (!currentNavData.length || !currentFundMeta){
     setStatus('Nothing to download yet — pick a fund first.', true);
@@ -2124,10 +2218,6 @@ document.getElementById('downloadBtn').addEventListener('click', () => {
 let navChartInstance = null;
 
 // ---------- Two-point NAV comparison ----------
-// currentChartRows mirrors whatever points are currently plotted (either
-// path — Chart.js or the plain-canvas fallback), so a click index always
-// resolves to the right {date, nav}. chartSelection holds up to 2 picks;
-// a 3rd tap starts a fresh pair.
 let currentChartRows = [];
 let chartSelection = [];
 let twoPointPluginRegistered = false;
@@ -2184,7 +2274,7 @@ function resetChartSelection(){
 function handleChartPointPick(idx){
   if (!currentChartRows[idx]) return;
   if (chartSelection.length >= 2) chartSelection = [];
-  if (chartSelection.length === 1 && chartSelection[0].index === idx) return; // tapped the same point again
+  if (chartSelection.length === 1 && chartSelection[0].index === idx) return;
 
   chartSelection.push({ index: idx, date: currentChartRows[idx].date, nav: currentChartRows[idx].nav });
   if (chartSelection.length === 2){
@@ -2240,21 +2330,18 @@ function renderChartCompare(){
   if (clearBtn) clearBtn.addEventListener('click', resetChartSelection);
 }
 
-// ---------- Compare Funds (up to 4, overlaid NAV chart) ----------
-// Persisted in IndexedDB so the selection (including full NAV history)
-// survives a page reload and is only cleared by an explicit user action.
+// ---------- Compare Funds ----------
 const COMPARE_COLORS = ['#4fd1c5', '#d1a54c', '#e5737e', '#7c9eff'];
 const COMPARE_LIMIT = 4;
-let compareFunds = []; // { schemeCode, schemeName, fundHouse, navData: [{date, nav}] ascending, color, order }
+let compareFunds = [];
 let compareChartInstance = null;
-let compareChartRowsByFund = []; // per-fund rows aligned to compareChartLabels, for point-pick lookup
+let compareChartRowsByFund = [];
 let compareChartLabels = [];
 let compareChartRange = 'max';
-let compareViewMode = 'nav'; // 'nav' (raw NAV) or 'growth' (% growth/loss since range start)
-let compareSelection = []; // up to 2 { index, date }
+let compareViewMode = 'nav';
+let compareSelection = [];
 let compareTwoPointPluginRegistered = false;
 
-// ---------- IndexedDB store for compare selections ----------
 const COMPARE_DB_NAME = 'ih_compare_db';
 const COMPARE_DB_VERSION = 1;
 const COMPARE_STORE = 'funds';
@@ -2286,7 +2373,7 @@ async function idbPutCompareFund(fund){
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
-  } catch(e){ /* IndexedDB unavailable — comparison still works for this session */ }
+  } catch(e){}
 }
 
 async function idbDeleteCompareFund(schemeCode){
@@ -2298,7 +2385,7 @@ async function idbDeleteCompareFund(schemeCode){
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
-  } catch(e){ /* ignore */ }
+  } catch(e){}
 }
 
 async function idbClearCompareFunds(){
@@ -2310,7 +2397,7 @@ async function idbClearCompareFunds(){
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
-  } catch(e){ /* ignore */ }
+  } catch(e){}
 }
 
 async function idbGetAllCompareFunds(){
@@ -2446,16 +2533,12 @@ function renderCompareUI(){
     btn.addEventListener('click', () => removeFromCompare(btn.dataset.code));
   });
 
-  // The canvas has zero size while its tab is hidden, which breaks Chart.js
-  // rendering — only draw once the Compare panel is actually visible.
   if (comparePanel.classList.contains('active')){
     requestAnimationFrame(() => drawCompareChart());
   }
 }
 
 function buildCompareDataset(range){
-  // Use the most recent date across all selected funds as the reference
-  // point for range cutoffs, so every line shows the same time window.
   let latestDate = null;
   compareFunds.forEach(f => {
     const last = f.navData[f.navData.length - 1];
@@ -2611,9 +2694,6 @@ function drawCompareChart(){
   const resetBtn = document.getElementById('compareChartResetZoom');
   if (!canvas || typeof Chart === 'undefined' || !compareFunds.length) return;
 
-  // Always rebuild fresh: reusing an instance that may have been created
-  // while its tab was hidden (zero-size canvas) leaves Chart.js with stale
-  // internal dimensions that a plain update() won't fix.
   if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
 
   compareSelection = [];
@@ -2630,11 +2710,6 @@ function drawCompareChart(){
   const panelColor = styles.getPropertyValue('--panel').trim() || '#12161d';
   const borderColor = styles.getPropertyValue('--border').trim() || '#242b37';
 
-  // In "growth" mode, rebase each fund's line to % change from its first
-  // available NAV in the current range, so funds with very different NAV
-  // levels can be compared on the same relative scale. compareChartRowsByFund
-  // itself always stays as raw NAV — used for the two-point comparison math —
-  // only the plotted values change here.
   const displayRowsByFund = compareChartRowsByFund.map(rows => {
     if (compareViewMode !== 'growth') return rows;
     const baseVal = rows.find(v => v !== null && v !== undefined);
@@ -2669,6 +2744,9 @@ function drawCompareChart(){
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: { top: 24, right: 16, bottom: 12, left: 12 }
+      },
       animation: { duration: 300 },
       interaction: { mode: 'index', intersect: false, axis: 'x' },
       plugins: {
@@ -2759,14 +2837,14 @@ function getRangeCutoffDate(latestDate, range){
     case '1y': d.setFullYear(d.getFullYear() - 1); break;
     case '3y': d.setFullYear(d.getFullYear() - 3); break;
     case '5y': d.setFullYear(d.getFullYear() - 5); break;
-    default: return null; // 'max' — no cutoff
+    default: return null;
   }
   return d;
 }
 
 function getChartDataForRange(range){
   if (!currentNavData || !currentNavData.length) return [];
-  const ascending = [...currentNavData].reverse(); // oldest -> newest, as drawChart expects
+  const ascending = [...currentNavData].reverse();
   if (range === 'max') return ascending;
   const latestDate = parseHistDate(currentNavData[0].date);
   const cutoff = latestDate ? getRangeCutoffDate(latestDate, range) : null;
@@ -2820,8 +2898,6 @@ function drawChart(points){
   const resetBtn = document.getElementById('chartResetZoom');
   const hintEl = document.querySelector('.chart-hint');
 
-  // A new range or a newly loaded fund invalidates any point indices from
-  // the previous chart, so start the comparison fresh each time.
   chartSelection = [];
   renderChartCompare();
 
@@ -2838,8 +2914,6 @@ function drawChart(points){
   currentChartRows = rows;
 
   if (typeof Chart === 'undefined'){
-    // Chart.js failed to load from every CDN attempt — degrade gracefully to a
-    // simple static line chart instead of breaking fund detail loading.
     if (resetBtn) resetBtn.classList.remove('show');
     if (hintEl) hintEl.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Interactive chart library unavailable — showing basic chart';
     drawPlainFallbackChart(canvas, rows);
@@ -2889,6 +2963,9 @@ function drawChart(points){
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      layout: {
+        padding: { top: 24, right: 16, bottom: 12, left: 12 }
+      },
       animation: { duration: 300 },
       interaction: { mode: 'index', intersect: false, axis: 'x' },
       plugins: {
@@ -3098,7 +3175,6 @@ function drawPlainFallbackChart(canvas, rows){
 }
 
 function color_mix_fallback(hexOrColor, alpha){
-  // Builds an rgba-ish overlay without relying on CSS color-mix inside canvas gradients
   const probe = document.createElement('div');
   probe.style.color = hexOrColor;
   document.body.appendChild(probe);
@@ -3116,7 +3192,122 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Initial render of recent list (in case Recent tab is first interacted with)
+// --- Compare Section Search JavaScript ---
+const compareSearchInput = document.getElementById('compareSearchInput');
+const compareSuggestionsBox = document.getElementById('compareSuggestions');
+const compareManualSearchBtn = document.getElementById('compareManualSearchBtn');
+let compareDebounceTimer = null;
+
+compareSearchInput.addEventListener('input', () => {
+  const q = compareSearchInput.value.trim();
+  clearTimeout(compareDebounceTimer);
+  if (q.length < 3){
+    compareSuggestionsBox.classList.remove('show');
+    compareSuggestionsBox.innerHTML = '';
+    return;
+  }
+  compareDebounceTimer = setTimeout(() => runCompareSearch(q), 120);
+});
+
+async function runCompareSearch(query){
+  if (!fundsLoaded) await loadFundList();
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  const matches = [];
+  const limit = 20;
+  for (let i = 0; i < searchIndex.length; i++){
+    const lname = searchIndex[i];
+    if (words.every(w => lname.includes(w))){
+      matches.push(allFunds[i]);
+      if (matches.length >= limit) break;
+    }
+  }
+  renderCompareSuggestions(matches);
+}
+
+compareManualSearchBtn.addEventListener('click', async () => {
+  const q = compareSearchInput.value.trim();
+  if (q.length >= 3) await runCompareSearch(q);
+});
+
+function renderCompareSuggestions(items){
+  if (!items.length){
+    compareSuggestionsBox.classList.remove('show');
+    compareSuggestionsBox.innerHTML = '';
+    return;
+  }
+  compareSuggestionsBox.innerHTML = items.map(item => `
+    <div class="suggestion-item" data-code="${item.schemeCode}">
+      <div>${escapeHtml(item.schemeName)}</div>
+      <div class="suggestion-code">Scheme Code: ${item.schemeCode}</div>
+    </div>
+  `).join('');
+  compareSuggestionsBox.classList.add('show');
+
+  compareSuggestionsBox.querySelectorAll('.suggestion-item').forEach(el => {
+    el.addEventListener('click', async () => {
+      const code = el.getAttribute('data-code');
+      const item = items.find(i => String(i.schemeCode) === String(code));
+      compareSuggestionsBox.classList.remove('show');
+      compareSearchInput.value = '';
+      await addFundToCompareByCode(item);
+    });
+  });
+}
+
+async function addFundToCompareByCode(item){
+  if (isFundInCompare(item.schemeCode)){
+    alert('This fund is already in the comparison chart.');
+    return;
+  }
+  if (compareFunds.length >= COMPARE_LIMIT){
+    alert('You can compare a maximum of 4 funds at a time.');
+    return;
+  }
+
+  const emptyEl = document.getElementById('compareEmpty');
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  try{
+    let navData = [];
+    const cached = await idbGet('navCache', item.schemeCode);
+    if (cached && cached.data){
+      navData = cached.data.data || [];
+    } else {
+      const res = await fetch(`https://api.mfapi.in/mf/${item.schemeCode}`);
+      const data = await res.json();
+      navData = data.data || [];
+      idbSet('navCache', { code: item.schemeCode, data, ts: Date.now() });
+    }
+
+    const ascending = [...navData].reverse()
+      .map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+      .filter(r => !isNaN(r.nav));
+
+    const newFund = {
+      schemeCode: item.schemeCode,
+      schemeName: item.schemeName,
+      fundHouse: '',
+      navData: ascending,
+      color: nextCompareColor(),
+      order: Date.now()
+    };
+
+    compareFunds.push(newFund);
+    updateAddToCompareBtn();
+    updateCompareCountBadge();
+    renderCompareUI();
+    idbPutCompareFund(newFund);
+  } catch(err){
+    alert('Failed to load fund data for comparison.');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#comparePanel .search-box')){
+    compareSuggestionsBox.classList.remove('show');
+  }
+});
+
 renderRecentList();
 </script>
 
