@@ -1,0 +1,3063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invisible House</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0f14;
+    --bg-2:#080a0d;
+    --panel:#12161d;
+    --panel-2:#181d26;
+    --panel-3:#1e2430;
+    --border:#242b37;
+    --grid-line:rgba(79,209,197,.05);
+    --text:#e7eaef;
+    --muted:#7d8794;
+    --accent:#d1a54c;
+    --accent-ink:#221a08;
+    --accent-2:#4fd1c5;
+    --accent-soft:rgba(209,165,76,.10);
+    --danger:#f0776b;
+    --shadow:0 20px 40px rgba(0,0,0,.45);
+    --radius-lg:18px;
+    --radius-md:12px;
+    --serif:"Fraunces", Georgia, serif;
+    --mono:"JetBrains Mono", ui-monospace, Menlo, monospace;
+  }
+  html[data-theme="light"]{
+    --bg:#f7f3e9;
+    --bg-2:#efe9da;
+    --panel:#fffdf8;
+    --panel-2:#f5f0e4;
+    --panel-3:#ece5d4;
+    --border:#e2d9c4;
+    --grid-line:rgba(15,98,110,.05);
+    --text:#20241f;
+    --muted:#7a7461;
+    --accent:#a9711f;
+    --accent-ink:#fffaf0;
+    --accent-2:#0f626e;
+    --accent-soft:rgba(169,113,31,.10);
+    --danger:#b8382b;
+    --shadow:0 20px 40px rgba(40,30,10,.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    background:
+      repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 42px),
+      repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 42px),
+      radial-gradient(1000px 460px at 50% -8%, var(--accent-soft), transparent 62%),
+      var(--bg);
+    color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    min-height:100vh;
+    transition:background .2s ease, color .2s ease;
+  }
+  header{
+    position:relative;
+    padding:28px 20px 20px;
+    text-align:center;
+  }
+  .brand-row{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    max-width:960px;
+    margin:0 auto;
+    text-align:center;
+  }
+  .menu-wrap{
+    position:absolute;
+    top:18px;
+    right:18px;
+  }
+  .menu-toggle-btn{
+    width:40px;
+    height:40px;
+    border-radius:11px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    font-size:16px;
+    box-shadow:var(--shadow);
+    transition:background .15s, color .15s, transform .1s, border-color .15s;
+  }
+  .menu-toggle-btn:hover{background:var(--panel-2); color:var(--text);}
+  .menu-toggle-btn:active{transform:scale(0.94);}
+  .menu-toggle-btn.open{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .menu-dropdown{
+    position:absolute;
+    top:calc(100% + 8px);
+    right:0;
+    min-width:190px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:6px;
+    box-shadow:var(--shadow);
+    display:none;
+    flex-direction:column;
+    gap:2px;
+    z-index:20;
+  }
+  .menu-dropdown.show{display:flex;}
+  .menu-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:none;
+    background:transparent;
+    color:var(--text);
+    font-size:13.5px;
+    text-align:left;
+    cursor:pointer;
+    transition:background .12s, color .12s;
+  }
+  .menu-item i{width:16px; text-align:center; color:var(--muted); font-size:14px;}
+  .menu-item:hover{background:var(--panel-2);}
+  .menu-item.active{background:var(--accent-soft); color:var(--accent);}
+  .menu-item.active i{color:var(--accent);}
+  .menu-divider{
+    height:1px;
+    background:var(--border);
+    margin:4px 2px;
+  }
+  .brand-mark{
+    width:120px;
+    height:120px;
+    flex:0 0 auto;
+    margin:0;
+    border-radius:28px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--accent);
+    font-size:19px;
+    box-shadow:0 0 0 6px var(--accent-soft), var(--shadow);
+    overflow:hidden;
+    padding:14px;
+  }
+  .brand-mark img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+  .brand-text{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+  }
+  h1{
+    margin:0;
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:clamp(30px, 7vw, 44px);
+    letter-spacing:.5px;
+    line-height:1.05;
+  }
+  h1 .veil{color:var(--muted); font-style:italic; font-weight:500;}
+  .wrap{
+    flex:1;
+    max-width:680px;
+    margin:0 auto;
+    padding:20px 20px 40px;
+    width:100%;
+  }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  .search-box{
+    position:relative;
+  }
+  input[type="text"]{
+    width:100%;
+    padding:15px 42px 15px 16px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    color:var(--text);
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus{
+    border-color:var(--accent-2);
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent-2) 20%, transparent);
+  }
+  .search-icon-btn{
+    position:absolute;
+    right:8px;
+    top:50%;
+    transform:translateY(-50%);
+    width:32px;
+    height:32px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-size:15px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:background .15s, color .15s, transform .1s;
+  }
+  .search-icon-btn:hover{background:var(--panel-2); color:var(--accent-2);}
+  .search-icon-btn:active{transform:translateY(-50%) scale(0.92);}
+  .suggestions{
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    right:0;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:12px;
+    max-height:340px;
+    overflow-y:auto;
+    z-index:10;
+    display:none;
+    box-shadow:var(--shadow);
+  }
+  .suggestions.show{display:block;}
+  .suggestion-item{
+    padding:12px 16px;
+    cursor:pointer;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+    line-height:1.4;
+    transition:background .1s;
+  }
+  .suggestion-item:last-child{border-bottom:none;}
+  .suggestion-item:hover, .suggestion-item.active{
+    background:var(--panel-2);
+    color:var(--accent);
+  }
+  .suggestion-code{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:2px;
+  }
+  .status{
+    margin-top:14px;
+    font-size:13px;
+    color:var(--muted);
+    min-height:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .status.error{color:var(--danger);}
+  .status-retry-btn{
+    border:1px solid color-mix(in srgb, var(--danger) 45%, transparent);
+    background:color-mix(in srgb, var(--danger) 12%, transparent);
+    color:var(--danger);
+    font-size:11.5px;
+    font-weight:700;
+    padding:3px 9px;
+    border-radius:7px;
+    cursor:pointer;
+    margin-left:4px;
+    transition:background .15s, transform .1s;
+  }
+  .status-retry-btn:hover{background:color-mix(in srgb, var(--danger) 20%, transparent);}
+  .status-retry-btn:active{transform:scale(0.94);}
+  .spinner{
+    --size:26px;
+    width:var(--size);
+    height:var(--size);
+    border-radius:50%;
+    position:relative;
+    flex-shrink:0;
+    display:none;
+    background:conic-gradient(from 0deg, var(--accent) 0deg, var(--accent-2) 150deg, transparent 260deg, transparent 360deg);
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
+    mask:radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3.5px));
+    animation:spin .9s cubic-bezier(.5,.05,.5,.95) infinite;
+    filter:drop-shadow(0 0 6px var(--accent-soft));
+  }
+  .spinner.show{display:inline-block;}
+  .spinner::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 8%, transparent);
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ---------- Themed loader: a house with coins settling into it ---------- */
+  .ih-loader{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:36px 20px;
+    gap:6px;
+  }
+  .ih-loader.show{display:flex;}
+  .loader-house{
+    position:relative;
+    width:88px;
+    height:88px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:14px;
+  }
+  .loader-house > i{
+    font-size:46px;
+    color:var(--accent);
+    animation:houseBob 1.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 14px var(--accent-soft));
+  }
+  .loader-house > img{
+    width:52px;
+    height:52px;
+    object-fit:contain;
+    animation:houseBob 1.6s ease-in-out infinite;
+    filter:drop-shadow(0 6px 14px var(--accent-soft));
+  }
+  .loader-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px dashed color-mix(in srgb, var(--accent) 45%, transparent);
+    animation:ringSpin 6s linear infinite;
+  }
+  .loader-coin{
+    position:absolute;
+    top:-10px;
+    color:var(--accent-2);
+    font-size:16px;
+    opacity:0;
+    animation:coinDrop 1.8s ease-in infinite;
+  }
+  .coin1{left:14px; animation-delay:.1s;}
+  .coin2{left:50%; margin-left:-8px; animation-delay:.55s;}
+  .coin3{right:14px; animation-delay:1s;}
+  @keyframes houseBob{
+    0%, 100%{transform:translateY(0) scale(1);}
+    50%{transform:translateY(-4px) scale(1.05);}
+  }
+  @keyframes ringSpin{to{transform:rotate(360deg);}}
+  @keyframes coinDrop{
+    0%{opacity:0; transform:translateY(-6px) rotate(0deg);}
+    15%{opacity:1;}
+    55%{opacity:1; transform:translateY(38px) rotate(180deg);}
+    75%{opacity:0; transform:translateY(44px) rotate(220deg);}
+    100%{opacity:0; transform:translateY(-6px) rotate(0deg);}
+  }
+  .loader-text{
+    font-family:var(--serif);
+    font-size:16px;
+    font-weight:600;
+    color:var(--text);
+  }
+  .loader-sub{
+    font-size:12px;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .dots span{
+    animation:dotFade 1.4s infinite;
+    opacity:0;
+  }
+  .dots span:nth-child(2){animation-delay:.2s;}
+  .dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes dotFade{
+    0%, 100%{opacity:0;}
+    50%{opacity:1;}
+  }
+  .ih-loader.small{padding:14px 10px;}
+  .ih-loader.small .loader-house{width:56px; height:56px; margin-bottom:8px;}
+  .ih-loader.small .loader-house > i{font-size:28px;}
+  .ih-loader.small .loader-house > img{width:32px; height:32px;}
+  .ih-loader.small .loader-coin{font-size:11px; top:-6px;}
+  .ih-loader.small .loader-text{font-size:13px;}
+  @media (prefers-reduced-motion: reduce){
+    .loader-house > i, .loader-house > img, .loader-ring, .loader-coin, .dots span{animation:none;}
+  }
+
+  .card{
+    position:relative;
+    margin-top:22px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:24px;
+    display:none;
+    box-shadow:var(--shadow);
+    animation:fadeUp .25s ease;
+  }
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(8px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .card.show{display:block;}
+  .card.loading .card-content{opacity:.25; filter:blur(1px);}
+  .card-loading-overlay{
+    display:none;
+    position:absolute;
+    inset:0;
+    align-items:center;
+    justify-content:center;
+    border-radius:var(--radius-lg);
+    background:color-mix(in srgb, var(--panel) 70%, transparent);
+  }
+  .card.loading .card-loading-overlay{display:flex;}
+  .card-loading-overlay .ih-loader{display:flex;}
+  .card-title{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:4px;
+  }
+  .card-header-row{
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .fund-avatar{
+    flex-shrink:0;
+    width:48px;
+    height:48px;
+    border-radius:13px;
+    background:linear-gradient(160deg, var(--accent-soft), transparent);
+    border:1px solid var(--border);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:var(--serif);
+    font-size:19px;
+    font-weight:600;
+    overflow:hidden;
+  }
+  .fund-avatar img.fund-avatar-img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    background:#fff;
+    padding:7px;
+    display:block;
+  }
+  .fund-heading{min-width:0; flex:1;}
+  .fund-house-line{
+    color:var(--muted);
+    font-size:12.5px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .card-code{
+    display:inline-block;
+    font-size:11px;
+    color:var(--accent-ink);
+    background:var(--accent);
+    padding:3px 8px;
+    border-radius:6px;
+    font-weight:700;
+    letter-spacing:.5px;
+    margin-top:8px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:18px;
+  }
+  .fund-info-col{min-width:0;}
+  .stat{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:12px 14px;
+    transition:background .2s;
+  }
+  .stat-label{
+    font-size:11px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .stat-value{
+    font-size:16px;
+    margin-top:4px;
+    font-weight:700;
+  }
+  .nav-highlight{color:var(--accent);}
+  .details-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:24px;
+    margin-top:22px;
+  }
+  .section-label{
+    font-size:11px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:6px;
+  }
+  .chart-col{
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:16px 16px 14px;
+  }
+  .history-col{}
+  .section-label-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .section-label-row .section-label{margin-bottom:0;}
+  .chart-reset-btn{
+    display:flex;
+    align-items:center;
+    gap:4px;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:4px 9px;
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(-2px);
+    pointer-events:none;
+    transition:opacity .15s, transform .15s, background .15s, color .15s;
+  }
+  .chart-reset-btn.show{opacity:1; transform:translateY(0); pointer-events:auto;}
+  .chart-reset-btn:hover{background:var(--panel-3); color:var(--accent);}
+  .chart-range-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:10px;
+  }
+  .range-btn, .compare-range-btn{
+    flex:1 1 auto;
+    min-width:38px;
+    padding:6px 8px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--muted);
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.3px;
+    border-radius:7px;
+    cursor:pointer;
+    text-align:center;
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .range-btn:hover, .compare-range-btn:hover{background:var(--panel-3); color:var(--text);}
+  .range-btn:active, .compare-range-btn:active{transform:scale(0.95);}
+  .range-btn.active, .compare-range-btn.active{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .chart-canvas-wrap{
+    position:relative;
+    width:100%;
+    height:220px;
+    margin-top:8px;
+    touch-action:none;
+    cursor:grab;
+  }
+  .chart-canvas-wrap:active{cursor:grabbing;}
+  canvas{
+    width:100%;
+    height:100%;
+    display:block;
+  }
+  .chart-label{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+    text-align:center;
+  }
+  .chart-hint{
+    font-size:10.5px;
+    color:var(--muted);
+    opacity:.75;
+    margin-top:4px;
+    text-align:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+  }
+  @media (max-width:480px){
+    .chart-hint{display:none;}
+  }
+  .chart-compare{
+    display:none;
+    margin-top:10px;
+    padding:12px 14px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    font-size:12.5px;
+  }
+  .chart-compare.show{display:block;}
+  .chart-compare-hint{
+    color:var(--muted);
+    font-size:11.5px;
+  }
+  .chart-compare-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .chart-compare-dates{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--muted);
+    font-family:var(--mono);
+    font-size:11.5px;
+  }
+  .chart-compare-dates .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    display:inline-block;
+  }
+  .chart-compare-dates .dot.a{background:var(--accent-2);}
+  .chart-compare-dates .dot.b{background:var(--accent);}
+  .chart-compare-figures{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .chart-compare-figures .pct{
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:16px;
+  }
+  .chart-compare-figures .pct.up{color:#3ec98f;}
+  .chart-compare-figures .pct.down{color:var(--danger);}
+  .chart-compare-figures .abs{
+    font-family:var(--mono);
+    color:var(--muted);
+    font-size:11.5px;
+  }
+  .chart-compare-clear{
+    border:1px solid var(--border);
+    background:transparent;
+    color:var(--muted);
+    font-size:11px;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .chart-compare-clear:hover{background:var(--panel-3); color:var(--text);}
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+  table.history-table td{font-family:var(--mono);}
+  table.history-table td:first-child{font-family:"Segoe UI",system-ui,sans-serif;}
+  .no-date-match{
+    text-align:center;
+    color:var(--muted);
+    padding:20px 10px !important;
+    font-family:"Segoe UI",system-ui,sans-serif !important;
+  }
+  .history-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+    margin-bottom:8px;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .history-title{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+  }
+  .history-count{
+    font-size:11.5px;
+    color:var(--muted);
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:8px 14px;
+    background:var(--panel-3);
+    border:1px solid var(--border);
+    color:var(--text);
+    border-radius:8px;
+    font-size:12.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:background .15s, transform .1s, color .15s;
+  }
+  .btn:hover{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  .btn:active{transform:scale(0.96);}
+  .btn.danger:hover{background:var(--danger); color:#fff; border-color:var(--danger);}
+  .history-table-wrap{
+    max-height:320px;
+    overflow-y:auto;
+    border:1px solid var(--border);
+    border-radius:10px;
+  }
+  table.history-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  table.history-table thead th{
+    position:sticky;
+    top:0;
+    background:var(--panel-2);
+    color:var(--muted);
+    text-align:left;
+    padding:9px 14px;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    border-bottom:1px solid var(--border);
+  }
+  table.history-table td{
+    padding:11px 14px;
+    border-bottom:1px solid var(--border);
+    color:var(--text);
+  }
+  table.history-table td:last-child{
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+  }
+  table.history-table tbody tr:last-child td{border-bottom:none;}
+  table.history-table tbody tr:nth-child(even) td{background:color-mix(in srgb, var(--panel-2) 55%, transparent);}
+  table.history-table tbody tr:hover td{background:var(--panel-2);}
+  .hist-date{
+    display:flex;
+    align-items:center;
+    gap:9px;
+  }
+  .hist-day{
+    font-family:var(--mono);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    color:var(--accent-2);
+    background:color-mix(in srgb, var(--accent-2) 14%, transparent);
+    padding:3px 6px;
+    border-radius:5px;
+    flex-shrink:0;
+    min-width:32px;
+    text-align:center;
+  }
+  .hist-nav-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+  }
+  .hist-nav{
+    font-weight:700;
+  }
+  .nav-change{
+    display:inline-flex;
+    align-items:center;
+    gap:2px;
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 6px;
+    border-radius:5px;
+    font-family:var(--mono);
+    white-space:nowrap;
+  }
+  .nav-change.up{color:#3ecf8e; background:rgba(62,207,142,.13);}
+  .nav-change.down{color:var(--danger); background:color-mix(in srgb, var(--danger) 15%, transparent);}
+  .nav-change.flat{color:var(--muted); background:var(--panel-3);}
+
+  /* Recent tab */
+  .recent-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    gap:10px;
+  }
+  .recent-header h2{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    margin:0;
+  }
+  .recent-list{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .recent-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius-md);
+    padding:13px 15px;
+    cursor:pointer;
+    transition:background .15s, border-color .15s, transform .1s;
+  }
+  .recent-item:hover{background:var(--panel-2); border-color:var(--accent-2); transform:translateY(-1px);}
+  .recent-icon{
+    width:36px;
+    height:36px;
+    border-radius:9px;
+    background:var(--accent-soft);
+    color:var(--accent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:15px;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .recent-icon.has-logo{background:#fff; border:1px solid var(--border);}
+  .recent-icon img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    padding:5px;
+    display:block;
+  }
+  .recent-info{flex:1; min-width:0;}
+  .recent-name{
+    font-size:13.5px;
+    font-weight:600;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .recent-meta{
+    font-size:11.5px;
+    color:var(--muted);
+    margin-top:2px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .recent-arrow{color:var(--muted); font-size:14px;}
+  .empty-state{
+    text-align:center;
+    padding:50px 20px;
+    color:var(--muted);
+  }
+  .empty-state i{
+    font-size:34px;
+    color:var(--border);
+    margin-bottom:12px;
+    display:block;
+  }
+  .empty-state p{font-size:13.5px; margin:0;}
+
+  /* Compare feature */
+  .compare-action-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+  .btn.compare-btn.added{background:var(--accent-soft); color:var(--accent); border-color:var(--accent);}
+  .btn.compare-btn.full{opacity:.55; cursor:not-allowed;}
+  .compare-count-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:16px;
+    height:16px;
+    padding:0 4px;
+    border-radius:8px;
+    background:var(--accent);
+    color:var(--accent-ink);
+    font-size:10px;
+    font-weight:700;
+    margin-left:auto;
+  }
+  .compare-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    gap:10px;
+  }
+  .compare-header h2{
+    font-size:13px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--muted);
+    margin:0;
+  }
+  .compare-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .compare-legend-item{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:8px 10px;
+    font-size:12.5px;
+    max-width:100%;
+  }
+  .compare-legend-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .compare-legend-name{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:220px;
+  }
+  .compare-legend-remove{
+    background:none;
+    border:none;
+    color:var(--muted);
+    cursor:pointer;
+    padding:0;
+    font-size:13px;
+    line-height:1;
+    flex-shrink:0;
+  }
+  .compare-legend-remove:hover{color:var(--danger);}
+  .compare-card{margin-top:14px;}
+  .compare-point-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    font-size:12.5px;
+  }
+  .compare-point-row:last-child{border-bottom:none;}
+  .compare-point-fund{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    min-width:0;
+    flex:1;
+  }
+  .compare-point-fund span{white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+
+  footer{
+    max-width:680px;
+    margin:0 auto;
+    padding:18px 20px 32px;
+    text-align:center;
+    border-top:1px solid var(--border);
+    width:100%;
+  }
+  .footer-line{
+    font-size:14px;
+    color:var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .footer-line + .footer-line{margin-top:6px;}
+  .footer-line b{color:var(--text); font-weight:700;}
+  .footer-line a{color:var(--accent-2); text-decoration:none;}
+  .footer-line a:hover{text-decoration:underline;}
+
+  @media (max-width:480px){
+    .grid{grid-template-columns:1fr 1fr;}
+    .card{padding:18px;border-radius:14px;}
+    h1{font-size:22px;}
+    .wrap{padding:14px 14px 30px;}
+    .menu-wrap{top:14px;right:12px;}
+    .menu-toggle-btn{width:34px;height:34px;font-size:14px;}
+    header{padding:26px 14px 14px;}
+    .brand-row{gap:10px;}
+    .brand-mark{width:88px;height:88px;border-radius:20px;}
+  }
+
+  /* Desktop / wide screens */
+  @media (min-width:900px){
+    .wrap{max-width:1120px;}
+    footer{max-width:1120px;}
+    .card{padding:32px;}
+    .fund-info-col .grid{grid-template-columns:1fr 1fr;}
+    .details-grid{grid-template-columns:1fr; align-items:start;}
+    canvas{height:220px;}
+    .chart-col{padding:20px 20px 18px;}
+    .history-table-wrap{max-height:460px;}
+    h1{font-size:32px;}
+  }
+
+  /* Large desktop: use the full page, priority order left-to-right = fund details, graph, nav history */
+  @media (min-width:1300px){
+    .wrap{max-width:min(1680px, 96vw);}
+    footer{max-width:min(1680px, 96vw);}
+    .details-grid{
+      grid-template-columns:1fr;
+      align-items:stretch;
+      gap:22px;
+    }
+    .fund-info-col{
+      display:flex;
+      flex-direction:column;
+      background:var(--panel-2);
+      border:1px solid var(--border);
+      border-radius:var(--radius-md);
+      padding:18px;
+    }
+    .fund-info-col .grid{grid-template-columns:1fr 1fr; margin-top:18px; flex:1;}
+    .chart-col{display:flex; flex-direction:column;}
+    .chart-canvas-wrap{flex:1;}
+    .history-col{display:flex; flex-direction:column;}
+    .history-table-wrap{flex:1; max-height:460px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="menu-wrap" id="menuWrap">
+    <button class="menu-toggle-btn" id="menuToggleBtn" title="Menu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-list"></i>
+    </button>
+    <div class="menu-dropdown" id="menuDropdown">
+      <button class="menu-item active" id="searchTabBtn"><i class="bi bi-search"></i> Search</button>
+      <button class="menu-item" id="recentTabBtn"><i class="bi bi-clock-history"></i> Recent Searches</button>
+      <button class="menu-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i> Compare <span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
+      <div class="menu-divider"></div>
+      <button class="menu-item" id="themeToggle"><i class="bi bi-moon-stars-fill"></i> Dark Mode</button>
+    </div>
+  </div>
+  <div class="brand-row">
+    <div class="brand-mark"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
+    <div class="brand-text">
+      <h1>Invisible House</h1>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="tab-panel active" id="searchPanel">
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="fund house (e.g. Motilal Oswal, Nippon India...)" autocomplete="off">
+      <button type="button" class="search-icon-btn" id="manualSearchBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
+      <div class="suggestions" id="suggestions"></div>
+    </div>
+    <div class="status" id="status"><div class="spinner" id="statusSpinner"></div><span id="statusText"></span></div>
+
+    <div class="ih-loader large" id="firstLoadLoader">
+      <div class="loader-house">
+        <img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="">
+        <div class="loader-coin coin1"><i class="bi bi-coin"></i></div>
+        <div class="loader-coin coin2"><i class="bi bi-coin"></i></div>
+        <div class="loader-coin coin3"><i class="bi bi-coin"></i></div>
+        <div class="loader-ring"></div>
+      </div>
+      <div class="loader-text">Opening the ledger<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+      <div class="loader-sub">Fetching Houses...</div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="card-loading-overlay">
+        <div class="ih-loader small">
+          <div class="loader-house">
+            <img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="">
+            <div class="loader-coin coin1"><i class="bi bi-coin"></i></div>
+            <div class="loader-coin coin2"><i class="bi bi-coin"></i></div>
+            <div class="loader-coin coin3"><i class="bi bi-coin"></i></div>
+            <div class="loader-ring"></div>
+          </div>
+          <div class="loader-text">Fetching NAV history<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="details-grid">
+          <div class="fund-info-col">
+            <div class="card-header-row">
+              <div class="fund-avatar" id="fundAvatar">₹</div>
+              <div class="fund-heading">
+                <div class="card-title" id="fundName">—</div>
+                <div class="fund-house-line" id="fundHouse"></div>
+                <span class="card-code" id="schemeCodeBadge"></span>
+              </div>
+            </div>
+
+            <div class="compare-action-row">
+              <button type="button" class="btn compare-btn" id="addToCompareBtn"><i class="bi bi-bar-chart-line"></i> Add to Compare</button>
+            </div>
+
+            <div class="grid">
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
+                <div class="stat-value nav-highlight" id="latestNav">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
+                <div class="stat-value" id="navDate">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
+                <div class="stat-value" id="schemeType">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
+                <div class="stat-value" id="schemeCategory">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-col">
+            <div class="section-label-row">
+              <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
+              <button type="button" class="chart-reset-btn" id="chartResetZoom" title="Reset zoom">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+              </button>
+            </div>
+            <div class="chart-range-row" id="chartRangeRow">
+              <button type="button" class="range-btn" data-range="1w">1W</button>
+              <button type="button" class="range-btn" data-range="1m">1M</button>
+              <button type="button" class="range-btn" data-range="6m">6M</button>
+              <button type="button" class="range-btn" data-range="1y">1Y</button>
+              <button type="button" class="range-btn" data-range="3y">3Y</button>
+              <button type="button" class="range-btn" data-range="5y">5Y</button>
+              <button type="button" class="range-btn active" data-range="max">MAX</button>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="navChart"></canvas>
+            </div>
+            <div class="chart-label" id="chartLabel">NAV trend</div>
+            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
+            <div class="chart-compare" id="chartCompare"></div>
+          </div>
+
+          <div class="history-col">
+            <div class="history-header">
+              <div>
+                <div class="history-title">Full NAV History</div>
+              </div>
+              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
+            </div>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
+              <i class="bi bi-chevron-down"></i> Load 50 more
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="recentPanel">
+    <div class="recent-header">
+      <h2><i class="bi bi-clock-history"></i> Recent Searches</h2>
+      <button class="btn danger" id="clearRecentBtn"><i class="bi bi-trash3"></i> Clear</button>
+    </div>
+    <div class="recent-list" id="recentList"></div>
+  </div>
+
+  <div class="tab-panel" id="comparePanel">
+    <div class="compare-header">
+      <h2><i class="bi bi-bar-chart-line"></i> Compare Funds</h2>
+      <button class="btn danger" id="clearCompareBtn"><i class="bi bi-trash3"></i> Clear All</button>
+    </div>
+    <div class="empty-state" id="compareEmpty">
+      <i class="bi bi-bar-chart-line"></i>
+      <p>Add up to 4 funds from Search to compare their NAV trends.</p>
+    </div>
+    <div class="card compare-card" id="compareCard">
+      <div class="compare-legend" id="compareLegend"></div>
+      <div class="section-label-row" style="margin-top:16px;">
+        <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
+        <button type="button" class="chart-reset-btn" id="compareChartResetZoom" title="Reset zoom">
+          <i class="bi bi-arrow-counterclockwise"></i> Reset
+        </button>
+      </div>
+      <div class="chart-range-row" id="compareChartRangeRow">
+        <button type="button" class="compare-range-btn" data-range="1w">1W</button>
+        <button type="button" class="compare-range-btn" data-range="1m">1M</button>
+        <button type="button" class="compare-range-btn" data-range="6m">6M</button>
+        <button type="button" class="compare-range-btn" data-range="1y">1Y</button>
+        <button type="button" class="compare-range-btn" data-range="3y">3Y</button>
+        <button type="button" class="compare-range-btn" data-range="5y">5Y</button>
+        <button type="button" class="compare-range-btn active" data-range="max">MAX</button>
+      </div>
+      <div class="chart-canvas-wrap" style="margin-top:8px;">
+        <canvas id="compareChart"></canvas>
+      </div>
+      <div class="chart-label" id="compareChartLabel">NAV trend</div>
+      <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
+      <div class="chart-compare" id="compareChartCompare"></div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-line">Developed by <b>Microintel</b></div>
+  <div class="footer-line"><i class="bi bi-database"></i> Fund data is fetched live from mfapi</a></div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
+<script>
+// ---------- Theme (persisted in localStorage) ----------
+const THEME_KEY = 'ih_theme';
+const themeToggle = document.getElementById('themeToggle');
+const storedTheme = localStorage.getItem(THEME_KEY);
+const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
+applyTheme(currentTheme);
+
+// ---------- Top menu (Search / Recent / Theme) ----------
+const menuToggleBtn = document.getElementById('menuToggleBtn');
+const menuDropdown = document.getElementById('menuDropdown');
+const menuWrap = document.getElementById('menuWrap');
+
+function openMenu(){
+  menuDropdown.classList.add('show');
+  menuToggleBtn.classList.add('open');
+  menuToggleBtn.setAttribute('aria-expanded', 'true');
+}
+function closeMenu(){
+  menuDropdown.classList.remove('show');
+  menuToggleBtn.classList.remove('open');
+  menuToggleBtn.setAttribute('aria-expanded', 'false');
+}
+menuToggleBtn.addEventListener('click', () => {
+  if (menuDropdown.classList.contains('show')) closeMenu(); else openMenu();
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#menuWrap')) closeMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeMenu();
+});
+// Any item inside the dropdown closes it after acting, so the menu never
+// lingers open once the user has made a choice.
+menuDropdown.querySelectorAll('.menu-item').forEach(item => {
+  item.addEventListener('click', closeMenu);
+});
+
+themeToggle.addEventListener('click', () => {
+  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  applyTheme(currentTheme);
+  localStorage.setItem(THEME_KEY, currentTheme);
+});
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  themeToggle.innerHTML = theme === 'dark'
+    ? '<i class="bi bi-moon-stars-fill"></i> Dark Mode'
+    : '<i class="bi bi-sun-fill"></i> Light Mode';
+  try{
+    if (currentNavData && currentNavData.length){
+      setTimeout(() => drawChart(getChartDataForRange(currentChartRange)), 50);
+    }
+  } catch(e){ /* not yet loaded on initial theme apply */ }
+}
+
+// ---------- Tabs ----------
+const searchTabBtn = document.getElementById('searchTabBtn');
+const recentTabBtn = document.getElementById('recentTabBtn');
+const compareTabBtn = document.getElementById('compareTabBtn');
+const searchPanel = document.getElementById('searchPanel');
+const recentPanel = document.getElementById('recentPanel');
+const comparePanel = document.getElementById('comparePanel');
+
+searchTabBtn.addEventListener('click', () => switchTab('search'));
+recentTabBtn.addEventListener('click', () => switchTab('recent'));
+compareTabBtn.addEventListener('click', () => switchTab('compare'));
+
+function switchTab(tab){
+  searchTabBtn.classList.toggle('active', tab === 'search');
+  recentTabBtn.classList.toggle('active', tab === 'recent');
+  compareTabBtn.classList.toggle('active', tab === 'compare');
+  searchPanel.classList.toggle('active', tab === 'search');
+  recentPanel.classList.toggle('active', tab === 'recent');
+  comparePanel.classList.toggle('active', tab === 'compare');
+  if (tab === 'recent') renderRecentList();
+  if (tab === 'compare') renderCompareUI();
+}
+
+// ---------- Recent searches (persisted in localStorage) ----------
+const RECENT_KEY = 'ih_recent_searches';
+const MAX_RECENT = 12;
+
+function getRecent(){
+  try{
+    return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+  }catch(e){ return []; }
+}
+
+function saveRecent(entry){
+  let list = getRecent().filter(r => r.schemeCode !== entry.schemeCode);
+  list.unshift(entry);
+  list = list.slice(0, MAX_RECENT);
+  localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+}
+
+function renderRecentList(){
+  const list = getRecent();
+  const container = document.getElementById('recentList');
+  if (!list.length){
+    container.innerHTML = `
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No recent searches yet. Funds you look up will show up here.</p>
+      </div>`;
+    return;
+  }
+  container.innerHTML = list.map(item => {
+    const domain = resolveAmcDomain(item.fundHouse);
+    const iconInner = domain
+      ? `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=64" alt="" referrerpolicy="no-referrer">`
+      : `<i class="bi bi-piggy-bank"></i>`;
+    return `
+    <div class="recent-item" data-code="${item.schemeCode}">
+      <div class="recent-icon${domain ? ' has-logo' : ''}">${iconInner}</div>
+      <div class="recent-info">
+        <div class="recent-name">${escapeHtml(item.schemeName)}</div>
+        <div class="recent-meta">
+          <span><i class="bi bi-hash"></i>${escapeHtml(String(item.schemeCode))}</span>
+          <span><i class="bi bi-clock"></i>${escapeHtml(item.when)}</span>
+        </div>
+      </div>
+      <i class="bi bi-chevron-right recent-arrow"></i>
+    </div>
+  `;
+  }).join('');
+
+  container.querySelectorAll('.recent-icon img').forEach(img => {
+    img.addEventListener('error', () => {
+      const wrap = img.parentElement;
+      wrap.classList.remove('has-logo');
+      wrap.innerHTML = '<i class="bi bi-piggy-bank"></i>';
+    });
+  });
+
+  container.querySelectorAll('.recent-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const code = el.getAttribute('data-code');
+      const entry = getRecent().find(r => String(r.schemeCode) === String(code));
+      if (entry){
+        switchTab('search');
+        searchInput.value = entry.schemeName;
+        loadFundByCode(entry.schemeCode);
+      }
+    });
+  });
+}
+
+document.getElementById('clearRecentBtn').addEventListener('click', () => {
+  localStorage.removeItem(RECENT_KEY);
+  renderRecentList();
+});
+
+// ---------- IndexedDB cache layer ----------
+// Two stores: 'fundList' holds the large master list of schemes (one row,
+// key 'all'), and 'navCache' holds per-scheme NAV history keyed by code.
+// Everything here degrades silently to "no cache" if IndexedDB is
+// unavailable (private browsing, old browsers, etc.) — caching is a
+// performance layer, never a hard requirement.
+const IDB_NAME = 'sipTrackerCache';
+const IDB_VERSION = 1;
+const FUND_LIST_TTL_MS = 24 * 60 * 60 * 1000; // refresh the master list at most once a day in the background
+
+let idbPromise = null;
+function openIdb(){
+  if (idbPromise) return idbPromise;
+  idbPromise = new Promise((resolve) => {
+    if (!('indexedDB' in window)){ resolve(null); return; }
+    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains('fundList')) db.createObjectStore('fundList', { keyPath: 'key' });
+      if (!db.objectStoreNames.contains('navCache')) db.createObjectStore('navCache', { keyPath: 'code' });
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+  return idbPromise;
+}
+
+async function idbGet(storeName, key){
+  const db = await openIdb();
+  if (!db) return null;
+  return new Promise((resolve) => {
+    try{
+      const req = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    } catch(e){ resolve(null); }
+  });
+}
+
+async function idbSet(storeName, value){
+  const db = await openIdb();
+  if (!db) return;
+  return new Promise((resolve) => {
+    try{
+      const tx = db.transaction(storeName, 'readwrite');
+      tx.objectStore(storeName).put(value);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => resolve();
+    } catch(e){ resolve(); }
+  });
+}
+
+// ---------- Search ----------
+const searchInput = document.getElementById('searchInput');
+const manualSearchBtn = document.getElementById('manualSearchBtn');
+const suggestionsBox = document.getElementById('suggestions');
+const statusEl = document.getElementById('status');
+const statusSpinner = document.getElementById('statusSpinner');
+const statusText = document.getElementById('statusText');
+const card = document.getElementById('card');
+const firstLoadLoader = document.getElementById('firstLoadLoader');
+
+let debounceTimer = null;
+let activeIndex = -1;
+let currentItems = [];
+let allFunds = [];
+let fundsLoaded = false;
+let fundsLoading = false;
+let currentNavData = [];
+let currentSchemeName = 'fund';
+let currentFundMeta = null;
+let currentChartRange = 'max';
+
+// Lowercased scheme names (parallel array to allFunds, built once per list
+// load) plus a Map from 3-char word-prefix -> candidate indices. Typing a
+// query narrows ~40k funds down to a small bucket before any string
+// comparison happens, instead of scanning the entire list on every keystroke.
+let searchIndex = [];
+let prefixIndex = new Map();
+
+function buildSearchIndex(){
+  const n = allFunds.length;
+  searchIndex = new Array(n);
+  prefixIndex = new Map();
+  for (let i = 0; i < n; i++){
+    const lname = (allFunds[i].schemeName || '').toLowerCase();
+    searchIndex[i] = lname;
+    const tokens = lname.split(/[^a-z0-9]+/);
+    const seenPrefixes = new Set();
+    for (let t = 0; t < tokens.length; t++){
+      const tok = tokens[t];
+      if (tok.length < 3) continue;
+      const prefix = tok.slice(0, 3);
+      if (seenPrefixes.has(prefix)) continue;
+      seenPrefixes.add(prefix);
+      let bucket = prefixIndex.get(prefix);
+      if (!bucket){ bucket = []; prefixIndex.set(prefix, bucket); }
+      bucket.push(i);
+    }
+  }
+}
+
+function setStatus(msg, isError=false, isLoading=false){
+  statusText.textContent = msg;
+  statusEl.className = 'status' + (isError ? ' error' : '');
+  statusSpinner.classList.toggle('show', isLoading);
+}
+
+function friendlyMessage(err, kind){
+  const isAbort = err && err.name === 'AbortError';
+  const msg = (err && err.message || '').toLowerCase();
+
+  if (isAbort){
+    return "That's taking longer than it should. Please try again.";
+  }
+  if (msg.includes('server responded') || msg.includes('http')){
+    return "The fund data service seems to be having trouble right now. Please try again in a moment.";
+  }
+  if (msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('load failed')){
+    return "Couldn't connect. Please check your internet connection and try again.";
+  }
+  if (msg.includes('no nav history') || msg.includes('empty fund list')){
+    return kind === 'list'
+      ? "We couldn't find any fund data right now. Please try again."
+      : "We couldn't find details for this fund. Please try again or pick another one.";
+  }
+  return "Something went wrong. Please try again.";
+}
+
+async function loadFundList(attempt=1){
+  if (fundsLoaded || fundsLoading) return;
+  fundsLoading = true;
+
+  // Serve straight from the cache when we have one — this is what makes
+  // search usable immediately on repeat visits instead of waiting on a
+  // multi-MB network fetch every single time. A background refresh keeps
+  // it from ever going too stale.
+  if (attempt === 1){
+    const cached = await idbGet('fundList', 'all');
+    if (cached && Array.isArray(cached.data) && cached.data.length){
+      allFunds = cached.data;
+      fundsLoaded = true;
+      fundsLoading = false;
+      buildSearchIndex();
+      setStatus('');
+      searchInput.disabled = false;
+      firstLoadLoader.classList.remove('show');
+      if (Date.now() - (cached.ts || 0) > FUND_LIST_TTL_MS){
+        refreshFundListInBackground();
+      }
+      return;
+    }
+  }
+
+  searchInput.disabled = true;
+  firstLoadLoader.classList.add('show');
+  const MAX_ATTEMPTS = 3;
+  try{
+    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('Empty fund list returned');
+    allFunds = data;
+    fundsLoaded = true;
+    buildSearchIndex();
+    idbSet('fundList', { key: 'all', data, ts: Date.now() });
+    setStatus('');
+  } catch(err){
+    fundsLoading = false;
+    if (attempt < MAX_ATTEMPTS){
+      firstLoadLoader.classList.remove('show');
+      searchInput.disabled = false;
+      await new Promise(r => setTimeout(r, attempt * 700));
+      return loadFundList(attempt + 1);
+    }
+    showRetryListError(friendlyMessage(err, 'list'));
+  } finally{
+    fundsLoading = false;
+    searchInput.disabled = false;
+    firstLoadLoader.classList.remove('show');
+  }
+}
+
+async function refreshFundListInBackground(){
+  try{
+    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return;
+    allFunds = data;
+    buildSearchIndex();
+    idbSet('fundList', { key: 'all', data, ts: Date.now() });
+  } catch(e){ /* stale cache is still fine — try again next visit */ }
+}
+
+function showRetryListError(message){
+  statusEl.className = 'status error';
+  statusSpinner.classList.remove('show');
+  statusText.innerHTML = `${escapeHtml(message)} <button type="button" id="statusRetryListBtn" class="status-retry-btn">Retry</button>`;
+  const btn = document.getElementById('statusRetryListBtn');
+  if (btn){
+    btn.addEventListener('click', () => loadFundList());
+  }
+}
+
+loadFundList();
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim();
+  clearTimeout(debounceTimer);
+  activeIndex = -1;
+
+  if (q.length < 3){
+    suggestionsBox.classList.remove('show');
+    suggestionsBox.innerHTML = '';
+    setStatus('');
+    return;
+  }
+
+  setStatus('Searching...', false, true);
+  debounceTimer = setTimeout(() => runSearch(q), 120);
+});
+
+async function runSearch(query){
+  if (!fundsLoaded){
+    setStatus('Fund database still loading, one moment...', false, true);
+    await loadFundList();
+    if (!fundsLoaded) return;
+  }
+
+  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
+  if (!words.length){
+    currentItems = [];
+    renderSuggestions(currentItems);
+    setStatus('');
+    return;
+  }
+
+  // Narrow the field with the prefix index first (near-instant for a
+  // ~40k-row list), then confirm real matches with a direct substring
+  // check against the precomputed lowercase names. Falls back to a full
+  // scan only when the first word is too short to have been indexed.
+  const firstPrefix = words[0].length >= 3 ? words[0].slice(0, 3) : null;
+  const candidates = (firstPrefix && prefixIndex.has(firstPrefix)) ? prefixIndex.get(firstPrefix) : null;
+  const scanLength = candidates ? candidates.length : searchIndex.length;
+  const limit = 30;
+  const matches = [];
+  let matchCount = 0;
+
+  for (let k = 0; k < scanLength; k++){
+    const i = candidates ? candidates[k] : k;
+    const lname = searchIndex[i];
+    let ok = true;
+    for (let w = 0; w < words.length; w++){
+      if (lname.indexOf(words[w]) === -1){ ok = false; break; }
+    }
+    if (ok){
+      matchCount++;
+      if (matches.length < limit) matches.push(allFunds[i]);
+    }
+  }
+
+  currentItems = matches;
+  renderSuggestions(currentItems);
+  setStatus(matchCount ? `${matchCount} results${matchCount > limit ? ` (showing first ${limit})` : ''}` : 'No matching funds found', !matchCount, false);
+}
+
+manualSearchBtn.addEventListener('click', async () => {
+  const q = searchInput.value.trim();
+  if (q.length < 3){
+    setStatus('Type at least 3 characters to search.', true);
+    searchInput.focus();
+    return;
+  }
+  clearTimeout(debounceTimer);
+  setStatus('Searching...', false, true);
+  if (!fundsLoaded && !fundsLoading){
+    await loadFundList();
+  }
+  await runSearch(q);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  const items = suggestionsBox.querySelectorAll('.suggestion-item');
+  if (!items.length) return;
+
+  if (e.key === 'ArrowDown'){
+    e.preventDefault();
+    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+    updateActive(items);
+  } else if (e.key === 'ArrowUp'){
+    e.preventDefault();
+    activeIndex = Math.max(activeIndex - 1, 0);
+    updateActive(items);
+  } else if (e.key === 'Enter'){
+    if (activeIndex >= 0 && currentItems[activeIndex]){
+      selectFund(currentItems[activeIndex]);
+    }
+  } else if (e.key === 'Escape'){
+    suggestionsBox.classList.remove('show');
+  }
+});
+
+function updateActive(items){
+  items.forEach(i => i.classList.remove('active'));
+  if (activeIndex >= 0){
+    items[activeIndex].classList.add('active');
+    items[activeIndex].scrollIntoView({block:'nearest'});
+  }
+}
+
+function renderSuggestions(items){
+  if (!items.length){
+    suggestionsBox.classList.remove('show');
+    suggestionsBox.innerHTML = '';
+    return;
+  }
+  suggestionsBox.innerHTML = items.map((item, idx) => `
+    <div class="suggestion-item" data-idx="${idx}">
+      <div>${escapeHtml(item.schemeName)}</div>
+      <div class="suggestion-code">Scheme Code: ${item.schemeCode}</div>
+    </div>
+  `).join('');
+  suggestionsBox.classList.add('show');
+
+  suggestionsBox.querySelectorAll('.suggestion-item').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.getAttribute('data-idx'));
+      selectFund(currentItems[idx]);
+    });
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+async function selectFund(item){
+  searchInput.value = item.schemeName;
+  suggestionsBox.classList.remove('show');
+  await loadFundByCode(item.schemeCode);
+}
+
+let lastAttemptedSchemeCode = null;
+
+async function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try{
+    return await fetch(url, { signal: controller.signal, cache: 'no-store' });
+  } finally{
+    clearTimeout(timer);
+  }
+}
+
+async function loadFundByCode(schemeCode, attempt=1){
+  const code = String(schemeCode).trim();
+  lastAttemptedSchemeCode = code;
+  const isFirstLoad = !card.classList.contains('show');
+
+  // If we already have this fund's NAV history cached, show it immediately
+  // — no spinner, no wait — then quietly fetch a fresh copy underneath so
+  // it's never more than one visit out of date.
+  let usedCache = false;
+  if (attempt === 1){
+    const cached = await idbGet('navCache', code);
+    if (cached && cached.data){
+      displayFund(cached.data, code);
+      setStatus('');
+      usedCache = true;
+    }
+  }
+
+  if (!usedCache){
+    setStatus(`Loading data for scheme code ${code}${attempt > 1 ? ` (retry ${attempt - 1})` : ''}...`, false, true);
+    if (!isFirstLoad) card.classList.add('loading');
+  }
+
+  const MAX_ATTEMPTS = 3;
+  try{
+    const res = await fetchWithTimeout(`https://api.mfapi.in/mf/${encodeURIComponent(code)}`, 12000);
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+    const data = await res.json();
+    if (!data || !Array.isArray(data.data) || !data.data.length){
+      throw new Error('No NAV history returned for this scheme');
+    }
+
+    const freshLatest = data.data[0] || {};
+    const cachedLatest = usedCache ? (currentNavData[0] || {}) : null;
+    const isNewData = !usedCache
+      || currentNavData.length !== data.data.length
+      || cachedLatest.date !== freshLatest.date
+      || cachedLatest.nav !== freshLatest.nav;
+    if (isNewData){
+      displayFund(data, code);
+    }
+    idbSet('navCache', { code, data, ts: Date.now() });
+    setStatus('');
+  } catch(err){
+    // Already showing cached data — a failed background refresh shouldn't
+    // disturb it or throw up an error the user didn't ask to see.
+    if (usedCache) return;
+
+    const isAbort = err.name === 'AbortError';
+    if (attempt < MAX_ATTEMPTS && (isAbort || (err.message || '').startsWith('Server responded') || (err.message || '').includes('fetch'))){
+      await new Promise(r => setTimeout(r, attempt * 500));
+      card.classList.remove('loading');
+      return loadFundByCode(code, attempt + 1);
+    }
+
+    showRetryableError(friendlyMessage(err, 'detail'));
+  } finally{
+    card.classList.remove('loading');
+  }
+}
+
+function showRetryableError(message){
+  statusEl.className = 'status error';
+  statusSpinner.classList.remove('show');
+  statusText.innerHTML = `${escapeHtml(message)} <button type="button" id="statusRetryBtn" class="status-retry-btn">Retry</button>`;
+  const btn = document.getElementById('statusRetryBtn');
+  if (btn){
+    btn.addEventListener('click', () => {
+      if (lastAttemptedSchemeCode) loadFundByCode(lastAttemptedSchemeCode);
+    });
+  }
+}
+
+// ---------- Fund house logos (via Clearbit's free logo API — no key required) ----------
+// Maps recognizable fragments of an AMC's name to its official domain so we can
+// pull a real logo instead of a generic icon. Falls back to initials if no match
+// is found or the image fails to load.
+const AMC_DOMAINS = {
+  'sbi mutual fund': 'sbimf.com',
+  'hdfc mutual fund': 'hdfcfund.com',
+  'icici prudential': 'icicipruamc.com',
+  'aditya birla sun life': 'mutualfund.adityabirlacapital.com',
+  'axis mutual fund': 'axismf.com',
+  'kotak mahindra': 'kotakmf.com',
+  'nippon india': 'mf.nipponindiaim.com',
+  'uti mutual fund': 'utimf.com',
+  'tata mutual fund': 'tatamutualfund.com',
+  'dsp mutual fund': 'dspim.com',
+  'franklin templeton': 'franklintempletonindia.com',
+  'invesco mutual fund': 'invescomutualfund.com',
+  'mirae asset': 'miraeassetmf.co.in',
+  'motilal oswal': 'motilaloswalmf.com',
+  'pgim india': 'pgimindiamf.com',
+  'quant mutual fund': 'quantmutual.com',
+  'quantum mutual fund': 'quantumamc.com',
+  'edelweiss mutual fund': 'edelweissmf.com',
+  'canara robeco': 'canararobeco.com',
+  'bandhan mutual fund': 'bandhanmutual.com',
+  'idfc mutual fund': 'bandhanmutual.com',
+  'lic mutual fund': 'licmf.com',
+  'baroda bnp paribas': 'barodabnpparibasmf.in',
+  'sundaram mutual fund': 'sundarammutual.com',
+  'hsbc mutual fund': 'assetmanagement.hsbc.co.in',
+  'union mutual fund': 'unionmf.com',
+  'navi mutual fund': 'navi.com',
+  'whiteoak capital': 'whiteoakamc.com',
+  'bank of india mutual fund': 'boiaxamc.com',
+  'jm financial mutual fund': 'jmfinancialmf.com',
+  'mahindra manulife': 'mahindramanulife.com',
+  '360 one mutual fund': '360.one',
+  'groww mutual fund': 'groww.in',
+  'samco mutual fund': 'samco.in',
+  'trust mutual fund': 'trustmf.com',
+  'iti mutual fund': 'itimf.com',
+  'shriram mutual fund': 'shriramamc.com',
+  'nj mutual fund': 'njmutualfund.com',
+  'old bridge mutual fund': 'oldbridgemf.com',
+  'parag parikh': 'ppfas.com',
+  'taurus mutual fund': 'taurusmutualfund.com',
+  'pnb mutual fund': 'pnbamc.com',
+  'indiabulls mutual fund': 'groww.in',
+  'helios mutual fund': 'heliosmf.com',
+  'zerodha mutual fund': 'coin.zerodha.com',
+  'unifi mutual fund': 'unifimf.com'
+};
+const AMC_DOMAIN_KEYS = Object.keys(AMC_DOMAINS).sort((a, b) => b.length - a.length);
+
+function resolveAmcDomain(fundHouseName){
+  if (!fundHouseName) return null;
+  const lower = fundHouseName.toLowerCase();
+  const key = AMC_DOMAIN_KEYS.find(k => lower.includes(k));
+  return key ? AMC_DOMAINS[key] : null;
+}
+
+function setFundAvatar(fundHouseName, schemeName){
+  const avatar = document.getElementById('fundAvatar');
+  const initials = (schemeName.trim().charAt(0) || 'F').toUpperCase();
+  const domain = resolveAmcDomain(fundHouseName);
+  avatar.innerHTML = '';
+  if (!domain){
+    avatar.textContent = initials;
+    return;
+  }
+  const img = document.createElement('img');
+  img.className = 'fund-avatar-img';
+  img.alt = fundHouseName + ' logo';
+  img.referrerPolicy = 'no-referrer';
+  img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
+  img.onerror = () => { avatar.innerHTML = ''; avatar.textContent = initials; };
+  avatar.appendChild(img);
+}
+
+function displayFund(data, schemeCode){
+  const meta = data.meta || {};
+  const navData = data.data || [];
+  const latest = navData[0] || {};
+
+  currentNavData = navData;
+  currentSchemeName = meta.scheme_name || ('scheme-' + schemeCode);
+  currentFundMeta = {
+    schemeCode: schemeCode,
+    schemeName: currentSchemeName,
+    fundHouse: meta.fund_house || '',
+    schemeType: meta.scheme_type || '',
+    schemeCategory: meta.scheme_category || '',
+    latestNav: latest.nav || '',
+    asOn: latest.date || ''
+  };
+
+  setFundAvatar(meta.fund_house || '', currentSchemeName);
+  document.getElementById('fundName').textContent = meta.scheme_name || '—';
+  document.getElementById('fundHouse').innerHTML = meta.fund_house ? `<i class="bi bi-bank"></i> ${escapeHtml(meta.fund_house)}` : '';
+  document.getElementById('schemeCodeBadge').textContent = `Scheme Code: ${schemeCode}`;
+  document.getElementById('latestNav').textContent = latest.nav ? `₹${latest.nav}` : '—';
+  document.getElementById('navDate').textContent = latest.date || '—';
+  document.getElementById('schemeType').textContent = meta.scheme_type || '—';
+  document.getElementById('schemeCategory').textContent = meta.scheme_category || '—';
+
+  currentChartRange = 'max';
+  applyChartRange('max');
+
+  renderHistoryTable(navData);
+  updateAddToCompareBtn();
+  card.classList.add('show');
+  if (navChartInstance){
+    requestAnimationFrame(() => navChartInstance.resize());
+  }
+
+  saveRecent({
+    schemeCode: schemeCode,
+    schemeName: currentSchemeName,
+    fundHouse: meta.fund_house || '',
+    when: new Date().toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' })
+  });
+}
+
+function parseHistDate(str){
+  // mfapi.in dates are dd-mm-yyyy
+  const parts = (str || '').split('-');
+  if (parts.length !== 3) return null;
+  const [d, m, y] = parts.map(Number);
+  if (!d || !m || !y) return null;
+  const dt = new Date(y, m - 1, d);
+  return isNaN(dt.getTime()) ? null : dt;
+}
+
+const HISTORY_PAGE_SIZE = 50;
+let historyFullData = [];
+let historyShownCount = 0;
+
+function historyRowHtml(row, idx, fullData){
+  const nav = parseFloat(row.nav);
+  const prevRow = fullData[idx + 1]; // next row = the older/previous trading day
+  let changeHtml = '';
+  if (prevRow){
+    const prevNav = parseFloat(prevRow.nav);
+    if (!isNaN(nav) && !isNaN(prevNav) && prevNav !== 0){
+      const pct = ((nav - prevNav) / prevNav) * 100;
+      const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : 'flat';
+      const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+      changeHtml = `<span class="nav-change ${dir}"><i class="bi ${icon}"></i>${Math.abs(pct).toFixed(2)}%</span>`;
+    }
+  }
+  const dt = parseHistDate(row.date);
+  const weekday = dt ? dt.toLocaleDateString(undefined, { weekday: 'short' }) : '';
+  return `
+    <tr>
+      <td>
+        <div class="hist-date">
+          ${weekday ? `<span class="hist-day">${escapeHtml(weekday)}</span>` : ''}
+          <span>${escapeHtml(row.date)}</span>
+        </div>
+      </td>
+      <td>
+        <div class="hist-nav-wrap">
+          ${changeHtml}
+          <span class="hist-nav">₹${escapeHtml(row.nav)}</span>
+        </div>
+      </td>
+    </tr>`;
+}
+
+function updateLoadMoreButton(){
+  const btn = document.getElementById('loadMoreHistoryBtn');
+  if (!btn) return;
+  const remaining = historyFullData.length - historyShownCount;
+  if (remaining > 0){
+    btn.style.display = 'inline-flex';
+    btn.innerHTML = `<i class="bi bi-chevron-down"></i> Load ${Math.min(HISTORY_PAGE_SIZE, remaining)} more (${remaining} left)`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function renderHistoryTable(navData, isFiltered=false, totalCount=null){
+  const body = document.getElementById('historyBody');
+
+  historyFullData = navData;
+  historyShownCount = 0;
+
+  if (!navData.length){
+    body.innerHTML = `<tr><td colspan="2" class="no-date-match"><i class="bi bi-calendar-x"></i> ${isFiltered ? 'No entries match that date' : 'No history available'}</td></tr>`;
+    updateLoadMoreButton();
+    return;
+  }
+
+  const firstPage = navData.slice(0, HISTORY_PAGE_SIZE);
+  body.innerHTML = firstPage.map((row, idx) => historyRowHtml(row, idx, navData)).join('');
+  historyShownCount = firstPage.length;
+  updateLoadMoreButton();
+}
+
+function loadMoreHistoryRows(){
+  const body = document.getElementById('historyBody');
+  const nextBatch = historyFullData.slice(historyShownCount, historyShownCount + HISTORY_PAGE_SIZE);
+  if (!nextBatch.length) { updateLoadMoreButton(); return; }
+  body.insertAdjacentHTML('beforeend', nextBatch.map((row, i) => historyRowHtml(row, historyShownCount + i, historyFullData)).join(''));
+  historyShownCount += nextBatch.length;
+  updateLoadMoreButton();
+}
+
+document.getElementById('loadMoreHistoryBtn').addEventListener('click', loadMoreHistoryRows);
+
+// ---------- Download (structured: fund details + full NAV history) ----------
+document.getElementById('downloadBtn').addEventListener('click', () => {
+  if (!currentNavData.length || !currentFundMeta){
+    setStatus('Nothing to download yet — pick a fund first.', true);
+    return;
+  }
+  const payload = {
+    fund: {
+      schemeCode: currentFundMeta.schemeCode,
+      schemeName: currentFundMeta.schemeName,
+      fundHouse: currentFundMeta.fundHouse,
+      schemeType: currentFundMeta.schemeType,
+      schemeCategory: currentFundMeta.schemeCategory,
+      latestNav: currentFundMeta.latestNav,
+      asOn: currentFundMeta.asOn
+    },
+    navHistory: currentNavData.map(row => ({ date: row.date, nav: row.nav })),
+    meta: {
+      source: 'mfapi.in',
+      generatedBy: 'Invisible House · Microintel',
+      downloadedAt: new Date().toISOString()
+    }
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const houseSlug = (currentFundMeta.fundHouse || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const nameSlug = currentSchemeName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  const safeName = [houseSlug, nameSlug, currentFundMeta.schemeCode].filter(Boolean).join('-');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${safeName || 'nav-history'}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+let navChartInstance = null;
+
+// ---------- Two-point NAV comparison ----------
+// currentChartRows mirrors whatever points are currently plotted (either
+// path — Chart.js or the plain-canvas fallback), so a click index always
+// resolves to the right {date, nav}. chartSelection holds up to 2 picks;
+// a 3rd tap starts a fresh pair.
+let currentChartRows = [];
+let chartSelection = [];
+let twoPointPluginRegistered = false;
+let redrawFallbackMarkers = null;
+
+const twoPointSelectionPlugin = {
+  id: 'twoPointSelection',
+  afterDatasetsDraw(chart){
+    if (!chartSelection.length) return;
+    const meta = chart.getDatasetMeta(0);
+    if (!meta || !meta.data) return;
+    const ctx = chart.ctx;
+    const colors = ['#4fd1c5', '#d1a54c'];
+
+    if (chartSelection.length === 2){
+      const elA = meta.data[chartSelection[0].index];
+      const elB = meta.data[chartSelection[1].index];
+      if (elA && elB){
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.moveTo(elA.x, elA.y);
+        ctx.lineTo(elB.x, elB.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    chartSelection.forEach((sel, i) => {
+      const el = meta.data[sel.index];
+      if (!el) return;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(el.x, el.y, 6, 0, Math.PI * 2);
+      ctx.fillStyle = colors[i] || colors[0];
+      ctx.fill();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#ffffff';
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+};
+
+function resetChartSelection(){
+  chartSelection = [];
+  renderChartCompare();
+  if (navChartInstance) navChartInstance.update('none');
+  else if (typeof redrawFallbackMarkers === 'function') redrawFallbackMarkers();
+}
+
+function handleChartPointPick(idx){
+  if (!currentChartRows[idx]) return;
+  if (chartSelection.length >= 2) chartSelection = [];
+  if (chartSelection.length === 1 && chartSelection[0].index === idx) return; // tapped the same point again
+
+  chartSelection.push({ index: idx, date: currentChartRows[idx].date, nav: currentChartRows[idx].nav });
+  if (chartSelection.length === 2){
+    chartSelection.sort((a, b) => a.index - b.index);
+  }
+
+  renderChartCompare();
+  if (navChartInstance) navChartInstance.update('none');
+  else if (typeof redrawFallbackMarkers === 'function') redrawFallbackMarkers();
+}
+
+function renderChartCompare(){
+  const el = document.getElementById('chartCompare');
+  if (!el) return;
+
+  if (!chartSelection.length){
+    el.classList.remove('show');
+    el.innerHTML = '';
+    return;
+  }
+
+  if (chartSelection.length === 1){
+    el.classList.add('show');
+    el.innerHTML = `<div class="chart-compare-hint"><span class="dot a" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);"></span> ${escapeHtml(chartSelection[0].date)} selected — tap a second point to compare</div>`;
+    return;
+  }
+
+  const [a, b] = chartSelection;
+  const navA = parseFloat(a.nav);
+  const navB = parseFloat(b.nav);
+  const pct = navA !== 0 ? ((navB - navA) / navA) * 100 : 0;
+  const absChange = navB - navA;
+  const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : '';
+  const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+
+  el.classList.add('show');
+  el.innerHTML = `
+    <div class="chart-compare-row">
+      <div class="chart-compare-dates">
+        <span><span class="dot a"></span> ${escapeHtml(a.date)} · ₹${escapeHtml(String(a.nav))}</span>
+        <i class="bi bi-arrow-right"></i>
+        <span><span class="dot b"></span> ${escapeHtml(b.date)} · ₹${escapeHtml(String(b.nav))}</span>
+      </div>
+      <button type="button" class="chart-compare-clear" id="chartCompareClear">Clear</button>
+    </div>
+    <div class="chart-compare-figures" style="margin-top:8px;">
+      <span class="pct ${dir}"><i class="bi ${icon}"></i> ${Math.abs(pct).toFixed(2)}%</span>
+      <span class="abs">${absChange >= 0 ? '+' : ''}₹${absChange.toFixed(4)} change</span>
+    </div>
+  `;
+
+  const clearBtn = document.getElementById('chartCompareClear');
+  if (clearBtn) clearBtn.addEventListener('click', resetChartSelection);
+}
+
+// ---------- Compare Funds (up to 4, overlaid NAV chart) ----------
+// Persisted in IndexedDB so the selection (including full NAV history)
+// survives a page reload and is only cleared by an explicit user action.
+const COMPARE_COLORS = ['#4fd1c5', '#d1a54c', '#e5737e', '#7c9eff'];
+const COMPARE_LIMIT = 4;
+let compareFunds = []; // { schemeCode, schemeName, fundHouse, navData: [{date, nav}] ascending, color, order }
+let compareChartInstance = null;
+let compareChartRowsByFund = []; // per-fund rows aligned to compareChartLabels, for point-pick lookup
+let compareChartLabels = [];
+let compareChartRange = 'max';
+let compareSelection = []; // up to 2 { index, date }
+let compareTwoPointPluginRegistered = false;
+
+// ---------- IndexedDB store for compare selections ----------
+const COMPARE_DB_NAME = 'ih_compare_db';
+const COMPARE_DB_VERSION = 1;
+const COMPARE_STORE = 'funds';
+let compareDbPromise = null;
+
+function openCompareDB(){
+  if (compareDbPromise) return compareDbPromise;
+  compareDbPromise = new Promise((resolve, reject) => {
+    if (!window.indexedDB){ reject(new Error('IndexedDB unavailable')); return; }
+    const req = indexedDB.open(COMPARE_DB_NAME, COMPARE_DB_VERSION);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(COMPARE_STORE)){
+        db.createObjectStore(COMPARE_STORE, { keyPath: 'schemeCode' });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+  return compareDbPromise;
+}
+
+async function idbPutCompareFund(fund){
+  try{
+    const db = await openCompareDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(COMPARE_STORE, 'readwrite');
+      tx.objectStore(COMPARE_STORE).put(fund);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch(e){ /* IndexedDB unavailable — comparison still works for this session */ }
+}
+
+async function idbDeleteCompareFund(schemeCode){
+  try{
+    const db = await openCompareDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(COMPARE_STORE, 'readwrite');
+      tx.objectStore(COMPARE_STORE).delete(String(schemeCode));
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch(e){ /* ignore */ }
+}
+
+async function idbClearCompareFunds(){
+  try{
+    const db = await openCompareDB();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(COMPARE_STORE, 'readwrite');
+      tx.objectStore(COMPARE_STORE).clear();
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch(e){ /* ignore */ }
+}
+
+async function idbGetAllCompareFunds(){
+  try{
+    const db = await openCompareDB();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(COMPARE_STORE, 'readonly');
+      const req = tx.objectStore(COMPARE_STORE).getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  } catch(e){ return []; }
+}
+
+async function loadCompareFundsFromDB(){
+  const stored = await idbGetAllCompareFunds();
+  if (!stored.length) return;
+  stored.sort((a, b) => (a.order || 0) - (b.order || 0));
+  compareFunds = stored;
+  updateAddToCompareBtn();
+  updateCompareCountBadge();
+  if (comparePanel.classList.contains('active')) renderCompareUI();
+}
+loadCompareFundsFromDB();
+
+function nextCompareColor(){
+  const used = new Set(compareFunds.map(f => f.color));
+  return COMPARE_COLORS.find(c => !used.has(c)) || COMPARE_COLORS[compareFunds.length % COMPARE_COLORS.length];
+}
+
+function isFundInCompare(schemeCode){
+  return compareFunds.some(f => String(f.schemeCode) === String(schemeCode));
+}
+
+function updateAddToCompareBtn(){
+  const btn = document.getElementById('addToCompareBtn');
+  if (!btn || !currentFundMeta) return;
+  const inCompare = isFundInCompare(currentFundMeta.schemeCode);
+  btn.classList.toggle('added', inCompare);
+  btn.classList.toggle('full', !inCompare && compareFunds.length >= COMPARE_LIMIT);
+  btn.innerHTML = inCompare
+    ? '<i class="bi bi-check-circle-fill"></i> Added to Compare'
+    : (compareFunds.length >= COMPARE_LIMIT
+        ? '<i class="bi bi-bar-chart-line"></i> Compare full (4/4)'
+        : '<i class="bi bi-bar-chart-line"></i> Add to Compare');
+}
+
+function updateCompareCountBadge(){
+  const badge = document.getElementById('compareCountBadge');
+  if (!badge) return;
+  if (compareFunds.length){
+    badge.textContent = String(compareFunds.length);
+    badge.style.display = 'inline-flex';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+document.getElementById('addToCompareBtn').addEventListener('click', () => {
+  if (!currentFundMeta || !currentNavData.length){
+    setStatus('Pick a fund first before adding it to compare.', true);
+    return;
+  }
+  if (isFundInCompare(currentFundMeta.schemeCode)){
+    removeFromCompare(currentFundMeta.schemeCode);
+    return;
+  }
+  if (compareFunds.length >= COMPARE_LIMIT){
+    setStatus('You can compare up to 4 funds at a time. Remove one first.', true);
+    return;
+  }
+  const ascending = [...currentNavData].reverse()
+    .map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
+    .filter(r => !isNaN(r.nav));
+  const newFund = {
+    schemeCode: currentFundMeta.schemeCode,
+    schemeName: currentFundMeta.schemeName,
+    fundHouse: currentFundMeta.fundHouse,
+    navData: ascending,
+    color: nextCompareColor(),
+    order: Date.now()
+  };
+  compareFunds.push(newFund);
+  updateAddToCompareBtn();
+  updateCompareCountBadge();
+  renderCompareUI();
+  idbPutCompareFund(newFund);
+});
+
+function removeFromCompare(schemeCode){
+  compareFunds = compareFunds.filter(f => String(f.schemeCode) !== String(schemeCode));
+  compareSelection = [];
+  updateAddToCompareBtn();
+  updateCompareCountBadge();
+  renderCompareUI();
+  idbDeleteCompareFund(schemeCode);
+}
+
+document.getElementById('clearCompareBtn').addEventListener('click', () => {
+  compareFunds = [];
+  compareSelection = [];
+  updateAddToCompareBtn();
+  updateCompareCountBadge();
+  renderCompareUI();
+  idbClearCompareFunds();
+});
+
+function renderCompareUI(){
+  const empty = document.getElementById('compareEmpty');
+  const card = document.getElementById('compareCard');
+  const legend = document.getElementById('compareLegend');
+  if (!empty || !card || !legend) return;
+
+  if (!compareFunds.length){
+    empty.style.display = '';
+    card.classList.remove('show');
+    if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
+    return;
+  }
+
+  empty.style.display = 'none';
+  card.classList.add('show');
+
+  legend.innerHTML = compareFunds.map(f => `
+    <div class="compare-legend-item">
+      <span class="compare-legend-dot" style="background:${f.color};"></span>
+      <span class="compare-legend-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
+      <button type="button" class="compare-legend-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
+    </div>
+  `).join('');
+
+  legend.querySelectorAll('.compare-legend-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeFromCompare(btn.dataset.code));
+  });
+
+  // The canvas has zero size while its tab is hidden, which breaks Chart.js
+  // rendering — only draw once the Compare panel is actually visible.
+  if (comparePanel.classList.contains('active')){
+    requestAnimationFrame(() => drawCompareChart());
+  }
+}
+
+function buildCompareDataset(range){
+  // Use the most recent date across all selected funds as the reference
+  // point for range cutoffs, so every line shows the same time window.
+  let latestDate = null;
+  compareFunds.forEach(f => {
+    const last = f.navData[f.navData.length - 1];
+    const dt = last ? parseHistDate(last.date) : null;
+    if (dt && (!latestDate || dt > latestDate)) latestDate = dt;
+  });
+  const cutoff = (range !== 'max' && latestDate) ? getRangeCutoffDate(latestDate, range) : null;
+
+  const filteredFunds = compareFunds.map(f => {
+    if (!cutoff) return f;
+    const rows = f.navData.filter(r => {
+      const dt = parseHistDate(r.date);
+      return dt && dt >= cutoff;
+    });
+    return { ...f, navData: rows.length ? rows : f.navData };
+  });
+
+  const dateSet = new Set();
+  filteredFunds.forEach(f => f.navData.forEach(r => dateSet.add(r.date)));
+  const allDates = Array.from(dateSet).sort((a, b) => (parseHistDate(a) || 0) - (parseHistDate(b) || 0));
+
+  compareChartRowsByFund = filteredFunds.map(f => {
+    const map = new Map(f.navData.map(r => [r.date, r.nav]));
+    return allDates.map(d => (map.has(d) ? map.get(d) : null));
+  });
+  compareChartLabels = allDates;
+
+  return { labels: allDates, rowsByFund: compareChartRowsByFund };
+}
+
+const compareTwoPointPlugin = {
+  id: 'compareTwoPointSelection',
+  afterDatasetsDraw(chart){
+    if (!compareSelection.length) return;
+    const ctx = chart.ctx;
+    const chartArea = chart.chartArea;
+
+    compareSelection.forEach(sel => {
+      const xPixel = chart.scales.x.getPixelForValue(sel.index);
+      ctx.save();
+      ctx.beginPath();
+      ctx.setLineDash([5, 4]);
+      ctx.strokeStyle = 'rgba(255,255,255,0.55)';
+      ctx.lineWidth = 1.5;
+      ctx.moveTo(xPixel, chartArea.top);
+      ctx.lineTo(xPixel, chartArea.bottom);
+      ctx.stroke();
+      ctx.restore();
+    });
+
+    chart.data.datasets.forEach((ds, dsIndex) => {
+      const meta = chart.getDatasetMeta(dsIndex);
+      if (!meta || !meta.data) return;
+      compareSelection.forEach(sel => {
+        const val = ds.data[sel.index];
+        if (val === null || val === undefined) return;
+        const el = meta.data[sel.index];
+        if (!el) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(el.x, el.y, 5, 0, Math.PI * 2);
+        ctx.fillStyle = ds.borderColor;
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+        ctx.restore();
+      });
+    });
+  }
+};
+
+function handleComparePointPick(idx){
+  if (!compareChartLabels[idx]) return;
+  if (compareSelection.length >= 2) compareSelection = [];
+  if (compareSelection.length === 1 && compareSelection[0].index === idx) return;
+
+  compareSelection.push({ index: idx, date: compareChartLabels[idx] });
+  if (compareSelection.length === 2){
+    compareSelection.sort((a, b) => a.index - b.index);
+  }
+  renderCompareChartCompare();
+  if (compareChartInstance) compareChartInstance.update('none');
+}
+
+function resetCompareSelection(){
+  compareSelection = [];
+  renderCompareChartCompare();
+  if (compareChartInstance) compareChartInstance.update('none');
+}
+
+function renderCompareChartCompare(){
+  const el = document.getElementById('compareChartCompare');
+  if (!el) return;
+
+  if (!compareSelection.length){
+    el.classList.remove('show');
+    el.innerHTML = '';
+    return;
+  }
+
+  if (compareSelection.length === 1){
+    el.classList.add('show');
+    el.innerHTML = `<div class="chart-compare-hint"><span class="dot a" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);"></span> ${escapeHtml(compareSelection[0].date)} selected — tap a second point to compare</div>`;
+    return;
+  }
+
+  const [a, b] = compareSelection;
+  const rows = compareFunds.map((f, i) => {
+    const navA = compareChartRowsByFund[i][a.index];
+    const navB = compareChartRowsByFund[i][b.index];
+    if (navA === null || navA === undefined || navB === null || navB === undefined){
+      return { fund: f, noData: true };
+    }
+    const pct = navA !== 0 ? ((navB - navA) / navA) * 100 : 0;
+    const dir = pct > 0.0005 ? 'up' : pct < -0.0005 ? 'down' : '';
+    const icon = dir === 'up' ? 'bi-caret-up-fill' : dir === 'down' ? 'bi-caret-down-fill' : 'bi-dash-lg';
+    return { fund: f, navA, navB, pct, dir, icon };
+  });
+
+  el.classList.add('show');
+  el.innerHTML = `
+    <div class="chart-compare-row">
+      <div class="chart-compare-dates">
+        <span><span class="dot a"></span> ${escapeHtml(a.date)}</span>
+        <i class="bi bi-arrow-right"></i>
+        <span><span class="dot b"></span> ${escapeHtml(b.date)}</span>
+      </div>
+      <button type="button" class="chart-compare-clear" id="compareChartCompareClear">Clear</button>
+    </div>
+    <div style="margin-top:10px;">
+      ${rows.map(r => `
+        <div class="compare-point-row">
+          <div class="compare-point-fund">
+            <span class="compare-legend-dot" style="background:${r.fund.color};"></span>
+            <span title="${escapeHtml(r.fund.schemeName)}">${escapeHtml(r.fund.schemeName)}</span>
+          </div>
+          ${r.noData
+            ? '<span style="color:var(--muted);">No data</span>'
+            : `<div class="chart-compare-figures" style="gap:0;"><span class="pct ${r.dir}" style="font-size:13px;"><i class="bi ${r.icon}"></i> ${Math.abs(r.pct).toFixed(2)}%</span></div>`
+          }
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const clearBtn = document.getElementById('compareChartCompareClear');
+  if (clearBtn) clearBtn.addEventListener('click', resetCompareSelection);
+}
+
+function drawCompareChart(){
+  const canvas = document.getElementById('compareChart');
+  const resetBtn = document.getElementById('compareChartResetZoom');
+  if (!canvas || typeof Chart === 'undefined' || !compareFunds.length) return;
+
+  // Always rebuild fresh: reusing an instance that may have been created
+  // while its tab was hidden (zero-size canvas) leaves Chart.js with stale
+  // internal dimensions that a plain update() won't fix.
+  if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
+
+  compareSelection = [];
+  renderCompareChartCompare();
+
+  const { labels } = buildCompareDataset(compareChartRange);
+  const labelEl = document.getElementById('compareChartLabel');
+  if (labelEl) labelEl.textContent = `NAV trend · ${CHART_RANGE_LABELS[compareChartRange] || 'full history'} (${labels.length} points)`;
+
+  const styles = getComputedStyle(document.documentElement);
+  const textColor = styles.getPropertyValue('--text').trim() || '#e7eaef';
+  const mutedColor = styles.getPropertyValue('--muted').trim() || '#7d8794';
+  const panelColor = styles.getPropertyValue('--panel').trim() || '#12161d';
+  const borderColor = styles.getPropertyValue('--border').trim() || '#242b37';
+
+  const datasets = compareFunds.map((f, i) => ({
+    label: f.schemeName,
+    data: compareChartRowsByFund[i],
+    borderColor: f.color,
+    backgroundColor: 'transparent',
+    pointRadius: 0,
+    pointHoverRadius: 5,
+    pointHoverBackgroundColor: f.color,
+    pointHoverBorderColor: panelColor,
+    pointHoverBorderWidth: 2,
+    borderWidth: 2,
+    fill: false,
+    tension: 0.15,
+    spanGaps: true
+  }));
+
+  const allVals = datasets.flatMap(ds => ds.data.filter(v => v !== null && v !== undefined));
+  const min = allVals.length ? Math.min(...allVals) : 0;
+  const max = allVals.length ? Math.max(...allVals) : 1;
+  const padY = (max - min) * 0.08 || max * 0.02 || 1;
+
+  const config = {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      interaction: { mode: 'index', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: panelColor,
+          titleColor: mutedColor,
+          bodyColor: textColor,
+          borderColor: borderColor,
+          borderWidth: 1,
+          padding: 10,
+          titleFont: { size: 11, family: 'JetBrains Mono, monospace' },
+          bodyFont: { size: 12, weight: '700', family: 'JetBrains Mono, monospace' },
+          displayColors: true,
+          callbacks: {
+            title: (items) => items[0] ? `📅 ${items[0].label}` : '',
+            label: (item) => `${item.dataset.label}: ₹${item.parsed.y !== null ? item.parsed.y.toFixed(4) : '—'}`
+          }
+        },
+        zoom: {
+          zoom: {
+            wheel: { enabled: true, speed: 0.08 },
+            pinch: { enabled: true },
+            drag: { enabled: false },
+            mode: 'x',
+          },
+          pan: { enabled: true, mode: 'x' },
+          limits: { x: { min: 'original', max: 'original', minRange: 10 } }
+        }
+      },
+      scales: {
+        x: { display: false },
+        y: {
+          min: min - padY,
+          max: max + padY,
+          grid: { color: color_mix_fallback(mutedColor, 0.08) },
+          ticks: {
+            color: mutedColor,
+            font: { size: 10 },
+            maxTicksLimit: 5,
+            callback: (v) => '₹' + Number(v).toFixed(1)
+          }
+        }
+      }
+    }
+  };
+
+  if (!compareTwoPointPluginRegistered){
+    Chart.register(compareTwoPointPlugin);
+    compareTwoPointPluginRegistered = true;
+  }
+
+  compareChartInstance = new Chart(canvas.getContext('2d'), config);
+
+  if (resetBtn){
+    resetBtn.classList.remove('show');
+    resetBtn.onclick = () => {
+      if (compareChartInstance){
+        compareChartInstance.resetZoom();
+        resetBtn.classList.remove('show');
+      }
+    };
+    canvas.onwheel = () => resetBtn.classList.add('show');
+    canvas.parentElement.addEventListener('pointerdown', () => resetBtn.classList.add('show'));
+  }
+
+  canvas.onclick = (evt) => {
+    if (!compareChartInstance) return;
+    const els = compareChartInstance.getElementsAtEventForMode(evt, 'index', { intersect: false, axis: 'x' }, true);
+    if (!els.length) return;
+    handleComparePointPick(els[0].index);
+  };
+}
+
+function getRangeCutoffDate(latestDate, range){
+  const d = new Date(latestDate.getTime());
+  switch(range){
+    case '1w': d.setDate(d.getDate() - 7); break;
+    case '1m': d.setMonth(d.getMonth() - 1); break;
+    case '6m': d.setMonth(d.getMonth() - 6); break;
+    case '1y': d.setFullYear(d.getFullYear() - 1); break;
+    case '3y': d.setFullYear(d.getFullYear() - 3); break;
+    case '5y': d.setFullYear(d.getFullYear() - 5); break;
+    default: return null; // 'max' — no cutoff
+  }
+  return d;
+}
+
+function getChartDataForRange(range){
+  if (!currentNavData || !currentNavData.length) return [];
+  const ascending = [...currentNavData].reverse(); // oldest -> newest, as drawChart expects
+  if (range === 'max') return ascending;
+  const latestDate = parseHistDate(currentNavData[0].date);
+  const cutoff = latestDate ? getRangeCutoffDate(latestDate, range) : null;
+  if (!cutoff) return ascending;
+  const filtered = ascending.filter(row => {
+    const dt = parseHistDate(row.date);
+    return dt && dt >= cutoff;
+  });
+  return filtered.length ? filtered : ascending;
+}
+
+const CHART_RANGE_LABELS = {
+  max: 'full history', '5y': 'last 5 years', '3y': 'last 3 years',
+  '1y': 'last 1 year', '6m': 'last 6 months', '1m': 'last 1 month', '1w': 'last 1 week'
+};
+
+function applyChartRange(range){
+  currentChartRange = range;
+  document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+  const filtered = getChartDataForRange(range);
+  drawChart(filtered);
+  document.getElementById('chartLabel').textContent = `NAV trend · ${CHART_RANGE_LABELS[range] || 'full history'} (${filtered.length} points)`;
+}
+
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyChartRange(btn.dataset.range));
+});
+
+function applyCompareChartRange(range){
+  compareChartRange = range;
+  document.querySelectorAll('.compare-range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === range));
+  drawCompareChart();
+}
+
+document.querySelectorAll('.compare-range-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyCompareChartRange(btn.dataset.range));
+});
+
+function drawChart(points){
+  const canvas = document.getElementById('navChart');
+  const resetBtn = document.getElementById('chartResetZoom');
+  const hintEl = document.querySelector('.chart-hint');
+
+  // A new range or a newly loaded fund invalidates any point indices from
+  // the previous chart, so start the comparison fresh each time.
+  chartSelection = [];
+  renderChartCompare();
+
+  if (!points.length){
+    if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+    currentChartRows = [];
+    return;
+  }
+
+  const rows = points
+    .map(p => ({ date: p.date, nav: parseFloat(p.nav) }))
+    .filter(r => !isNaN(r.nav));
+  if (!rows.length) return;
+  currentChartRows = rows;
+
+  if (typeof Chart === 'undefined'){
+    // Chart.js failed to load from every CDN attempt — degrade gracefully to a
+    // simple static line chart instead of breaking fund detail loading.
+    if (resetBtn) resetBtn.classList.remove('show');
+    if (hintEl) hintEl.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Interactive chart library unavailable — showing basic chart';
+    drawPlainFallbackChart(canvas, rows);
+    return;
+  }
+  if (hintEl) hintEl.innerHTML = '<i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare';
+
+  const styles = getComputedStyle(document.documentElement);
+  const accentColor = styles.getPropertyValue('--accent').trim() || '#d1a54c';
+  const accent2Color = styles.getPropertyValue('--accent-2').trim() || '#4fd1c5';
+  const textColor = styles.getPropertyValue('--text').trim() || '#e7eaef';
+  const mutedColor = styles.getPropertyValue('--muted').trim() || '#7d8794';
+  const panelColor = styles.getPropertyValue('--panel').trim() || '#12161d';
+  const borderColor = styles.getPropertyValue('--border').trim() || '#242b37';
+
+  const navs = rows.map(r => r.nav);
+  const min = Math.min(...navs);
+  const max = Math.max(...navs);
+  const padY = (max - min) * 0.08 || max * 0.02 || 1;
+
+  const gradient = canvas.getContext('2d').createLinearGradient(0, 0, 0, canvas.clientHeight || 220);
+  gradient.addColorStop(0, color_mix_fallback(accentColor, 0.28));
+  gradient.addColorStop(1, color_mix_fallback(accentColor, 0));
+
+  const chartData = {
+    labels: rows.map(r => r.date),
+    datasets: [{
+      label: 'NAV',
+      data: navs,
+      borderColor: accentColor,
+      backgroundColor: gradient,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: accent2Color,
+      pointHoverBorderColor: panelColor,
+      pointHoverBorderWidth: 2,
+      borderWidth: 2,
+      fill: true,
+      tension: 0.15,
+      spanGaps: true
+    }]
+  };
+
+  const config = {
+    type: 'line',
+    data: chartData,
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 300 },
+      interaction: { mode: 'index', intersect: false, axis: 'x' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: panelColor,
+          titleColor: mutedColor,
+          bodyColor: textColor,
+          borderColor: borderColor,
+          borderWidth: 1,
+          padding: 10,
+          titleFont: { size: 11, family: 'JetBrains Mono, monospace' },
+          bodyFont: { size: 13, weight: '700', family: 'JetBrains Mono, monospace' },
+          displayColors: false,
+          callbacks: {
+            title: (items) => items[0] ? `📅 ${items[0].label}` : '',
+            label: (item) => `NAV ₹${item.parsed.y.toFixed(4)}`
+          }
+        },
+        zoom: {
+          zoom: {
+            wheel: { enabled: true, speed: 0.08 },
+            pinch: { enabled: true },
+            drag: { enabled: false },
+            mode: 'x',
+          },
+          pan: { enabled: true, mode: 'x' },
+          limits: { x: { min: 'original', max: 'original', minRange: 10 } }
+        }
+      },
+      scales: {
+        x: {
+          display: false
+        },
+        y: {
+          min: min - padY,
+          max: max + padY,
+          grid: { color: color_mix_fallback(mutedColor, 0.08) },
+          ticks: {
+            color: mutedColor,
+            font: { size: 10 },
+            maxTicksLimit: 5,
+            callback: (v) => '₹' + Number(v).toFixed(1)
+          }
+        }
+      }
+    }
+  };
+
+  if (navChartInstance){
+    navChartInstance.data = chartData;
+    navChartInstance.options = config.options;
+    navChartInstance.update();
+  } else {
+    navChartInstance = new Chart(canvas.getContext('2d'), config);
+  }
+
+  resetBtn.classList.add('show');
+  resetBtn.onclick = () => {
+    if (navChartInstance){
+      navChartInstance.resetZoom();
+      resetBtn.classList.remove('show');
+    }
+  };
+  canvas.onwheel = () => resetBtn.classList.add('show');
+  canvas.parentElement.addEventListener('pointerdown', () => resetBtn.classList.add('show'));
+
+  if (!twoPointPluginRegistered){
+    Chart.register(twoPointSelectionPlugin);
+    twoPointPluginRegistered = true;
+  }
+  canvas.onclick = (evt) => {
+    if (!navChartInstance) return;
+    const els = navChartInstance.getElementsAtEventForMode(evt, 'nearest', { intersect: false, axis: 'x' }, true);
+    if (!els.length) return;
+    handleChartPointPick(els[0].index);
+  };
+}
+
+function drawPlainFallbackChart(canvas, rows){
+  if (navChartInstance){ navChartInstance.destroy(); navChartInstance = null; }
+  currentChartRows = rows;
+  const dpr = window.devicePixelRatio || 1;
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth || 300;
+  const h = wrap.clientHeight || 220;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const navs = rows.map(r => r.nav);
+  const min = Math.min(...navs);
+  const max = Math.max(...navs);
+  const range = max - min || 1;
+  const padding = 14;
+  const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d1a54c';
+  const panelColor = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim() || '#12161d';
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#e7eaef';
+
+  function pointAt(i){
+    const x = padding + (i / (navs.length - 1 || 1)) * (w - padding * 2);
+    const y = h - padding - ((navs[i] - min) / range) * (h - padding * 2);
+    return { x, y };
+  }
+
+  function render(hoverIdx){
+    ctx.clearRect(0, 0, w, h);
+    ctx.beginPath();
+    ctx.strokeStyle = accentColor;
+    ctx.lineWidth = 2;
+    navs.forEach((nav, i) => {
+      const { x, y } = pointAt(i);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    const last = pointAt(navs.length - 1);
+    ctx.beginPath();
+    ctx.fillStyle = accentColor;
+    ctx.arc(last.x, last.y, 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (hoverIdx != null && rows[hoverIdx]){
+      const { x, y } = pointAt(hoverIdx);
+      ctx.beginPath();
+      ctx.strokeStyle = accentColor;
+      ctx.setLineDash([3, 3]);
+      ctx.moveTo(x, padding * 0.4);
+      ctx.lineTo(x, h - padding * 0.4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.beginPath();
+      ctx.fillStyle = accentColor;
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fill();
+
+      const label = `${rows[hoverIdx].date} · ₹${rows[hoverIdx].nav.toFixed(4)}`;
+      ctx.font = '11px "JetBrains Mono", monospace';
+      const textW = ctx.measureText(label).width;
+      const boxX = Math.min(Math.max(x - textW / 2 - 8, 4), w - textW - 12);
+      const boxY = y > h / 2 ? y - 32 : y + 12;
+      ctx.fillStyle = panelColor;
+      ctx.fillRect(boxX, boxY, textW + 16, 20);
+      ctx.fillStyle = textColor;
+      ctx.fillText(label, boxX + 8, boxY + 14);
+    }
+
+    if (chartSelection.length){
+      if (chartSelection.length === 2 && rows[chartSelection[0].index] && rows[chartSelection[1].index]){
+        const pA = pointAt(chartSelection[0].index);
+        const pB = pointAt(chartSelection[1].index);
+        ctx.save();
+        ctx.beginPath();
+        ctx.setLineDash([6, 4]);
+        ctx.strokeStyle = textColor;
+        ctx.lineWidth = 2;
+        ctx.moveTo(pA.x, pA.y);
+        ctx.lineTo(pB.x, pB.y);
+        ctx.stroke();
+        ctx.restore();
+      }
+      const colors = ['#4fd1c5', '#d1a54c'];
+      chartSelection.forEach((sel, i) => {
+        if (!rows[sel.index]) return;
+        const { x, y } = pointAt(sel.index);
+        ctx.beginPath();
+        ctx.fillStyle = colors[i] || colors[0];
+        ctx.arc(x, y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#ffffff';
+        ctx.stroke();
+      });
+    }
+  }
+
+  render(null);
+
+  canvas.onmousemove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let closest = 0, closestDist = Infinity;
+    navs.forEach((_, i) => {
+      const { x } = pointAt(i);
+      const d = Math.abs(x - mx);
+      if (d < closestDist){ closestDist = d; closest = i; }
+    });
+    render(closest);
+  };
+  canvas.onmouseleave = () => render(null);
+  canvas.onclick = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    let closest = 0, closestDist = Infinity;
+    navs.forEach((_, i) => {
+      const { x } = pointAt(i);
+      const d = Math.abs(x - mx);
+      if (d < closestDist){ closestDist = d; closest = i; }
+    });
+    handleChartPointPick(closest);
+  };
+  redrawFallbackMarkers = () => render(null);
+}
+
+function color_mix_fallback(hexOrColor, alpha){
+  // Builds an rgba-ish overlay without relying on CSS color-mix inside canvas gradients
+  const probe = document.createElement('div');
+  probe.style.color = hexOrColor;
+  document.body.appendChild(probe);
+  const rgb = getComputedStyle(probe).color;
+  document.body.removeChild(probe);
+  const match = rgb.match(/\d+(\.\d+)?/g);
+  if (!match) return `rgba(209,165,76,${alpha})`;
+  const [r, g, b] = match;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-box')){
+    suggestionsBox.classList.remove('show');
+  }
+});
+
+// Initial render of recent list (in case Recent tab is first interacted with)
+renderRecentList();
+</script>
+
+</body>
+</html>
