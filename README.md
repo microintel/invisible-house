@@ -35,8 +35,9 @@ Invisible House solves this with:
 - **Instant search** — type a fund house or scheme name and jump straight to its live NAV data.
 - **Full NAV history** — a complete, scrollable, downloadable record of every NAV entry for a scheme, not just the last few data points.
 - **Interactive trend charts** — zoomable, pannable NAV graphs with quick range filters (1W, 1M, 6M, 1Y, 3Y, 5Y, MAX).
+- **CAGR at a glance** — the annualized return for whichever range you're viewing (1Y and above), or the plain return for shorter windows, updating instantly as you switch ranges.
 - **Two-point comparison** — tap any two points on a chart to instantly see the % and absolute NAV change between them.
-- **Multi-fund Compare mode** — add up to 4 funds and see their NAV trends overlaid on a single graph, each in its own color, with the same range filters and point-to-point comparison — saved automatically so your comparison survives a page reload.
+- **Multi-fund Compare mode** — add up to 4 funds and see their NAV trends overlaid on a single graph, each in its own color, with the same range filters, per-fund CAGR, and point-to-point comparison — saved automatically so your comparison survives a page reload.
 - **Recent searches** — quickly return to funds you've looked up before.
 - **Light / dark themes** — for comfortable viewing anywhere.
 
@@ -52,6 +53,7 @@ All of this runs directly in the browser, with no sign-up and no account require
 | Fund Details | Latest NAV, as-on date, scheme type, and category at a glance |
 | NAV Trend Chart | Interactive, zoomable line chart of NAV over time |
 | Range Filters | 1W / 1M / 6M / 1Y / 3Y / 5Y / MAX views |
+| CAGR | Annualized return (or plain return under 1Y) for the selected range, shown for a single fund and for each fund in Compare mode |
 | Tap-to-Compare | Select two points on a chart to see the NAV change between them |
 | Compare Funds | Overlay up to 4 funds' NAV histories on one chart, color-coded |
 | Persistent Comparison | Compare selections are saved locally (IndexedDB) and survive reloads |
@@ -66,7 +68,7 @@ All of this runs directly in the browser, with no sign-up and no account require
 
 1. **Search** for a fund house or scheme name.
 2. **Select** a scheme from the suggestions to load its live details and NAV history.
-3. **Explore** the trend using the range filters, zoom, and pan — or tap two points to see the change between them.
+3. **Explore** the trend using the range filters, zoom, and pan — check the CAGR shown for that range, or tap two points to see the change between them.
 4. **Add to Compare** to send that fund into the Compare tab, and repeat for up to 4 funds.
 5. **Compare** — switch to the Compare tab to see every added fund's NAV trend overlaid on one chart, with the same range filtering and tap-to-compare tools.
 6. Your comparison list stays saved locally until you remove a fund or hit **Clear All** — even after closing or reloading the page.
