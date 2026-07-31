@@ -566,6 +566,10 @@
     font-weight:700;
   }
   .nav-highlight{color:var(--accent);}
+  .nav-down{color:var(--danger);}
+  .cagr-up{color:#15803d; font-size:20px;}
+  .cagr-down{color:var(--danger); font-size:20px;}
+  .cagr-flat{color:var(--muted); font-size:20px;}
   
   .details-grid{
     display:grid;
@@ -1054,6 +1058,17 @@
     flex-shrink:0;
   }
   .compare-legend-remove:hover{color:var(--danger);}
+  .compare-legend-cagr{
+    font-size:13.5px;
+    font-weight:800;
+    padding:4px 10px;
+    border-radius:7px;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  .compare-legend-cagr.up{color:#15803d; background:rgba(21,128,61,.15);}
+  .compare-legend-cagr.down{color:var(--danger); background:color-mix(in srgb, var(--danger) 15%, transparent);}
+  .compare-legend-cagr.flat{color:var(--muted); background:var(--panel-3);}
   .compare-card{margin-top:14px;}
   .compare-point-row{
     display:flex;
@@ -1267,6 +1282,10 @@
               <div class="stat">
                 <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
                 <div class="stat-value" id="schemeCategory">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label" id="cagrLabel"><i class="bi bi-percent"></i> CAGR</div>
+                <div class="stat-value" id="cagrValue">—</div>
               </div>
             </div>
           </div>
@@ -2521,21 +2540,38 @@ function renderCompareUI(){
   empty.style.display = 'none';
   card.classList.add('show');
 
-  legend.innerHTML = compareFunds.map(f => `
-    <div class="compare-legend-item">
-      <span class="compare-legend-dot" style="background:${f.color};"></span>
-      <span class="compare-legend-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
-      <button type="button" class="compare-legend-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
-    </div>
-  `).join('');
-
-  legend.querySelectorAll('.compare-legend-remove').forEach(btn => {
-    btn.addEventListener('click', () => removeFromCompare(btn.dataset.code));
-  });
+  renderCompareLegend();
 
   if (comparePanel.classList.contains('active')){
     requestAnimationFrame(() => drawCompareChart());
   }
+}
+
+function renderCompareLegend(){
+  const legend = document.getElementById('compareLegend');
+  if (!legend) return;
+
+  legend.innerHTML = compareFunds.map(f => {
+    const filtered = filterNavDataByRange(f.navData, compareChartRange);
+    const result = computeCAGR(filtered);
+    let cagrHtml = '';
+    if (result){
+      const dir = result.pct > 0.0005 ? 'up' : result.pct < -0.0005 ? 'down' : 'flat';
+      const label = result.annualized ? 'CAGR' : 'Return';
+      cagrHtml = `<span class="compare-legend-cagr ${dir}">${result.pct >= 0 ? '+' : ''}${result.pct.toFixed(1)}% ${label}</span>`;
+    }
+    return `
+    <div class="compare-legend-item">
+      <span class="compare-legend-dot" style="background:${f.color};"></span>
+      <span class="compare-legend-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
+      ${cagrHtml}
+      <button type="button" class="compare-legend-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
+    </div>`;
+  }).join('');
+
+  legend.querySelectorAll('.compare-legend-remove').forEach(btn => {
+    btn.addEventListener('click', () => removeFromCompare(btn.dataset.code));
+  });
 }
 
 function buildCompareDataset(range){
@@ -2861,12 +2897,75 @@ const CHART_RANGE_LABELS = {
   '1y': 'last 1 year', '6m': 'last 6 months', '1m': 'last 1 month', '1w': 'last 1 week'
 };
 
+const CAGR_RANGE_TAGS = {
+  max: 'MAX', '5y': '5Y', '3y': '3Y', '1y': '1Y', '6m': '6M', '1m': '1M', '1w': '1W'
+};
+
+// Generic helper: filter an ascending-order NAV series down to a given range.
+// Works for both the single-fund series and any compare-tab fund series.
+function filterNavDataByRange(rowsAscending, range){
+  if (!rowsAscending || !rowsAscending.length || range === 'max') return rowsAscending;
+  const latestDate = parseHistDate(rowsAscending[rowsAscending.length - 1].date);
+  const cutoff = latestDate ? getRangeCutoffDate(latestDate, range) : null;
+  if (!cutoff) return rowsAscending;
+  const filtered = rowsAscending.filter(r => {
+    const dt = parseHistDate(r.date);
+    return dt && dt >= cutoff;
+  });
+  return filtered.length ? filtered : rowsAscending;
+}
+
+// Computes CAGR (annualized) for periods >= 1 year, and a simple absolute
+// return for shorter periods (annualizing sub-1-year windows is misleading).
+function computeCAGR(rowsAscending){
+  if (!rowsAscending || rowsAscending.length < 2) return null;
+  const first = rowsAscending[0];
+  const last = rowsAscending[rowsAscending.length - 1];
+  const startNav = parseFloat(first.nav);
+  const endNav = parseFloat(last.nav);
+  if (isNaN(startNav) || isNaN(endNav) || startNav <= 0) return null;
+  const d1 = parseHistDate(first.date);
+  const d2 = parseHistDate(last.date);
+  if (!d1 || !d2) return null;
+  const days = (d2 - d1) / 86400000;
+  if (days <= 0) return null;
+  const years = days / 365.25;
+  let pct, annualized;
+  if (years < 1){
+    pct = ((endNav - startNav) / startNav) * 100;
+    annualized = false;
+  } else {
+    pct = (Math.pow(endNav / startNav, 1 / years) - 1) * 100;
+    annualized = true;
+  }
+  return { pct, annualized, years, days };
+}
+
+function updateCagrDisplay(filteredRowsAscending, range){
+  const labelEl = document.getElementById('cagrLabel');
+  const valueEl = document.getElementById('cagrValue');
+  if (!labelEl || !valueEl) return;
+  const result = computeCAGR(filteredRowsAscending);
+  const rangeTag = CAGR_RANGE_TAGS[range] || String(range).toUpperCase();
+  if (!result){
+    labelEl.innerHTML = `<i class="bi bi-percent"></i> CAGR`;
+    valueEl.textContent = '—';
+    valueEl.className = 'stat-value';
+    return;
+  }
+  const dir = result.pct > 0.0005 ? 'up' : result.pct < -0.0005 ? 'down' : 'flat';
+  labelEl.innerHTML = `<i class="bi bi-percent"></i> ${result.annualized ? 'CAGR' : 'Return'} · ${rangeTag}`;
+  valueEl.textContent = `${result.pct >= 0 ? '+' : ''}${result.pct.toFixed(1)}%`;
+  valueEl.className = `stat-value ${dir === 'up' ? 'cagr-up' : dir === 'down' ? 'cagr-down' : 'cagr-flat'}`;
+}
+
 function applyChartRange(range){
   currentChartRange = range;
   document.querySelectorAll('.range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === range));
   const filtered = getChartDataForRange(range);
   drawChart(filtered);
   document.getElementById('chartLabel').textContent = `NAV trend · ${CHART_RANGE_LABELS[range] || 'full history'} (${filtered.length} points)`;
+  updateCagrDisplay(filtered, range);
 }
 
 document.querySelectorAll('.range-btn').forEach(btn => {
@@ -2877,6 +2976,7 @@ function applyCompareChartRange(range){
   compareChartRange = range;
   document.querySelectorAll('.compare-range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === range));
   drawCompareChart();
+  renderCompareLegend();
 }
 
 document.querySelectorAll('.compare-range-btn').forEach(btn => {
