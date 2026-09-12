@@ -13,18 +13,19 @@
 </head>
 <body>
 
-<header>
+<nav class="side-nav" id="sideNav">
+  <div class="side-nav-logo"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
+  <div class="side-nav-items">
+    <button class="side-nav-item active" id="searchTabBtn"><i class="bi bi-search"></i><span>Search</span></button>
+    <button class="side-nav-item" id="recentTabBtn"><i class="bi bi-clock-history"></i><span>Recent</span></button>
+    <button class="side-nav-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i><span>Compare</span><span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
+  </div>
   <div class="menu-wrap" id="menuWrap">
-    <button class="menu-toggle-btn" id="menuToggleBtn" title="Menu" aria-label="Menu" aria-haspopup="true" aria-expanded="false">
-      <i class="bi bi-list"></i>
+    <button class="side-nav-item" id="menuToggleBtn" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false">
+      <i class="bi bi-gear"></i><span>Settings</span>
     </button>
     <div class="menu-dropdown" id="menuDropdown">
-      <button class="menu-item active" id="searchTabBtn"><i class="bi bi-search"></i> Search</button>
-      <button class="menu-item" id="recentTabBtn"><i class="bi bi-clock-history"></i> Recent Searches</button>
-      <button class="menu-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i> Compare <span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
-      <div class="menu-divider"></div>
-      
-      <!-- --- NEW: Color Combination & Gradient Theme Picker --- -->
+      <!-- --- Color Combination & Gradient Theme Picker --- -->
       <div class="menu-section-title">Color Combination</div>
       <div class="palette-picker-row">
         <button type="button" class="palette-swatch active" data-color="default" title="Gold & Cyan"></button>
@@ -37,6 +38,9 @@
       <button class="menu-item" id="themeToggle"><i class="bi bi-moon-stars-fill"></i> Dark Mode</button>
     </div>
   </div>
+</nav>
+
+<header>
   <div class="brand-row">
     <div class="brand-mark"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
     <div class="brand-text">
@@ -82,19 +86,6 @@
     >
     Clear
     </button>
-    </div>
-
-    <!-- Fund name -->
-    <div class="filter-group">
-    <div class="filter-label">Fund name</div>
-    <div class="search-box explorer-name-box">
-    <input
-    type="text"
-    id="explorerNameInput"
-    placeholder="e.g. Motilal Oswal Midcap"
-    autocomplete="off"
-    >
-    </div>
     </div>
 
     <!-- Category -->
@@ -227,7 +218,20 @@
     
     </div>
     </div>
-    
+
+    <!-- Fund name (search within the filtered list) -->
+    <div class="filter-group">
+    <div class="filter-label">Fund name</div>
+    <div class="search-box explorer-name-box">
+    <input
+    type="text"
+    id="explorerNameInput"
+    placeholder="e.g. Motilal Oswal Midcap"
+    autocomplete="off"
+    >
+    </div>
+    </div>
+
     <!-- Results -->
     <div
     class="explorer-results"
