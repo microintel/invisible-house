@@ -1014,9 +1014,12 @@
 
   /* ----------------------------------------------------------
      Filter buttons
+     (scoped to explorerBody so these never bind to the
+     look-alike category/plan/option chips inside the
+     add-fund-to-compare modal, which have their own handlers)
      ---------------------------------------------------------- */
 
-  document
+  explorerBody
     .querySelectorAll(
       '[data-category]'
     )
@@ -1026,7 +1029,7 @@
         'click',
         () => {
 
-          document
+          explorerBody
             .querySelectorAll(
               '[data-category]'
             )
@@ -1046,7 +1049,7 @@
 
     });
 
-  document
+  explorerBody
     .querySelectorAll(
       '[data-plan]'
     )
@@ -1056,7 +1059,7 @@
         'click',
         () => {
 
-          document
+          explorerBody
             .querySelectorAll(
               '[data-plan]'
             )
@@ -1076,7 +1079,7 @@
 
     });
 
-  document
+  explorerBody
     .querySelectorAll(
       '[data-option]'
     )
@@ -1086,7 +1089,7 @@
         'click',
         () => {
 
-          document
+          explorerBody
             .querySelectorAll(
               '[data-option]'
             )
@@ -1151,7 +1154,7 @@
         explorerNameInput.value = '';
       }
 
-      document
+      explorerBody
         .querySelectorAll(
           '.filter-chip'
         )

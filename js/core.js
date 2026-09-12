@@ -100,10 +100,11 @@ function switchTab(tab){
   comparePanel.classList.toggle('active', tab === 'compare');
   if (tab === 'recent') renderRecentList();
   if (tab === 'compare'){
-    // renderCompareUI() itself waits two animation frames before
-    // drawing so the panel has finished becoming visible first —
-    // this is what fixes the "sometimes the chart doesn't show up"
-    // issue when jumping straight to Compare.
+    // renderCompareUI() itself watches the chart wrapper's actual size
+    // (via scheduleCompareChartRender) instead of guessing a frame
+    // count, so it draws correctly however long the panel takes to
+    // finish laying out — this is what fixes the "sometimes the chart
+    // doesn't show up" issue when jumping straight to Compare.
     renderCompareUI();
     if (typeof compareChartInstance !== 'undefined' && compareChartInstance){
       requestAnimationFrame(() => {
@@ -119,13 +120,35 @@ const MAX_RECENT = 12;
 
 function getRecent(){
   try{
-    return JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+    const raw = JSON.parse(localStorage.getItem(RECENT_KEY)) || [];
+    // Same self-heal as the compare list: fold out any entries that are
+    // really the same fund stored under a number vs. a string scheme
+    // code, keeping the first (most recent) occurrence.
+    const seen = new Set();
+    const deduped = [];
+    let changed = false;
+    raw.forEach(r => {
+      const code = String(r.schemeCode);
+      if (seen.has(code)){ changed = true; return; }
+      seen.add(code);
+      if (r.schemeCode !== code){ changed = true; }
+      deduped.push({ ...r, schemeCode: code });
+    });
+    if (changed){
+      localStorage.setItem(RECENT_KEY, JSON.stringify(deduped));
+    }
+    return deduped;
   }catch(e){ return []; }
 }
 
 function saveRecent(entry){
-  let list = getRecent().filter(r => r.schemeCode !== entry.schemeCode);
-  list.unshift(entry);
+  const normalized = { ...entry, schemeCode: String(entry.schemeCode) };
+  // String()-normalize the comparison too, so a fund searched once via
+  // Fund Explorer (string scheme code) and once via the regular search
+  // box (number scheme code) is recognized as the same entry and moved
+  // to the top, instead of appearing twice in Recent.
+  let list = getRecent().filter(r => String(r.schemeCode) !== normalized.schemeCode);
+  list.unshift(normalized);
   list = list.slice(0, MAX_RECENT);
   localStorage.setItem(RECENT_KEY, JSON.stringify(list));
 }

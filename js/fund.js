@@ -88,6 +88,32 @@ function friendlyMessage(err, kind){
   return "Something went wrong. Please try again.";
 }
 
+// ---------- Notifications (SweetAlert2, with a plain-alert fallback) ----------
+function notifyToast(message, icon='warning'){
+  if (typeof Swal === 'undefined'){ alert(message); return; }
+  Swal.fire({
+    toast: true,
+    position: 'top',
+    icon,
+    title: message,
+    showConfirmButton: false,
+    timer: 3200,
+    timerProgressBar: true,
+    customClass: { popup: 'ih-swal-toast' }
+  });
+}
+
+function notifyError(message){
+  if (typeof Swal === 'undefined'){ alert(message); return; }
+  Swal.fire({
+    icon: 'error',
+    title: 'Something went wrong',
+    text: message,
+    confirmButtonText: 'Got it',
+    customClass: { popup: 'ih-swal', container: 'ih-swal-backdrop' }
+  });
+}
+
 /*
   Search downloads the full mfapi scheme list (~40k entries) once, caches
   it in IndexedDB, and matches locally: each typed word just needs to
@@ -632,7 +658,13 @@ function displayFund(data, schemeCode){
   currentNavData = navData;
   currentSchemeName = meta.scheme_name || ('scheme-' + schemeCode);
   currentFundMeta = {
-    schemeCode: schemeCode,
+    // Normalized to a string here, once, at the single point every code
+    // path funnels through (typed search, Fund Explorer's data-* attrs,
+    // recent searches, the compare modal) — those disagree on whether a
+    // scheme code is a number or a string, which used to let the same
+    // fund get double-stored (or fail to delete) in the compare list's
+    // IndexedDB store, since it keys strictly by type-and-value.
+    schemeCode: String(schemeCode),
     schemeName: currentSchemeName,
     fundHouse: meta.fund_house || '',
     schemeType: meta.scheme_type || '',
@@ -661,7 +693,7 @@ function displayFund(data, schemeCode){
   }
 
   saveRecent({
-    schemeCode: schemeCode,
+    schemeCode: String(schemeCode),
     schemeName: currentSchemeName,
     fundHouse: meta.fund_house || '',
     when: new Date().toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' })
@@ -942,10 +974,14 @@ function openCompareDB(){
 
 async function idbPutCompareFund(fund){
   try{
+    // Belt-and-suspenders: always write with a string key, no matter what
+    // type the caller happened to pass in, so put() can never create a
+    // second row for a fund that's already stored under the other type.
+    const normalized = { ...fund, schemeCode: String(fund.schemeCode) };
     const db = await openCompareDB();
     await new Promise((resolve, reject) => {
       const tx = db.transaction(COMPARE_STORE, 'readwrite');
-      tx.objectStore(COMPARE_STORE).put(fund);
+      tx.objectStore(COMPARE_STORE).put(normalized);
       tx.oncomplete = resolve;
       tx.onerror = () => reject(tx.error);
     });
@@ -991,11 +1027,46 @@ async function idbGetAllCompareFunds(){
 async function loadCompareFundsFromDB(){
   const stored = await idbGetAllCompareFunds();
   if (!stored.length) return;
-  stored.sort((a, b) => (a.order || 0) - (b.order || 0));
-  compareFunds = stored;
+
+  // Self-heal: older builds (and mixed entry points — typed search vs.
+  // Fund Explorer vs. the compare modal) could write the same fund's
+  // scheme code as a number in one place and a string in another.
+  // IndexedDB treats those as two different keys, so the same fund
+  // could get stored twice, and removing it under one type could leave
+  // the other type's row behind as a "zombie" that reappears on the
+  // next reload. De-duplicate by the normalized (string) code once
+  // here — keeping whichever copy of each fund was added most
+  // recently — and persist the cleaned-up list back to the store so
+  // this doesn't keep resurfacing.
+  const byCode = new Map();
+  let hadNonStringCode = false;
+  stored.forEach(f => {
+    if (typeof f.schemeCode !== 'string') hadNonStringCode = true;
+    const code = String(f.schemeCode);
+    const existing = byCode.get(code);
+    if (!existing || (f.order || 0) >= (existing.order || 0)){
+      byCode.set(code, { ...f, schemeCode: code });
+    }
+  });
+
+  let deduped = Array.from(byCode.values()).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const hadDuplicates = deduped.length !== stored.length;
+  if (deduped.length > COMPARE_LIMIT){
+    deduped = deduped.slice(deduped.length - COMPARE_LIMIT); // keep the most recently added
+  }
+
+  compareFunds = deduped;
   updateAddToCompareBtn();
   updateCompareCountBadge();
   if (comparePanel.classList.contains('active')) renderCompareUI();
+
+  if (hadDuplicates || hadNonStringCode || deduped.length !== stored.length){
+    await idbClearCompareFunds();
+    for (const f of deduped){ await idbPutCompareFund(f); }
+    if (hadDuplicates){
+      notifyToast('Cleaned up a few duplicate funds in your comparison.', 'info');
+    }
+  }
 }
 loadCompareFundsFromDB();
 
@@ -1049,7 +1120,7 @@ document.getElementById('addToCompareBtn').addEventListener('click', () => {
     .map(r => ({ date: r.date, nav: parseFloat(r.nav) }))
     .filter(r => !isNaN(r.nav));
   const newFund = {
-    schemeCode: currentFundMeta.schemeCode,
+    schemeCode: String(currentFundMeta.schemeCode),
     schemeName: currentFundMeta.schemeName,
     fundHouse: currentFundMeta.fundHouse,
     navData: ascending,
@@ -1082,68 +1153,184 @@ document.getElementById('clearCompareBtn').addEventListener('click', () => {
 });
 
 function renderCompareUI(){
-  const empty = document.getElementById('compareEmpty');
   const card = document.getElementById('compareCard');
-  const legend = document.getElementById('compareLegend');
-  if (!empty || !card || !legend) return;
+  if (!card) return;
+
+  renderCompareSlots();
 
   if (!compareFunds.length){
-    empty.style.display = '';
+    // Nothing to compare yet — hide the chart, range tabs and mode
+    // toggle entirely rather than showing an empty graph.
     card.classList.remove('show');
     if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
     return;
   }
 
-  empty.style.display = 'none';
   card.classList.add('show');
 
-  renderCompareLegend();
-
   if (comparePanel.classList.contains('active')){
-    // Double rAF: the compare panel may have just been switched from
-    // display:none to visible in this same tick, so its canvas can
-    // still measure 0×0 on the very next frame. Waiting an extra
-    // frame guarantees layout has settled before Chart.js reads the
-    // canvas size — this is what caused the chart to sometimes not
-    // appear at all.
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => drawCompareChart());
-    });
+    scheduleCompareChartRender();
   }
 }
 
-function renderCompareLegend(){
-  const legend = document.getElementById('compareLegend');
-  if (!legend) return;
+// A fixed "wait two frames, then draw" used to be the guard here, but
+// the compare panel's layout (flex columns, min-height:0 chains, AMC
+// logos loading in and nudging row heights) doesn't always settle
+// within two frames — that's why the chart would sometimes stay blank
+// until the user left the tab and came back, which just gave layout
+// more time to catch up. Instead, actively watch the canvas wrapper's
+// real size with a ResizeObserver and draw the instant it's non-zero;
+// if it still hasn't resolved after a couple of seconds (e.g. no
+// ResizeObserver support, or something genuinely stuck), surface a
+// manual "Show comparison chart" button rather than leaving a
+// silent blank space.
+let compareChartResizeObserver = null;
+let compareChartRenderTimeout = null;
 
-  legend.innerHTML = compareFunds.map(f => {
+function getCompareChartWrap(){
+  return document.querySelector('#compareCard .chart-canvas-wrap');
+}
+
+function scheduleCompareChartRender(){
+  if (compareChartResizeObserver){ compareChartResizeObserver.disconnect(); compareChartResizeObserver = null; }
+  if (compareChartRenderTimeout){ clearTimeout(compareChartRenderTimeout); compareChartRenderTimeout = null; }
+  hideCompareChartFallback();
+
+  const wrap = getCompareChartWrap();
+  if (!wrap || !compareFunds.length) return;
+
+  const tryDraw = () => {
+    if (wrap.offsetWidth > 0 && wrap.offsetHeight > 0){
+      if (compareChartResizeObserver){ compareChartResizeObserver.disconnect(); compareChartResizeObserver = null; }
+      if (compareChartRenderTimeout){ clearTimeout(compareChartRenderTimeout); compareChartRenderTimeout = null; }
+      drawCompareChart();
+      return true;
+    }
+    return false;
+  };
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (tryDraw()) return;
+      if (window.ResizeObserver){
+        compareChartResizeObserver = new ResizeObserver(() => tryDraw());
+        compareChartResizeObserver.observe(wrap);
+      }
+      // Belt-and-suspenders: if the size genuinely never resolves
+      // (observer unsupported, or something else keeps it collapsed),
+      // don't leave the user staring at an empty box forever.
+      compareChartRenderTimeout = setTimeout(() => {
+        if (!compareChartInstance) showCompareChartFallback();
+      }, 1800);
+    });
+  });
+}
+
+function showCompareChartFallback(){
+  const wrap = getCompareChartWrap();
+  if (!wrap || wrap.querySelector('.compare-chart-fallback-btn')) return;
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'compare-chart-fallback-btn';
+  btn.innerHTML = '<i class="bi bi-arrow-repeat"></i> Show comparison chart';
+  btn.addEventListener('click', () => {
+    btn.remove();
+    scheduleCompareChartRender();
+  });
+  wrap.appendChild(btn);
+}
+
+function hideCompareChartFallback(){
+  const wrap = getCompareChartWrap();
+  const btn = wrap && wrap.querySelector('.compare-chart-fallback-btn');
+  if (btn) btn.remove();
+}
+
+function renderCompareSlots(){
+  const wrap = document.getElementById('compareSlots');
+  if (!wrap) return;
+
+  const filledTiles = compareFunds.map(f => {
     const filtered = filterNavDataByRange(f.navData, compareChartRange);
     const result = computeCAGR(filtered);
     let cagrHtml = '';
     if (result){
       const dir = result.pct > 0.0005 ? 'up' : result.pct < -0.0005 ? 'down' : 'flat';
-      const label = result.annualized ? 'CAGR' : 'Return';
-      cagrHtml = `<span class="compare-legend-cagr ${dir}">${result.pct >= 0 ? '+' : ''}${result.pct.toFixed(1)}% ${label}</span>`;
+      cagrHtml = `<span class="compare-slot-cagr ${dir}">${result.pct >= 0 ? '+' : ''}${result.pct.toFixed(1)}%</span>`;
     }
     const domain = resolveAmcDomain(f.fundHouse || f.schemeName);
     const iconInner = domain
       ? `<img data-amc-domain="${escapeHtml(domain)}" alt="" referrerpolicy="no-referrer">`
       : `<i class="bi bi-piggy-bank"></i>`;
     return `
-    <div class="compare-legend-item">
-      <span class="compare-legend-icon${domain ? ' has-logo' : ''}" style="box-shadow: inset 0 0 0 2px ${f.color};">${iconInner}</span>
-      <span class="compare-legend-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
+    <div class="compare-slot filled" style="--slot-color:${f.color};">
+      <button type="button" class="compare-slot-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
+      <span class="compare-slot-icon${domain ? ' has-logo' : ''}">${iconInner}</span>
+      <span class="compare-slot-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
       ${cagrHtml}
-      <button type="button" class="compare-legend-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
     </div>`;
   }).join('');
 
-  attachSuggestionLogos(legend);
+  const emptyCount = Math.max(0, COMPARE_LIMIT - compareFunds.length);
+  const emptyTiles = Array.from({ length: emptyCount }).map(() => `
+    <button type="button" class="compare-slot empty" data-add-compare-slot>
+      <i class="bi bi-plus-lg"></i>
+      <span>Add fund</span>
+    </button>`).join('');
 
-  legend.querySelectorAll('.compare-legend-remove').forEach(btn => {
-    btn.addEventListener('click', () => removeFromCompare(btn.dataset.code));
+  wrap.innerHTML = filledTiles + emptyTiles;
+
+  attachSuggestionLogos(wrap);
+
+  wrap.querySelectorAll('.compare-slot-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFromCompare(btn.dataset.code);
+    });
+  });
+
+  wrap.querySelectorAll('[data-add-compare-slot]').forEach(btn => {
+    btn.addEventListener('click', openCompareSearchModal);
   });
 }
+
+// ---------- Add-fund-to-compare popup ----------
+const compareSearchModal = document.getElementById('compareSearchModal');
+const compareSearchModalBackdrop = document.getElementById('compareSearchModalBackdrop');
+const compareSearchModalClose = document.getElementById('compareSearchModalClose');
+
+function openCompareSearchModal(){
+  if (!compareSearchModal) return;
+  if (compareFunds.length >= COMPARE_LIMIT) return;
+  compareSearchModal.hidden = false;
+  requestAnimationFrame(() => {
+    compareSearchModal.classList.add('show');
+    const input = document.getElementById('compareSearchInput');
+    if (input) input.focus();
+  });
+}
+
+function closeCompareSearchModal(){
+  if (!compareSearchModal) return;
+  compareSearchModal.classList.remove('show');
+  const suggestionsBox = document.getElementById('compareSuggestions');
+  if (suggestionsBox){ suggestionsBox.classList.remove('show'); suggestionsBox.innerHTML = ''; }
+  const input = document.getElementById('compareSearchInput');
+  if (input) input.value = '';
+  resetCompareFilters();
+  setTimeout(() => { compareSearchModal.hidden = true; }, 180);
+}
+
+if (compareSearchModalClose) compareSearchModalClose.addEventListener('click', closeCompareSearchModal);
+// Intentionally no backdrop-click-to-close: the compare picker should only
+// close via the close button or once a fund is successfully added — an
+// accidental tap outside it (easy to do on a small screen) used to lose
+// whatever the user had typed or filtered.
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && compareSearchModal && compareSearchModal.classList.contains('show')){
+    closeCompareSearchModal();
+  }
+});
 
 function buildCompareDataset(range){
   let latestDate = null;
@@ -1310,6 +1497,8 @@ function drawCompareChart(){
   const canvas = document.getElementById('compareChart');
   const resetBtn = document.getElementById('compareChartResetZoom');
   if (!canvas || typeof Chart === 'undefined' || !compareFunds.length) return;
+
+  hideCompareChartFallback();
 
   if (compareChartInstance){ compareChartInstance.destroy(); compareChartInstance = null; }
 
@@ -1557,7 +1746,7 @@ function applyCompareChartRange(range){
   compareChartRange = range;
   document.querySelectorAll('.compare-range-btn').forEach(b => b.classList.toggle('active', b.dataset.range === range));
   drawCompareChart();
-  renderCompareLegend();
+  renderCompareSlots();
 }
 
 document.querySelectorAll('.compare-range-btn').forEach(btn => {
@@ -1884,21 +2073,145 @@ const compareManualSearchBtn = document.getElementById('compareManualSearchBtn')
 let compareDebounceTimer = null;
 let compareSearchRequestSeq = 0;
 
+// ---------- Compare modal: category/plan/option filters ----------
+// Mirrors the Fund Explorer's filter chips and hits the same filtered
+// search service, so "Add fund to compare" can be narrowed down the
+// same way the main Explore Funds panel can.
+const COMPARE_EXPLORER_API = 'https://api.tigzig.com/mf/v1/search';
+const compareFilterState = { category: '', plan: '', option: '' };
+
+function compareHasActiveFilter(){
+  return !!(compareFilterState.category || compareFilterState.plan || compareFilterState.option);
+}
+
+function bindCompareFilterGroup(containerId, key){
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      compareFilterState[key] = btn.dataset[key] || '';
+      runCompareSearch(compareSearchInput.value.trim());
+    });
+  });
+}
+bindCompareFilterGroup('compareCategoryFilters', 'category');
+bindCompareFilterGroup('comparePlanFilters', 'plan');
+bindCompareFilterGroup('compareOptionFilters', 'option');
+
+function resetCompareFilters(){
+  compareFilterState.category = '';
+  compareFilterState.plan = '';
+  compareFilterState.option = '';
+  ['compareCategoryFilters', 'comparePlanFilters', 'compareOptionFilters'].forEach(id => {
+    const box = document.getElementById(id);
+    if (!box) return;
+    box.querySelectorAll('.filter-chip').forEach(b => {
+      b.classList.toggle('active', !b.dataset.category && !b.dataset.plan && !b.dataset.option);
+    });
+  });
+}
+
+const compareClearFiltersBtn = document.getElementById('compareClearFilters');
+if (compareClearFiltersBtn){
+  compareClearFiltersBtn.addEventListener('click', () => {
+    resetCompareFilters();
+    const q = compareSearchInput.value.trim();
+    if (q.length >= 3){
+      runCompareSearch(q);
+    } else {
+      compareSuggestionsBox.classList.remove('show');
+      compareSuggestionsBox.innerHTML = '';
+    }
+  });
+}
+
+// Skeleton rows shown the moment a search is triggered (typing, filter
+// chip tap, or manual search) so the popup never looks frozen while the
+// local match or the filtered-search API call is in flight.
+function renderCompareSuggestionsSkeleton(){
+  const row = () => `
+    <div class="skeleton-row explorer-skeleton-row compare-suggestion-skeleton-row">
+      <span class="skeleton skeleton-circle" style="width:38px;height:38px;"></span>
+      <span class="skeleton-col">
+        <span class="skeleton skeleton-line" style="width:${55 + Math.floor(Math.random()*20)}%;height:13px;"></span>
+        <span class="skeleton skeleton-line" style="width:${30 + Math.floor(Math.random()*20)}%;height:11px;"></span>
+      </span>
+    </div>`;
+  compareSuggestionsBox.innerHTML = row() + row() + row() + row();
+  compareSuggestionsBox.classList.add('show');
+}
+
 compareSearchInput.addEventListener('input', () => {
   const q = compareSearchInput.value.trim();
   clearTimeout(compareDebounceTimer);
-  if (q.length < 3){
+  if (q.length < 3 && !compareHasActiveFilter()){
     compareSuggestionsBox.classList.remove('show');
     compareSuggestionsBox.innerHTML = '';
     return;
   }
+  renderCompareSuggestionsSkeleton();
   compareDebounceTimer = setTimeout(() => runCompareSearch(q), 220);
 });
 
+// With a category/plan/option filter active, results come from the same
+// filtered search service the Explore Funds panel uses (so "Large / Direct
+// / Growth" etc. actually narrows things down); with no filter active this
+// falls back to the fast local name match against the cached fund list.
 async function runCompareSearch(query){
   warmFundAumMap();
   const requestId = ++compareSearchRequestSeq;
+  const hasFilter = compareHasActiveFilter();
 
+  if (!query && !hasFilter){
+    compareSuggestionsBox.classList.remove('show');
+    compareSuggestionsBox.innerHTML = '';
+    return;
+  }
+
+  renderCompareSuggestionsSkeleton();
+
+  if (!hasFilter){
+    return runLocalCompareSearch(query, requestId);
+  }
+
+  try{
+    const params = new URLSearchParams();
+    if (query) params.set('q', query);
+    if (compareFilterState.category) params.set('category', compareFilterState.category);
+    if (compareFilterState.plan) params.set('plan', compareFilterState.plan);
+    if (compareFilterState.option) params.set('option', compareFilterState.option);
+    params.set('group', 'equity');
+    params.set('exclude', 'index');
+    params.set('limit', '20');
+    params.set('offset', '0');
+
+    const res = await fetchWithTimeout(`${COMPARE_EXPLORER_API}?${params.toString()}`, 10000);
+    if (requestId !== compareSearchRequestSeq) return;
+    if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+    const data = await res.json();
+    const results = Array.isArray(data.results) ? data.results : [];
+    const mapped = results.map(f => ({
+      schemeCode: f.scheme_code,
+      schemeName: f.scheme_name || f.name || ''
+    })).filter(f => f.schemeCode && f.schemeName);
+    renderCompareSuggestions(mapped);
+  } catch(err){
+    if (requestId !== compareSearchRequestSeq) return;
+    // Filtered service unreachable — fall back to a plain name match so
+    // typing still works, even though the filters won't apply to it.
+    if (query.length >= 3){
+      await runLocalCompareSearch(query, requestId);
+    } else {
+      compareSuggestionsBox.classList.remove('show');
+      compareSuggestionsBox.innerHTML = '';
+    }
+  }
+}
+
+async function runLocalCompareSearch(query, requestId){
+  if (!query) return;
   if (!fundsLoaded){
     await loadFundList();
     if (requestId !== compareSearchRequestSeq) return;
@@ -1931,7 +2244,7 @@ async function runCompareSearch(query){
 
 compareManualSearchBtn.addEventListener('click', async () => {
   const q = compareSearchInput.value.trim();
-  if (q.length >= 3) await runCompareSearch(q);
+  if (q.length >= 3 || compareHasActiveFilter()) await runCompareSearch(q);
 });
 
 function renderCompareSuggestions(items){
@@ -1975,16 +2288,13 @@ function renderCompareSuggestions(items){
 
 async function addFundToCompareByCode(item){
   if (isFundInCompare(item.schemeCode)){
-    alert('This fund is already in the comparison chart.');
+    notifyToast('This fund is already in the comparison chart.', 'warning');
     return;
   }
   if (compareFunds.length >= COMPARE_LIMIT){
-    alert('You can compare a maximum of 4 funds at a time.');
+    notifyToast('You can compare a maximum of 4 funds at a time.', 'warning');
     return;
   }
-
-  const emptyEl = document.getElementById('compareEmpty');
-  if (emptyEl) emptyEl.style.display = 'none';
 
   // Give feedback and stop duplicate clicks while the NAV history for
   // this fund is fetched — previously this call had no timeout, so a
@@ -2016,7 +2326,7 @@ async function addFundToCompareByCode(item){
       .filter(r => !isNaN(r.nav));
 
     const newFund = {
-      schemeCode: item.schemeCode,
+      schemeCode: String(item.schemeCode),
       schemeName: item.schemeName,
       fundHouse: '',
       navData: ascending,
@@ -2029,8 +2339,9 @@ async function addFundToCompareByCode(item){
     updateCompareCountBadge();
     renderCompareUI();
     idbPutCompareFund(newFund);
+    closeCompareSearchModal();
   } catch(err){
-    alert(friendlyMessage(err, 'detail'));
+    notifyError(friendlyMessage(err, 'detail'));
   } finally{
     compareSearchInput.disabled = false;
     compareManualSearchBtn.disabled = false;
@@ -2039,7 +2350,7 @@ async function addFundToCompareByCode(item){
 }
 
 document.addEventListener('click', (e) => {
-  if (!e.target.closest('#comparePanel .search-box')){
+  if (!e.target.closest('#compareSearchModal .search-box')){
     compareSuggestionsBox.classList.remove('show');
   }
 });

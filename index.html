@@ -9,12 +9,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <nav class="side-nav" id="sideNav">
-  <div class="side-nav-logo"><img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo"></div>
+  <div class="side-nav-logo">
+    <img src="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png" alt="Invisible House logo">
+    <span class="side-nav-brand-name">Invisible House</span>
+  </div>
   <div class="side-nav-items">
     <button class="side-nav-item active" id="searchTabBtn"><i class="bi bi-search"></i><span>Search</span></button>
     <button class="side-nav-item" id="recentTabBtn"><i class="bi bi-clock-history"></i><span>Recent</span></button>
@@ -457,23 +461,13 @@
       <button class="btn danger" id="clearCompareBtn"><i class="bi bi-trash3"></i> Clear All</button>
     </div>
     
-    <!-- Compare Section Search -->
-    <div class="search-box" style="margin-bottom: 16px;">
-      <i class="bi bi-search search-leading-icon" aria-hidden="true"></i>
-      <input type="text" id="compareSearchInput" placeholder="Search fund to add to compare (e.g. HDFC, SBI...)" autocomplete="off">
-      <button type="button" class="search-icon-btn" id="compareManualSearchBtn" title="Search"><i class="bi bi-search"></i></button>
-      <div class="suggestions" id="compareSuggestions"></div>
-    </div>
- 
- 
- 
- 
-    <div class="empty-state" id="compareEmpty">
-      <i class="bi bi-bar-chart-line"></i>
-      <p>Add up to 4 funds from Search to compare their NAV trends.</p>
-    </div>
+    <!-- Compare slots: 4 evenly-spaced slots. Filled slots show the
+         fund + a remove button; empty slots show a "+" that opens the
+         add-fund popup. -->
+    <p class="compare-hint">Tap a slot to add a fund — compare up to 4 at once. You can also open a fund from Search and tap "Add to Compare".</p>
+    <div class="compare-slots" id="compareSlots"></div>
+
     <div class="card compare-card" id="compareCard">
-      <div class="compare-legend" id="compareLegend"></div>
       <div class="compare-mode-toggle" id="compareModeToggle">
         <button type="button" class="compare-mode-btn active" data-mode="nav"><i class="bi bi-currency-rupee"></i> NAV Compare</button>
         <button type="button" class="compare-mode-btn" data-mode="growth"><i class="bi bi-graph-up-arrow"></i> Growth/Loss Compare</button>
@@ -503,6 +497,62 @@
   </div>
 </div>
 
+<!-- Add-fund-to-compare popup: opened by tapping an empty compare slot -->
+<div class="compare-search-modal" id="compareSearchModal" hidden>
+  <div class="compare-search-modal-backdrop" id="compareSearchModalBackdrop"></div>
+  <div class="compare-search-modal-panel" role="dialog" aria-modal="true" aria-label="Add fund to compare">
+    <div class="compare-search-modal-header">
+      <span><i class="bi bi-bar-chart-line"></i> Add fund to compare</span>
+      <button type="button" class="compare-search-modal-close" id="compareSearchModalClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <div class="search-box">
+      <i class="bi bi-search search-leading-icon" aria-hidden="true"></i>
+      <input type="text" id="compareSearchInput" placeholder="Search fund house (e.g. HDFC, SBI, Motilal Oswal...)" autocomplete="off">
+      <button type="button" class="search-icon-btn" id="compareManualSearchBtn" title="Search"><i class="bi bi-search"></i></button>
+    </div>
+
+    <div class="compare-filter-groups" id="compareFilterGroups">
+      <div class="explorer-body-top">
+        <span class="explorer-body-hint">Filter by category, plan &amp; option</span>
+        <button type="button" class="explorer-clear" id="compareClearFilters">Clear</button>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Category</div>
+        <div class="filter-chips" id="compareCategoryFilters">
+          <button type="button" class="filter-chip active" data-category="">All</button>
+          <button type="button" class="filter-chip" data-category="large cap">Large</button>
+          <button type="button" class="filter-chip" data-category="mid cap">Mid</button>
+          <button type="button" class="filter-chip" data-category="small cap">Small</button>
+          <button type="button" class="filter-chip" data-category="flexi cap">Flexi</button>
+          <button type="button" class="filter-chip" data-category="elss">ELSS</button>
+          <button type="button" class="filter-chip" data-category="index">Index</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Plan</div>
+        <div class="filter-chips" id="comparePlanFilters">
+          <button type="button" class="filter-chip active" data-plan="">All</button>
+          <button type="button" class="filter-chip" data-plan="direct">Direct</button>
+          <button type="button" class="filter-chip" data-plan="regular">Regular</button>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <div class="filter-label">Option</div>
+        <div class="filter-chips" id="compareOptionFilters">
+          <button type="button" class="filter-chip active" data-option="">All</button>
+          <button type="button" class="filter-chip" data-option="growth">Growth</button>
+          <button type="button" class="filter-chip" data-option="idcw">IDCW</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="suggestions compare-modal-suggestions" id="compareSuggestions"></div>
+  </div>
+</div>
+
 <footer>
   <div class="footer-line">Developed by <b>Microintel</b></div>
   <div class="footer-line"><i class="bi bi-database"></i> Fund data updates live</div>
@@ -514,6 +564,8 @@
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js';document.head.appendChild(s);"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/2.0.1/chartjs-plugin-zoom.min.js';document.head.appendChild(s);"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
+        onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.all.min.js';document.head.appendChild(s);"></script>
 
 <script src="js/core.js"></script>
 <script src="js/fund.js"></script>
