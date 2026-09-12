@@ -110,7 +110,6 @@
     left:0;
     min-width:210px;
     background:var(--panel);
-    border:1px solid var(--border);
     border-radius:12px;
     padding:6px;
     box-shadow:var(--shadow);
@@ -228,7 +227,6 @@
     width:100%;
     padding:15px 42px 15px 16px;
     background:var(--panel);
-    border:1px solid var(--border);
     border-radius:12px;
     color:var(--text);
     font-size:15px;
@@ -265,7 +263,6 @@
     left:0;
     right:0;
     background:var(--panel);
-    border:1px solid var(--border);
     border-radius:12px;
     max-height:340px;
     overflow-y:auto;
@@ -437,7 +434,6 @@
     position:relative;
     margin-top:22px;
     background:transparent;
-    border:1px solid var(--border);
     border-radius:var(--radius-lg);
     padding:24px;
     display:none;
@@ -477,7 +473,6 @@
     height:48px;
     border-radius:13px;
     background:var(--accent-soft);
-    border:1px solid var(--border);
     color:var(--accent);
     display:flex;
     align-items:center;
@@ -523,7 +518,6 @@
   .fund-info-col{min-width:0;}
   .stat{
     background:transparent;
-    border:1px solid var(--border);
     border-radius:10px;
     padding:12px 14px;
     transition:background .2s;
@@ -566,8 +560,7 @@
     margin-bottom:6px;
   }
   .chart-col{
-    background:var(--panel-2);
-    border:1px solid var(--border);
+    background:transparent;
     border-radius:var(--radius-md);
     padding:16px 16px 14px;
   }
@@ -587,7 +580,6 @@
     font-weight:600;
     color:var(--muted);
     background:var(--panel);
-    border:1px solid var(--border);
     border-radius:7px;
     padding:4px 9px;
     cursor:pointer;
@@ -603,7 +595,6 @@
     font-weight:600;
     color:var(--muted);
     background:var(--panel);
-    border:1px solid var(--border);
     border-radius:7px;
     padding:4px 9px;
     cursor:pointer;
@@ -625,7 +616,6 @@
     min-width:38px;
     padding:6px 8px;
     background:var(--panel);
-    border:1px solid var(--border);
     color:var(--muted);
     font-size:11.5px;
     font-weight:700;
@@ -679,7 +669,6 @@
     margin-top:10px;
     padding:12px 14px;
     background:var(--panel-2);
-    border:1px solid var(--border);
     border-radius:var(--radius-md);
     font-size:12.5px;
   }
@@ -729,7 +718,6 @@
     font-size:11.5px;
   }
   .chart-compare-clear{
-    border:1px solid var(--border);
     background:transparent;
     color:var(--muted);
     font-size:11px;
@@ -775,7 +763,6 @@
     gap:6px;
     padding:8px 14px;
     background:var(--panel-3);
-    border:1px solid var(--border);
     color:var(--text);
     border-radius:8px;
     font-size:12.5px;
@@ -789,7 +776,6 @@
   .history-table-wrap{
     max-height:320px;
     overflow-y:auto;
-    border:1px solid var(--border);
     border-radius:10px;
   }
   table.history-table{
@@ -890,7 +876,6 @@
     align-items:center;
     gap:12px;
     background:transparent;
-    border:1px solid var(--border);
     border-radius:var(--radius-md);
     padding:13px 15px;
     cursor:pointer;
@@ -910,7 +895,7 @@
     flex-shrink:0;
     overflow:hidden;
   }
-  .recent-icon.has-logo{background:#fff; border:1px solid var(--border);}
+  .recent-icon.has-logo{background:#fff;}
   .recent-icon img{
     width:100%;
     height:100%;
@@ -1006,7 +991,6 @@
     gap:6px;
     padding:9px 12px;
     background:var(--panel);
-    border:1px solid var(--border);
     color:var(--muted);
     font-size:12.5px;
     font-weight:700;
@@ -1023,7 +1007,6 @@
     align-items:center;
     gap:8px;
     background:var(--panel-2);
-    border:1px solid var(--border);
     border-radius:10px;
     padding:8px 10px;
     font-size:12.5px;
@@ -1167,7 +1150,6 @@
       display:flex;
       flex-direction:column;
       background:transparent;
-      border:1px solid var(--border);
       border-radius:var(--radius-md);
       padding:18px;
     }
@@ -1194,7 +1176,6 @@
       display:flex;
       flex-direction:column;
       background:transparent;
-      border:1px solid var(--border);
       border-radius:var(--radius-md);
       padding:20px;
     }
@@ -1216,7 +1197,6 @@
   margin-bottom:24px;
   padding:20px;
   background:transparent;
-  border:1px solid var(--border);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
   animation:fadeUp .3s ease;
@@ -1257,7 +1237,6 @@
   .top-aum-badge{
   flex-shrink:0;
   padding:5px 8px;
-  border:1px solid var(--border);
   border-radius:999px;
   font-size:10px;
   font-weight:700;
@@ -1276,7 +1255,6 @@
   align-items:center;
   gap:12px;
   padding:11px 12px;
-  border:1px solid var(--border);
   border-radius:12px;
   background:transparent;
   color:var(--text);
@@ -1443,7 +1421,6 @@
   margin-top:18px;
   padding:18px;
   background:transparent;
-  border:1px solid var(--border);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
   }
@@ -1454,11 +1431,8 @@
   justify-content:space-between;
   gap:12px;
   width:100%;
-  border:none;
-  background:transparent;
   color:var(--text);
   padding:0;
-  cursor:pointer;
   text-align:left;
   font:inherit;
   }
@@ -1480,17 +1454,6 @@
   font-size:12px;
   }
 
-  .explorer-chevron{
-  flex-shrink:0;
-  color:var(--muted);
-  font-size:15px;
-  transition:transform .2s ease;
-  }
-
-  .fund-explorer:not(.collapsed) .explorer-chevron{
-  transform:rotate(180deg);
-  }
-
   .explorer-body{
   margin-top:18px;
   }
@@ -1510,7 +1473,6 @@
   }
 
   .explorer-clear{
-  border:1px solid var(--border);
   background:transparent;
   color:var(--muted);
   padding:6px 10px;
@@ -1544,7 +1506,6 @@
   }
   
   .filter-chip{
-  border:1px solid var(--border);
   background:var(--panel-2);
   color:var(--text);
   padding:8px 11px;
@@ -1610,7 +1571,6 @@
   gap:10px;
   padding:11px 12px;
   background:transparent;
-  border:1px solid var(--border);
   border-radius:11px;
   color:var(--text);
   text-align:left;
@@ -1638,7 +1598,7 @@
   overflow:hidden;
   }
   
-  .explorer-result-icon.has-logo{ background:#fff; border:1px solid var(--border); }
+  .explorer-result-icon.has-logo{ background:#fff; }
   .explorer-result-icon img{ width:100%; height:100%; object-fit:contain; padding:5px; display:block; }
   
   .explorer-result-info{
@@ -1780,9 +1740,7 @@ header{ border-bottom-color:var(--border); }
    searching: search bar + results only
    detail:    only the selected fund, edge to edge focus            */
 body[data-app-state="searching"] #topAUMSection,
-body[data-app-state="searching"] #fundExplorer,
-body[data-app-state="detail"] #topAUMSection,
-body[data-app-state="detail"] #fundExplorer{
+body[data-app-state="detail"] #topAUMSection{
   display:none !important;
 }
 body[data-app-state="detail"] .search-box{
@@ -1802,7 +1760,6 @@ body[data-app-state="detail"] .fund-toolbar{
   gap:8px;
   padding:9px 14px 9px 10px;
   border-radius:999px;
-  border:1px solid var(--border);
   background:var(--panel-2);
   color:var(--muted);
   font-size:13px;
@@ -1873,7 +1830,7 @@ input[type="text"]:focus{
   font-size:14px;
   overflow:hidden;
 }
-.suggestion-icon.has-logo{ background:#fff; border:1px solid var(--border); }
+.suggestion-icon.has-logo{ background:#fff; }
 .suggestion-icon img{ width:100%; height:100%; object-fit:contain; padding:6px; display:block; }
 .suggestion-info{ min-width:0; flex:1; display:flex; flex-direction:column; gap:2px; }
 .suggestion-name{
@@ -2043,7 +2000,7 @@ html::-webkit-scrollbar{ display:none; width:0; height:0; }
   font-size:14px;
   overflow:hidden;
 }
-.top-aum-icon.has-logo{ background:#fff; border:1px solid var(--border); }
+.top-aum-icon.has-logo{ background:#fff; }
 .top-aum-icon img{ width:20px; height:20px; object-fit:contain; }
 
 /* ============================================================
@@ -2183,7 +2140,6 @@ html[data-theme="light"] .skeleton::after{
 .swal2-popup.ih-swal{
   background:var(--panel);
   color:var(--text);
-  border:1px solid var(--border);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
   font-family:inherit;
@@ -2226,7 +2182,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
 .swal2-toast.ih-swal-toast{
   background:var(--panel) !important;
   color:var(--text) !important;
-  border:1px solid var(--border);
   box-shadow:var(--shadow);
   border-radius:var(--radius-md);
 }
@@ -2363,21 +2318,62 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
 
 /* ============================================================
    COMPARE PANEL: reliable rendering + single-screen desktop fit
+   ------------------------------------------------------------
+   Desktop layout: header spans the top; the graph takes the full
+   remaining width/height on the left; the add/added fund slots
+   stack vertically in a fixed-width column on the right — so the
+   only things sharing space with the chart are the page header,
+   the left icon-rail nav (already outside .wrap), and this right
+   column, and the chart itself claims everything else.
    ============================================================ */
 @media (min-width:1024px){
   /* Hide chrome that would otherwise force scrolling while comparing,
      so the comparison genuinely fits on one screen. */
   body:has(#comparePanel.active) footer{ display:none; }
   #comparePanel.active{
-    display:flex;
-    flex-direction:column;
-    height:calc(100vh - 128px);
+    display:grid;
+    grid-template-columns: 1fr 260px;
+    grid-template-rows: auto auto 1fr;
+    column-gap: 20px;
+    height: calc(100vh - 128px);
   }
-  #comparePanel .compare-header{ flex:0 0 auto; }
-  #comparePanel .compare-hint{ flex:0 0 auto; }
-  #comparePanel .compare-slots{ flex:0 0 auto; }
+  #comparePanel .compare-header{ grid-column: 1 / -1; grid-row: 1; }
+  #comparePanel .compare-hint{ grid-column: 2; grid-row: 2; margin: 0 0 12px; }
+  #comparePanel .compare-slots{
+    grid-column: 2;
+    grid-row: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-content: start;
+    align-self: start;
+    max-height: 100%;
+    overflow-y: auto;
+    margin-bottom: 0;
+  }
+  /* Slots read better as compact horizontal rows once they're
+     stacked in a narrow column instead of laid out as square tiles. */
+  #comparePanel .compare-slot{
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    min-height: 0;
+    padding: 10px 34px 10px 12px;
+  }
+  #comparePanel .compare-slot-remove{
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+  }
+  #comparePanel .compare-slot-name{
+    -webkit-line-clamp: 1;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  #comparePanel .compare-slot-cagr{ flex: 0 0 auto; margin-left: auto; }
   #comparePanel #compareCard.show{
-    flex:1;
+    grid-column: 1;
+    grid-row: 2 / span 2;
     display:flex;
     flex-direction:column;
     min-height:0;
@@ -2387,13 +2383,22 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   #compareCard .section-label-row,
   #compareCard .chart-range-row,
   #compareCard .chart-label,
-  #compareCard .chart-hint,
-  #compareCard .chart-compare{ flex:0 0 auto; }
+  #compareCard .chart-hint{ flex:0 0 auto; }
   #compareCard .chart-canvas-wrap{
     flex:1 1 auto;
     min-height:0;
     height:auto;
   }
+  /* The tap-to-compare readout always reserves the same slot below
+     the chart (shown or not), so picking two points to compare never
+     shrinks the graph — only its own contents fade in/out. */
+  #compareCard .chart-compare{
+    flex: 0 0 auto;
+    display: block !important;
+    min-height: 54px;
+    visibility: hidden;
+  }
+  #compareCard .chart-compare.show{ visibility: visible; }
 }
 
 /* Manual fallback shown inside the chart wrapper if the compare chart
@@ -2409,7 +2414,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   gap:8px;
   padding:10px 16px;
   border-radius:var(--radius-md);
-  border:1px solid var(--border);
   background:var(--panel-2);
   color:var(--text);
   font-size:13px;
@@ -2454,9 +2458,7 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   font:inherit;
   color:inherit;
 }
-.compare-slot.empty{
-  border:1.5px dashed var(--border);
-  background:color-mix(in srgb, var(--text) 6%, transparent);
+.compare-slot.empty{background:color-mix(in srgb, var(--text) 6%, transparent);
   color:var(--muted);
   transition:border-color .15s ease, color .15s ease, background .15s ease, transform .1s ease;
 }
@@ -2502,7 +2504,7 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   font-size:18px;
   overflow:hidden;
 }
-.compare-slot-icon.has-logo{ background:#fff; border:1px solid var(--border); }
+.compare-slot-icon.has-logo{ background:#fff; }
 .compare-slot-icon img{ width:100%; height:100%; object-fit:contain; padding:6px; display:block; }
 .compare-slot-name{
   font-size:11.5px;
@@ -2548,7 +2550,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   display:flex;
   flex-direction:column;
   background:var(--panel);
-  border:1px solid var(--border);
   border-radius:var(--radius-xl);
   box-shadow:var(--shadow-md), 0 30px 60px rgba(0,0,0,.35);
   padding:20px;
@@ -2573,7 +2574,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
 .compare-search-modal-close{
   width:32px; height:32px;
   border-radius:9px;
-  border:1px solid var(--border);
   background:var(--panel-2);
   color:var(--muted);
   display:flex; align-items:center; justify-content:center;
@@ -2592,7 +2592,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   position:static !important;
   display:none;
   margin-top:12px;
-  border:1px solid var(--border);
   border-radius:12px;
   max-height:min(58vh, 420px);
   overflow-y:auto;
