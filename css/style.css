@@ -2321,59 +2321,85 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
    ------------------------------------------------------------
    Desktop layout: header spans the top; the graph takes the full
    remaining width/height on the left; the add/added fund slots
-   stack vertically in a fixed-width column on the right — so the
-   only things sharing space with the chart are the page header,
-   the left icon-rail nav (already outside .wrap), and this right
-   column, and the chart itself claims everything else.
+   stack as compact rows in a narrow fixed-width column on the
+   right — so the only things sharing space with the chart are
+   the page header, the left icon-rail nav (already outside
+   .wrap), and this slim right column, and the chart claims
+   everything else.
    ============================================================ */
 @media (min-width:1024px){
   /* Hide chrome that would otherwise force scrolling while comparing,
-     so the comparison genuinely fits on one screen. */
+     and pull in the page's own top/bottom padding, so the chart gets
+     as much of the screen as possible below the header/left nav. */
   body:has(#comparePanel.active) footer{ display:none; }
+  body:has(#comparePanel.active) .wrap{
+    padding-top: var(--sp-4);
+    padding-bottom: var(--sp-3);
+  }
   #comparePanel.active{
     display:grid;
-    grid-template-columns: 1fr 260px;
-    grid-template-rows: auto auto 1fr;
-    column-gap: 20px;
-    height: calc(100vh - 128px);
+    grid-template-columns: 1fr 190px;
+    grid-template-rows: auto 1fr;
+    column-gap: 16px;
+    height: calc(100vh - 92px);
   }
-  #comparePanel .compare-header{ grid-column: 1 / -1; grid-row: 1; }
-  #comparePanel .compare-hint{ grid-column: 2; grid-row: 2; margin: 0 0 12px; }
+  #comparePanel .compare-header{ grid-column: 1 / -1; grid-row: 1; margin-bottom:8px; }
+  #comparePanel .compare-header h2{ font-size:16px; }
+  /* The instructional hint is redundant once the layout is this
+     compact — drop it so its space goes to the slots/graph instead. */
+  #comparePanel .compare-hint{ display:none; }
   #comparePanel .compare-slots{
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 2;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 6px;
     align-content: start;
     align-self: start;
     max-height: 100%;
     overflow-y: auto;
     margin-bottom: 0;
   }
-  /* Slots read better as compact horizontal rows once they're
-     stacked in a narrow column instead of laid out as square tiles. */
+  /* Smaller, compact rows: slimmer icon, tighter padding/type than
+     the square tiles used on mobile. */
   #comparePanel .compare-slot{
     flex-direction: row;
     justify-content: flex-start;
     text-align: left;
     min-height: 0;
-    padding: 10px 34px 10px 12px;
+    gap: 8px;
+    padding: 6px 24px 6px 8px;
+    border-radius: 8px;
   }
   #comparePanel .compare-slot-remove{
     top: 50%;
-    right: 8px;
+    right: 4px;
+    width: 18px;
+    height: 18px;
+    font-size: 8px;
     transform: translateY(-50%);
+  }
+  #comparePanel .compare-slot-icon{
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    font-size: 12px;
   }
   #comparePanel .compare-slot-name{
     -webkit-line-clamp: 1;
     flex: 1 1 auto;
     min-width: 0;
+    font-size: 10.5px;
   }
-  #comparePanel .compare-slot-cagr{ flex: 0 0 auto; margin-left: auto; }
+  #comparePanel .compare-slot-cagr{
+    flex: 0 0 auto;
+    margin-left: auto;
+    font-size: 9.5px;
+  }
+  #comparePanel .compare-slot.empty span{ font-size: 10.5px; }
   #comparePanel #compareCard.show{
     grid-column: 1;
-    grid-row: 2 / span 2;
+    grid-row: 2;
     display:flex;
     flex-direction:column;
     min-height:0;
