@@ -373,6 +373,7 @@
 
             <div class="compare-action-row">
               <button type="button" class="btn compare-btn" id="addToCompareBtn"><i class="bi bi-bar-chart-line"></i> Add to Compare</button>
+              <button type="button" class="btn" id="openCompareBtn"><i class="bi bi-arrow-up-right-square"></i> Open Compare</button>
             </div>
 
             <div class="grid">
@@ -474,9 +475,14 @@
       </div>
       <div class="section-label-row" style="margin-top:16px;">
         <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
-        <button type="button" class="chart-reset-btn" id="compareChartResetZoom" title="Reset zoom">
-          <i class="bi bi-arrow-counterclockwise"></i> Reset
-        </button>
+        <div class="section-label-actions">
+          <button type="button" class="chart-util-btn" id="compareShowGraphBtn" title="Reload / show the chart">
+            <i class="bi bi-bar-chart-line"></i> Show Graph
+          </button>
+          <button type="button" class="chart-reset-btn" id="compareChartResetZoom" title="Reset zoom">
+            <i class="bi bi-arrow-counterclockwise"></i> Reset
+          </button>
+        </div>
       </div>
       <div class="chart-range-row" id="compareChartRangeRow">
         <button type="button" class="compare-range-btn" data-range="1w">1W</button>

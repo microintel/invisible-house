@@ -1134,6 +1134,30 @@ document.getElementById('addToCompareBtn').addEventListener('click', () => {
   idbPutCompareFund(newFund);
 });
 
+// "Open Compare" on the fund detail page — jumps straight to the
+// Compare tab (and its chart) instead of making the user find the tab
+// themselves after adding a fund.
+const openCompareBtn = document.getElementById('openCompareBtn');
+if (openCompareBtn){
+  openCompareBtn.addEventListener('click', () => {
+    switchTab('compare');
+  });
+}
+
+// Persistent "Show Graph" control inside the Compare tab itself — always
+// available (not just as an error fallback) so the user can force a
+// redraw any time the chart looks stuck or empty.
+const compareShowGraphBtn = document.getElementById('compareShowGraphBtn');
+if (compareShowGraphBtn){
+  compareShowGraphBtn.addEventListener('click', () => {
+    if (!compareFunds.length){
+      setStatus('Add at least one fund to compare first.', true);
+      return;
+    }
+    scheduleCompareChartRender();
+  });
+}
+
 function removeFromCompare(schemeCode){
   compareFunds = compareFunds.filter(f => String(f.schemeCode) !== String(schemeCode));
   compareSelection = [];
