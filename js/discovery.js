@@ -351,19 +351,13 @@
       </div>
     `;
 
-    // Insert directly below the Fund Explorer section (which now
-    // comes first), rather than right after the search box.
-    const explorerSection = document.getElementById('fundExplorer');
+    // Fund Explorer now lives in its own tab, so the AUM homepage
+    // section anchors directly below the search box in the Search tab.
     const searchBox = document.querySelector(
       '#searchPanel .search-box'
     );
 
-    if (explorerSection) {
-      explorerSection.insertAdjacentElement(
-        'afterend',
-        aumHomeSection
-      );
-    } else if (searchBox) {
+    if (searchBox) {
       searchBox.insertAdjacentElement(
         'afterend',
         aumHomeSection
@@ -617,21 +611,10 @@
   if (!explorerResults) return;
 
   /* ----------------------------------------------------------
-     Collapsible explorer header
-     The filter tool is secondary to search, so it starts
-     collapsed and expands on demand.
+     The explorer now lives in its own always-visible tab, so it
+     no longer collapses/expands — the body is simply always shown.
      ---------------------------------------------------------- */
-  const explorerToggle = document.getElementById('explorerToggle');
   const explorerBody = document.getElementById('explorerBody');
-  const explorerSection = document.getElementById('fundExplorer');
-
-  if (explorerToggle && explorerBody && explorerSection) {
-    explorerToggle.addEventListener('click', () => {
-      const collapsed = explorerSection.classList.toggle('collapsed');
-      explorerBody.hidden = collapsed;
-      explorerToggle.setAttribute('aria-expanded', String(!collapsed));
-    });
-  }
 
   const explorerState = {
     q: '',
@@ -726,6 +709,7 @@
   ) {
 
     explorerLoading.hidden = false;
+    const explorerLoadingShownAt = Date.now();
 
     if (!append) {
       explorerResults.hidden = false;
@@ -792,6 +776,11 @@
 
     } finally {
 
+      // Keep the skeleton on screen for a deliberate 1–2.5s beat
+      // instead of flashing instantly on a fast response.
+      if (typeof minSkeletonWait === 'function'){
+        await minSkeletonWait(explorerLoadingShownAt);
+      }
       explorerLoading.hidden = true;
 
     }
@@ -908,6 +897,10 @@
               /*
                 Fallback to your existing search.
               */
+              if (typeof switchTab === 'function') {
+                switchTab('search');
+              }
+
               searchInput.value = schemeName;
 
               searchInput.dispatchEvent(
@@ -950,6 +943,15 @@
       Hide explorer after selecting.
     */
     explorerResults.hidden = true;
+
+    /*
+      Explorer now lives in its own tab, so opening a fund from here
+      has to switch back to the Search tab — that's where the fund
+      detail card actually lives and renders.
+    */
+    if (typeof switchTab === 'function') {
+      switchTab('search');
+    }
 
     /*
       Use the existing NAV-loading function.

@@ -1,3 +1,15 @@
+// ---------- Skeleton minimum-visible-time helper ----------
+// Skeleton loaders are kept on screen for a randomized 1–2.5s beat
+// instead of flashing instantly when a response comes back fast, so
+// loading always reads as deliberate rather than jumpy. Pass the
+// timestamp (Date.now()) from the moment the skeleton was shown;
+// this resolves once at least that much time has elapsed.
+function minSkeletonWait(shownAt, min = 1000, max = 2500){
+  const target = min + Math.random() * (max - min);
+  const remaining = target - (Date.now() - shownAt);
+  return remaining > 0 ? new Promise(r => setTimeout(r, remaining)) : Promise.resolve();
+}
+
 // ---------- Theme & Color Palette Controller ----------
 const THEME_KEY = 'ih_theme';
 const PALETTE_KEY = 'ih_palette';
@@ -81,21 +93,26 @@ menuDropdown.querySelectorAll('.menu-item').forEach(item => {
 
 // ---------- Tabs ----------
 const searchTabBtn = document.getElementById('searchTabBtn');
+const explorerTabBtn = document.getElementById('explorerTabBtn');
 const recentTabBtn = document.getElementById('recentTabBtn');
 const compareTabBtn = document.getElementById('compareTabBtn');
 const searchPanel = document.getElementById('searchPanel');
+const explorerPanel = document.getElementById('explorerPanel');
 const recentPanel = document.getElementById('recentPanel');
 const comparePanel = document.getElementById('comparePanel');
 
 searchTabBtn.addEventListener('click', () => switchTab('search'));
+explorerTabBtn.addEventListener('click', () => switchTab('explorer'));
 recentTabBtn.addEventListener('click', () => switchTab('recent'));
 compareTabBtn.addEventListener('click', () => switchTab('compare'));
 
 function switchTab(tab){
   searchTabBtn.classList.toggle('active', tab === 'search');
+  explorerTabBtn.classList.toggle('active', tab === 'explorer');
   recentTabBtn.classList.toggle('active', tab === 'recent');
   compareTabBtn.classList.toggle('active', tab === 'compare');
   searchPanel.classList.toggle('active', tab === 'search');
+  explorerPanel.classList.toggle('active', tab === 'explorer');
   recentPanel.classList.toggle('active', tab === 'recent');
   comparePanel.classList.toggle('active', tab === 'compare');
   if (tab === 'recent') renderRecentList();

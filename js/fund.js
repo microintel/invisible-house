@@ -154,6 +154,8 @@ function buildSearchIndex(){
   }
 }
 
+let firstLoadLoaderShownAt = 0;
+
 async function loadFundList(attempt=1){
   if (fundsLoaded || fundsLoading) return;
   fundsLoading = true;
@@ -167,6 +169,9 @@ async function loadFundList(attempt=1){
       buildSearchIndex();
       setStatus('');
       searchInput.disabled = false;
+      if (firstLoadLoader && firstLoadLoader.classList.contains('show')){
+        await minSkeletonWait(firstLoadLoaderShownAt);
+      }
       if (firstLoadLoader) firstLoadLoader.classList.remove('show');
       if (Date.now() - (cached.ts || 0) > FUND_LIST_TTL_MS){
         refreshFundListInBackground();
@@ -177,6 +182,7 @@ async function loadFundList(attempt=1){
 
   searchInput.disabled = true;
   if (firstLoadLoader) firstLoadLoader.classList.add('show');
+  firstLoadLoaderShownAt = Date.now();
   const MAX_ATTEMPTS = 3;
   try{
     const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
@@ -188,6 +194,9 @@ async function loadFundList(attempt=1){
     buildSearchIndex();
     idbSet('fundList', { key: 'all', data, ts: Date.now() });
     setStatus('');
+    if (firstLoadLoader && firstLoadLoader.classList.contains('show')){
+      await minSkeletonWait(firstLoadLoaderShownAt);
+    }
   } catch(err){
     fundsLoading = false;
     if (attempt < MAX_ATTEMPTS){
@@ -489,6 +498,7 @@ async function loadFundByCode(schemeCode, attempt=1){
     setStatus(`Loading data for scheme code ${code}${attempt > 1 ? ` (retry ${attempt - 1})` : ''}...`, false, true);
     if (!isFirstLoad) card.classList.add('loading');
   }
+  const cardLoadingShownAt = Date.now();
 
   const MAX_ATTEMPTS = 3;
   try{
@@ -510,6 +520,9 @@ async function loadFundByCode(schemeCode, attempt=1){
     }
     idbSet('navCache', { code, data, ts: Date.now() });
     setStatus('');
+    if (!usedCache && card.classList.contains('loading')){
+      await minSkeletonWait(cardLoadingShownAt);
+    }
   } catch(err){
     if (usedCache) return;
 
@@ -1832,24 +1845,23 @@ function drawChart(points){
   const max = Math.max(...navs);
   const padY = (max - min) * 0.08 || max * 0.02 || 1;
 
-  const gradient = canvas.getContext('2d').createLinearGradient(0, 0, 0, canvas.clientHeight || 220);
-  gradient.addColorStop(0, color_mix_fallback(accentColor, 0.28));
-  gradient.addColorStop(1, color_mix_fallback(accentColor, 0));
-
+  // Graph area stays fully transparent (no solid/gradient backdrop under
+  // the line) so the chart blends into whatever page background is active
+  // — the line/point colors carry the theme instead of a filled panel.
   const chartData = {
     labels: rows.map(r => r.date),
     datasets: [{
       label: 'NAV',
       data: navs,
       borderColor: accentColor,
-      backgroundColor: gradient,
+      backgroundColor: 'transparent',
       pointRadius: 0,
       pointHoverRadius: 5,
       pointHoverBackgroundColor: accent2Color,
       pointHoverBorderColor: panelColor,
       pointHoverBorderWidth: 2,
       borderWidth: 2,
-      fill: true,
+      fill: false,
       tension: 0.15,
       spanGaps: true
     }]
@@ -2154,6 +2166,7 @@ if (compareClearFiltersBtn){
 // Skeleton rows shown the moment a search is triggered (typing, filter
 // chip tap, or manual search) so the popup never looks frozen while the
 // local match or the filtered-search API call is in flight.
+let compareSuggestionsSkeletonShownAt = 0;
 function renderCompareSuggestionsSkeleton(){
   const row = () => `
     <div class="skeleton-row explorer-skeleton-row compare-suggestion-skeleton-row">
@@ -2165,6 +2178,7 @@ function renderCompareSuggestionsSkeleton(){
     </div>`;
   compareSuggestionsBox.innerHTML = row() + row() + row() + row();
   compareSuggestionsBox.classList.add('show');
+  compareSuggestionsSkeletonShownAt = Date.now();
 }
 
 compareSearchInput.addEventListener('input', () => {
@@ -2220,6 +2234,8 @@ async function runCompareSearch(query){
       schemeCode: f.scheme_code,
       schemeName: f.scheme_name || f.name || ''
     })).filter(f => f.schemeCode && f.schemeName);
+    await minSkeletonWait(compareSuggestionsSkeletonShownAt);
+    if (requestId !== compareSearchRequestSeq) return;
     renderCompareSuggestions(mapped);
   } catch(err){
     if (requestId !== compareSearchRequestSeq) return;
@@ -2263,6 +2279,8 @@ async function runLocalCompareSearch(query, requestId){
     }
   }
 
+  await minSkeletonWait(compareSuggestionsSkeletonShownAt);
+  if (requestId !== compareSearchRequestSeq) return;
   renderCompareSuggestions(matches);
 }
 
