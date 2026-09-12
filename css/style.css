@@ -77,8 +77,6 @@
     display:flex;
     flex-direction:column;
     background:
-      repeating-linear-gradient(0deg, var(--grid-line) 0 1px, transparent 1px 42px),
-      repeating-linear-gradient(90deg, var(--grid-line) 0 1px, transparent 1px 42px),
       radial-gradient(1000px 460px at 50% -8%, var(--accent-soft), transparent 62%),
       var(--bg);
     color:var(--text);
@@ -102,32 +100,14 @@
     text-align:center;
   }
   .menu-wrap{
-    position:absolute;
-    top:18px;
-    right:18px;
+    position:relative;
+    margin-top:auto;
   }
-  .menu-toggle-btn{
-    width:40px;
-    height:40px;
-    border-radius:11px;
-    border:1px solid var(--border);
-    background:var(--panel);
-    color:var(--muted);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    font-size:16px;
-    box-shadow:var(--shadow);
-    transition:background .15s, color .15s, transform .1s, border-color .15s;
-  }
-  .menu-toggle-btn:hover{background:var(--panel-2); color:var(--text);}
-  .menu-toggle-btn:active{transform:scale(0.94);}
-  .menu-toggle-btn.open{background:var(--accent); color:var(--accent-ink); border-color:var(--accent);}
+  #menuToggleBtn.open{background:var(--accent-soft); color:var(--accent);}
   .menu-dropdown{
     position:absolute;
-    top:calc(100% + 8px);
-    right:0;
+    bottom:calc(100% + 8px);
+    left:0;
     min-width:210px;
     background:var(--panel);
     border:1px solid var(--border);
@@ -137,7 +117,7 @@
     display:none;
     flex-direction:column;
     gap:2px;
-    z-index:20;
+    z-index:60;
   }
   .menu-dropdown.show{display:flex;}
   .menu-item{
@@ -1145,7 +1125,6 @@
     input[type="text"]{font-size:16px; padding:14px 42px 14px 14px;}
 
     /* Comfortable touch targets on small screens */
-    .menu-toggle-btn{width:42px; height:42px;}
     .search-icon-btn{width:38px; height:38px;}
     .filter-chip{min-height:36px;}
     .range-btn, .compare-range-btn{min-height:36px;}
@@ -1771,7 +1750,6 @@ header{ border-bottom-color:var(--border); }
   gap:10px;
   max-width:1320px;
   text-align:left;
-  padding-right:52px;
 }
 .brand-mark{ width:56px; height:56px; border-radius:14px; padding:9px; }
 .brand-text h1{ font-size:19px; letter-spacing:.2px; }
@@ -1779,8 +1757,7 @@ header{ border-bottom-color:var(--border); }
   .brand-mark{ width:64px; height:64px; border-radius:16px; padding:10px; }
   .brand-text h1{ font-size:23px; }
 }
-.menu-wrap{ top:10px; right:14px; }
-@media (min-width:768px){ .menu-wrap{ top:12px; right:20px; } }
+
 
 /* Home tab hides the app-tab strip entirely — the menu already owns
    Recent/Compare/Search navigation, so we don't need a second nav
@@ -1993,6 +1970,20 @@ html, body{ max-width:100%; overflow-x:hidden; }
 }
 img{ max-width:100%; }
 
+/* Belt-and-braces: nothing in these rows should ever be able to push
+   the row wider than its container, no matter how the content inside
+   grows (bigger icons, longer AUM figures, etc). */
+#topAUMSection, .fund-explorer, .top-aum-list, .explorer-result-list,
+.top-aum-item, .explorer-result-item{
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+/* Hide the browser's scrollbar track for a cleaner, app-like feel —
+   touch/trackpad scrolling still works exactly the same. */
+html{ scrollbar-width:none; }
+html::-webkit-scrollbar{ display:none; width:0; height:0; }
+
 /* ---------- compare / recent polish ---------- */
 .recent-item, .top-aum-item, .explorer-result-item{ border-radius:14px; }
 .compare-legend, .compare-mode-toggle{ flex-wrap:wrap; }
@@ -2123,4 +2114,158 @@ html[data-theme="light"] .skeleton{
 
 @media (prefers-reduced-motion: reduce){
   .skeleton{ animation:none; }
+}
+
+/* ============================================================
+   PERSISTENT NAVIGATION
+   Desktop: fixed left sidebar. Mobile: fixed bottom nav bar.
+   ============================================================ */
+.side-nav{
+  position:fixed;
+  z-index:50;
+  background:color-mix(in srgb, var(--panel) 96%, transparent);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-color:var(--border);
+  display:flex;
+}
+.side-nav-logo{ display:none; }
+.side-nav-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  cursor:pointer;
+  color:var(--muted);
+  border-radius:12px;
+  position:relative;
+  transition:background .15s, color .15s;
+}
+.side-nav-item i{ font-size:18px; flex-shrink:0; }
+.side-nav-item:hover{ background:var(--panel-2); color:var(--text); }
+.side-nav-item.active{ background:var(--accent-soft); color:var(--accent); }
+.side-nav-item .compare-count-badge{ margin-left:auto; }
+
+/* ---- Desktop: left sidebar ---- */
+@media (min-width:1024px){
+  .side-nav{
+    top:0; left:0; bottom:0; width:220px;
+    flex-direction:column;
+    padding:22px 14px;
+    border-right:1px solid var(--border);
+    gap:6px;
+  }
+  .side-nav-logo{
+    display:flex; align-items:center; justify-content:center;
+    width:100%; margin-bottom:18px;
+  }
+  .side-nav-logo img{ width:52px; height:52px; object-fit:contain; }
+  .side-nav-items{ display:flex; flex-direction:column; gap:4px; }
+  .side-nav-item{ width:100%; padding:12px 14px; font-size:14px; font-weight:600; }
+  .side-nav-item span{ white-space:nowrap; }
+  body{ padding-left:220px; }
+}
+
+/* ---- Mobile / tablet: bottom nav bar ---- */
+@media (max-width:1023px){
+  .side-nav{
+    left:0; right:0; bottom:0; top:auto;
+    flex-direction:row;
+    align-items:stretch;
+    padding:6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+    border-top:1px solid var(--border);
+    box-shadow:0 -8px 24px rgba(0,0,0,.18);
+  }
+  .side-nav-items{ display:flex; flex:1; }
+  .side-nav-item{
+    flex:1;
+    flex-direction:column;
+    justify-content:center;
+    gap:2px;
+    padding:6px 2px;
+    font-size:10.5px;
+    font-weight:700;
+    border-radius:10px;
+  }
+  .side-nav-item i{ font-size:19px; }
+  .side-nav-item .compare-count-badge{
+    position:absolute;
+    top:2px;
+    right:calc(50% - 20px);
+    margin-left:0;
+  }
+  .menu-wrap{ flex:1; margin-top:0; display:flex; }
+  .menu-wrap .side-nav-item{ width:100%; }
+  .menu-dropdown{ bottom:calc(100% + 10px); left:auto; right:6px; }
+  body{ padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px)); }
+}
+
+/* ============================================================
+   EXPLORE FUNDS / TOP AUM: slightly larger identity + values
+   (with hard overflow guards so nothing bleeds past the edge)
+   ============================================================ */
+.top-aum-list, .explorer-result-list{ overflow:hidden; }
+.top-aum-item, .explorer-result-item{
+  overflow:hidden;
+  gap:10px;
+  background:var(--panel);
+  border-color:var(--border);
+}
+.top-aum-info, .explorer-result-info{ overflow:hidden; }
+
+.explorer-result-icon{ width:40px; height:40px; flex:0 0 40px; border-radius:11px; font-size:15px; }
+.explorer-result-icon img{ padding:6px; }
+.explorer-result-name{ font-size:13px; }
+.explorer-result-meta{ font-size:10.5px; }
+
+.top-aum-icon{ width:40px; height:40px; flex:0 0 40px; border-radius:11px; font-size:15px; }
+.top-aum-icon img{ width:24px; height:24px; }
+.top-aum-fund-name{ font-size:13.5px; }
+.top-aum-amc{ font-size:11.5px; }
+.top-aum-value{ font-size:14px; font-weight:800; }
+.top-aum-rank{ flex:0 0 20px; width:20px; }
+.top-aum-arrow{ margin-left:2px; }
+
+@media (max-width:600px){
+  .top-aum-item, .explorer-result-item{ gap:8px; padding:9px 10px; }
+  .explorer-result-icon{ width:34px; height:34px; flex:0 0 34px; }
+  .top-aum-icon{ width:34px; height:34px; flex:0 0 34px; }
+  .top-aum-icon img{ width:20px; height:20px; }
+  .top-aum-value{ font-size:12.5px; }
+  .top-aum-fund-name{ font-size:12.5px; }
+  .top-aum-rank{ flex:0 0 16px; width:16px; font-size:10px; }
+}
+
+/* ============================================================
+   COMPARE PANEL: reliable rendering + single-screen desktop fit
+   ============================================================ */
+@media (min-width:1024px){
+  /* Hide chrome that would otherwise force scrolling while comparing,
+     so the comparison genuinely fits on one screen. */
+  body:has(#comparePanel.active) footer{ display:none; }
+  #comparePanel.active{
+    display:flex;
+    flex-direction:column;
+    height:calc(100vh - 128px);
+  }
+  #comparePanel .compare-header{ flex:0 0 auto; }
+  #comparePanel .search-box{ flex:0 0 auto; }
+  #comparePanel #compareCard.show{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+    overflow:hidden;
+  }
+  #compareCard .compare-legend,
+  #compareCard .compare-mode-toggle,
+  #compareCard .section-label-row,
+  #compareCard .chart-range-row,
+  #compareCard .chart-label,
+  #compareCard .chart-hint,
+  #compareCard .chart-compare{ flex:0 0 auto; }
+  #compareCard .chart-canvas-wrap{
+    flex:1 1 auto;
+    min-height:0;
+    height:auto;
+  }
 }
