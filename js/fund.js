@@ -1100,7 +1100,15 @@ function renderCompareUI(){
   renderCompareLegend();
 
   if (comparePanel.classList.contains('active')){
-    requestAnimationFrame(() => drawCompareChart());
+    // Double rAF: the compare panel may have just been switched from
+    // display:none to visible in this same tick, so its canvas can
+    // still measure 0×0 on the very next frame. Waiting an extra
+    // frame guarantees layout has settled before Chart.js reads the
+    // canvas size — this is what caused the chart to sometimes not
+    // appear at all.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => drawCompareChart());
+    });
   }
 }
 

@@ -99,7 +99,18 @@ function switchTab(tab){
   recentPanel.classList.toggle('active', tab === 'recent');
   comparePanel.classList.toggle('active', tab === 'compare');
   if (tab === 'recent') renderRecentList();
-  if (tab === 'compare') renderCompareUI();
+  if (tab === 'compare'){
+    // renderCompareUI() itself waits two animation frames before
+    // drawing so the panel has finished becoming visible first —
+    // this is what fixes the "sometimes the chart doesn't show up"
+    // issue when jumping straight to Compare.
+    renderCompareUI();
+    if (typeof compareChartInstance !== 'undefined' && compareChartInstance){
+      requestAnimationFrame(() => {
+        try{ compareChartInstance.resize(); }catch(e){}
+      });
+    }
+  }
 }
 
 // ---------- Recent searches ----------
