@@ -21,6 +21,7 @@
   </div>
   <div class="side-nav-items">
     <button class="side-nav-item active" id="searchTabBtn"><i class="bi bi-search"></i><span>Search</span></button>
+    <button class="side-nav-item" id="explorerTabBtn"><i class="bi bi-funnel"></i><span>Explore</span></button>
     <button class="side-nav-item" id="recentTabBtn"><i class="bi bi-clock-history"></i><span>Recent</span></button>
     <button class="side-nav-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i><span>Compare</span><span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
   </div>
@@ -61,14 +62,163 @@
       <button type="button" class="search-icon-btn" id="manualSearchBtn" title="Search" aria-label="Search"><i class="bi bi-search"></i></button>
       <div class="suggestions" id="suggestions"></div>
     </div>
-    
-    <!-- =========================================================
-    FUND EXPLORER (secondary tool — collapsed by default so the
-    primary search and homepage highlights stay front and center)
-    ========================================================= -->
-    <section class="fund-explorer collapsed" id="fundExplorer">
+    <div class="status" id="status"><div class="spinner" id="statusSpinner"></div><span id="statusText"></span></div>
 
-    <button type="button" class="explorer-header" id="explorerToggle" aria-expanded="false" aria-controls="explorerBody">
+    <div class="ih-loader large skeleton-loader" id="firstLoadLoader">
+      <span class="skeleton skeleton-block" style="height:56px;border-radius:16px;"></span>
+      <span class="skeleton skeleton-line" style="width:150px;height:12px;margin-top:2px;"></span>
+      <div class="skeleton-aum-list">
+        <div class="skeleton-row skeleton-aum-row">
+          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
+          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
+          <span class="skeleton-col">
+            <span class="skeleton skeleton-line" style="width:62%;height:13px;"></span>
+            <span class="skeleton skeleton-line" style="width:38%;height:11px;"></span>
+          </span>
+          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
+        </div>
+        <div class="skeleton-row skeleton-aum-row">
+          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
+          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
+          <span class="skeleton-col">
+            <span class="skeleton skeleton-line" style="width:48%;height:13px;"></span>
+            <span class="skeleton skeleton-line" style="width:30%;height:11px;"></span>
+          </span>
+          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
+        </div>
+        <div class="skeleton-row skeleton-aum-row">
+          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
+          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
+          <span class="skeleton-col">
+            <span class="skeleton skeleton-line" style="width:70%;height:13px;"></span>
+            <span class="skeleton skeleton-line" style="width:42%;height:11px;"></span>
+          </span>
+          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
+        </div>
+      </div>
+      <div class="loader-sub skeleton-caption">Opening the ledger<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    </div>
+
+    <div class="card" id="card">
+      <div class="fund-toolbar">
+        <button type="button" class="fund-back-btn" id="fundBackBtn">
+          <i class="bi bi-arrow-left"></i> Back to search
+        </button>
+      </div>
+      <div class="card-loading-overlay">
+        <div class="skeleton-fund-detail">
+          <div class="skeleton-row" style="align-items:center;">
+            <span class="skeleton skeleton-circle" style="width:44px;height:44px;"></span>
+            <span class="skeleton-col" style="flex:1;">
+              <span class="skeleton skeleton-line" style="width:65%;height:15px;"></span>
+              <span class="skeleton skeleton-line" style="width:40%;height:12px;"></span>
+            </span>
+          </div>
+          <span class="skeleton skeleton-line skeleton-pill" style="width:150px;height:36px;"></span>
+          <div class="skeleton-metrics">
+            <span class="skeleton skeleton-block skeleton-metric skeleton-metric-wide"></span>
+            <span class="skeleton skeleton-block skeleton-metric"></span>
+            <span class="skeleton skeleton-block skeleton-metric"></span>
+            <span class="skeleton skeleton-block skeleton-metric"></span>
+            <span class="skeleton skeleton-block skeleton-metric"></span>
+          </div>
+          <span class="skeleton skeleton-block skeleton-chart"></span>
+        </div>
+      </div>
+      <div class="card-content">
+        <div class="details-grid">
+          <div class="fund-info-col">
+            <div class="card-header-row">
+              <div class="fund-avatar" id="fundAvatar">₹</div>
+              <div class="fund-heading">
+                <div class="card-title" id="fundName">—</div>
+                <div class="fund-house-line" id="fundHouse"></div>
+                <span class="card-code" id="schemeCodeBadge"></span>
+              </div>
+            </div>
+
+            <div class="compare-action-row">
+              <button type="button" class="btn compare-btn" id="addToCompareBtn"><i class="bi bi-bar-chart-line"></i> Add to Compare</button>
+              <button type="button" class="btn" id="openCompareBtn"><i class="bi bi-arrow-up-right-square"></i> Open Compare</button>
+            </div>
+
+            <div class="grid">
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
+                <div class="stat-value nav-highlight" id="latestNav">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
+                <div class="stat-value" id="navDate">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
+                <div class="stat-value" id="schemeType">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
+                <div class="stat-value" id="schemeCategory">—</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label" id="cagrLabel"><i class="bi bi-percent"></i> CAGR</div>
+                <div class="stat-value" id="cagrValue">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="history-col">
+            <div class="history-header">
+              <div>
+                <div class="history-title">Full NAV History</div>
+              </div>
+              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
+            </div>
+            <div class="history-table-wrap">
+              <table class="history-table">
+                <thead>
+                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+              </table>
+            </div>
+            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
+              <i class="bi bi-chevron-down"></i> Load 50 more
+            </button>
+          </div>
+
+          <div class="chart-col">
+            <div class="section-label-row">
+              <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
+              <button type="button" class="chart-reset-btn" id="chartResetZoom" title="Reset zoom">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset
+              </button>
+            </div>
+            <div class="chart-range-row" id="chartRangeRow">
+              <button type="button" class="range-btn" data-range="1w">1W</button>
+              <button type="button" class="range-btn" data-range="1m">1M</button>
+              <button type="button" class="range-btn" data-range="6m">6M</button>
+              <button type="button" class="range-btn" data-range="1y">1Y</button>
+              <button type="button" class="range-btn" data-range="3y">3Y</button>
+              <button type="button" class="range-btn" data-range="5y">5Y</button>
+              <button type="button" class="range-btn active" data-range="max">MAX</button>
+            </div>
+            <div class="chart-canvas-wrap">
+              <canvas id="navChart"></canvas>
+            </div>
+            <div class="chart-label" id="chartLabel">NAV trend</div>
+            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
+            <div class="chart-compare" id="chartCompare"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="tab-panel" id="explorerPanel">
+    <section class="fund-explorer" id="fundExplorer">
+
+    <div class="explorer-header">
     <div>
     <h2>
     <i class="bi bi-funnel"></i>
@@ -76,10 +226,9 @@
     </h2>
     <p>Find funds by category, plan and option</p>
     </div>
-    <i class="bi bi-chevron-down explorer-chevron"></i>
-    </button>
+    </div>
 
-    <div class="explorer-body" id="explorerBody" hidden>
+    <div class="explorer-body" id="explorerBody">
 
     <div class="explorer-body-top">
     <span class="explorer-body-hint">Filter the full fund list</span>
@@ -294,160 +443,7 @@
     </div>
 
     </section>
-    
-    
-    <div class="status" id="status"><div class="spinner" id="statusSpinner"></div><span id="statusText"></span></div>
-
-    <div class="ih-loader large skeleton-loader" id="firstLoadLoader">
-      <span class="skeleton skeleton-block" style="height:56px;border-radius:16px;"></span>
-      <span class="skeleton skeleton-line" style="width:150px;height:12px;margin-top:2px;"></span>
-      <div class="skeleton-aum-list">
-        <div class="skeleton-row skeleton-aum-row">
-          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
-          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
-          <span class="skeleton-col">
-            <span class="skeleton skeleton-line" style="width:62%;height:13px;"></span>
-            <span class="skeleton skeleton-line" style="width:38%;height:11px;"></span>
-          </span>
-          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
-        </div>
-        <div class="skeleton-row skeleton-aum-row">
-          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
-          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
-          <span class="skeleton-col">
-            <span class="skeleton skeleton-line" style="width:48%;height:13px;"></span>
-            <span class="skeleton skeleton-line" style="width:30%;height:11px;"></span>
-          </span>
-          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
-        </div>
-        <div class="skeleton-row skeleton-aum-row">
-          <span class="skeleton skeleton-circle" style="width:32px;height:32px;"></span>
-          <span class="skeleton skeleton-line" style="width:22px;height:14px;"></span>
-          <span class="skeleton-col">
-            <span class="skeleton skeleton-line" style="width:70%;height:13px;"></span>
-            <span class="skeleton skeleton-line" style="width:42%;height:11px;"></span>
-          </span>
-          <span class="skeleton skeleton-line" style="width:48px;height:13px;"></span>
-        </div>
-      </div>
-      <div class="loader-sub skeleton-caption">Opening the ledger<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
-    </div>
-
-    <div class="card" id="card">
-      <div class="fund-toolbar">
-        <button type="button" class="fund-back-btn" id="fundBackBtn">
-          <i class="bi bi-arrow-left"></i> Back to search
-        </button>
-      </div>
-      <div class="card-loading-overlay">
-        <div class="skeleton-fund-detail">
-          <div class="skeleton-row" style="align-items:center;">
-            <span class="skeleton skeleton-circle" style="width:44px;height:44px;"></span>
-            <span class="skeleton-col" style="flex:1;">
-              <span class="skeleton skeleton-line" style="width:65%;height:15px;"></span>
-              <span class="skeleton skeleton-line" style="width:40%;height:12px;"></span>
-            </span>
-          </div>
-          <span class="skeleton skeleton-line skeleton-pill" style="width:150px;height:36px;"></span>
-          <div class="skeleton-metrics">
-            <span class="skeleton skeleton-block skeleton-metric skeleton-metric-wide"></span>
-            <span class="skeleton skeleton-block skeleton-metric"></span>
-            <span class="skeleton skeleton-block skeleton-metric"></span>
-            <span class="skeleton skeleton-block skeleton-metric"></span>
-            <span class="skeleton skeleton-block skeleton-metric"></span>
-          </div>
-          <span class="skeleton skeleton-block skeleton-chart"></span>
-        </div>
-      </div>
-      <div class="card-content">
-        <div class="details-grid">
-          <div class="fund-info-col">
-            <div class="card-header-row">
-              <div class="fund-avatar" id="fundAvatar">₹</div>
-              <div class="fund-heading">
-                <div class="card-title" id="fundName">—</div>
-                <div class="fund-house-line" id="fundHouse"></div>
-                <span class="card-code" id="schemeCodeBadge"></span>
-              </div>
-            </div>
-
-            <div class="compare-action-row">
-              <button type="button" class="btn compare-btn" id="addToCompareBtn"><i class="bi bi-bar-chart-line"></i> Add to Compare</button>
-              <button type="button" class="btn" id="openCompareBtn"><i class="bi bi-arrow-up-right-square"></i> Open Compare</button>
-            </div>
-
-            <div class="grid">
-              <div class="stat">
-                <div class="stat-label"><i class="bi bi-graph-up-arrow"></i> Latest NAV</div>
-                <div class="stat-value nav-highlight" id="latestNav">—</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label"><i class="bi bi-calendar3"></i> As on</div>
-                <div class="stat-value" id="navDate">—</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label"><i class="bi bi-tags"></i> Scheme Type</div>
-                <div class="stat-value" id="schemeType">—</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label"><i class="bi bi-bookmark"></i> Category</div>
-                <div class="stat-value" id="schemeCategory">—</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label" id="cagrLabel"><i class="bi bi-percent"></i> CAGR</div>
-                <div class="stat-value" id="cagrValue">—</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="history-col">
-            <div class="history-header">
-              <div>
-                <div class="history-title">Full NAV History</div>
-              </div>
-              <button class="btn" id="downloadBtn"><i class="bi bi-download"></i> Download</button>
-            </div>
-            <div class="history-table-wrap">
-              <table class="history-table">
-                <thead>
-                  <tr><th>Date</th><th style="text-align:right;">NAV</th></tr>
-                </thead>
-                <tbody id="historyBody"></tbody>
-              </table>
-            </div>
-            <button type="button" class="btn history-load-more" id="loadMoreHistoryBtn" style="display:none; width:100%; justify-content:center; margin-top:10px;">
-              <i class="bi bi-chevron-down"></i> Load 50 more
-            </button>
-          </div>
-
-          <div class="chart-col">
-            <div class="section-label-row">
-              <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
-              <button type="button" class="chart-reset-btn" id="chartResetZoom" title="Reset zoom">
-                <i class="bi bi-arrow-counterclockwise"></i> Reset
-              </button>
-            </div>
-            <div class="chart-range-row" id="chartRangeRow">
-              <button type="button" class="range-btn" data-range="1w">1W</button>
-              <button type="button" class="range-btn" data-range="1m">1M</button>
-              <button type="button" class="range-btn" data-range="6m">6M</button>
-              <button type="button" class="range-btn" data-range="1y">1Y</button>
-              <button type="button" class="range-btn" data-range="3y">3Y</button>
-              <button type="button" class="range-btn" data-range="5y">5Y</button>
-              <button type="button" class="range-btn active" data-range="max">MAX</button>
-            </div>
-            <div class="chart-canvas-wrap">
-              <canvas id="navChart"></canvas>
-            </div>
-            <div class="chart-label" id="chartLabel">NAV trend</div>
-            <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
-            <div class="chart-compare" id="chartCompare"></div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
-
   <div class="tab-panel" id="recentPanel">
     <div class="recent-header">
       <h2><i class="bi bi-clock-history"></i> Recent Searches</h2>
