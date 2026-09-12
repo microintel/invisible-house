@@ -436,7 +436,7 @@
   .card{
     position:relative;
     margin-top:22px;
-    background:var(--panel);
+    background:transparent;
     border:1px solid var(--border);
     border-radius:var(--radius-lg);
     padding:24px;
@@ -522,7 +522,7 @@
   }
   .fund-info-col{min-width:0;}
   .stat{
-    background:var(--panel-2);
+    background:transparent;
     border:1px solid var(--border);
     border-radius:10px;
     padding:12px 14px;
@@ -889,7 +889,7 @@
     display:flex;
     align-items:center;
     gap:12px;
-    background:var(--panel);
+    background:transparent;
     border:1px solid var(--border);
     border-radius:var(--radius-md);
     padding:13px 15px;
@@ -1166,7 +1166,7 @@
       grid-column: 1 / 2;
       display:flex;
       flex-direction:column;
-      background:var(--panel-2);
+      background:transparent;
       border:1px solid var(--border);
       border-radius:var(--radius-md);
       padding:18px;
@@ -1193,7 +1193,7 @@
       grid-column: 1 / 2;
       display:flex;
       flex-direction:column;
-      background:var(--panel-2);
+      background:transparent;
       border:1px solid var(--border);
       border-radius:var(--radius-md);
       padding:20px;
@@ -1215,7 +1215,7 @@
   margin-top:22px;
   margin-bottom:24px;
   padding:20px;
-  background:var(--panel);
+  background:transparent;
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
@@ -1278,7 +1278,7 @@
   padding:11px 12px;
   border:1px solid var(--border);
   border-radius:12px;
-  background:var(--panel-2, var(--panel));
+  background:transparent;
   color:var(--text);
   text-align:left;
   cursor:pointer;
@@ -1442,7 +1442,7 @@
   .fund-explorer{
   margin-top:18px;
   padding:18px;
-  background:var(--panel);
+  background:transparent;
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
   box-shadow:var(--shadow);
@@ -1609,7 +1609,7 @@
   align-items:center;
   gap:10px;
   padding:11px 12px;
-  background:var(--panel-2);
+  background:transparent;
   border:1px solid var(--border);
   border-radius:11px;
   color:var(--text);
@@ -2333,7 +2333,7 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
 .top-aum-item, .explorer-result-item{
   overflow:hidden;
   gap:10px;
-  background:var(--panel);
+  background:transparent;
   border-color:var(--border);
 }
 .top-aum-info, .explorer-result-info{ overflow:hidden; }
