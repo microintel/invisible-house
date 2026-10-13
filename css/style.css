@@ -37,24 +37,6 @@
   }
 
   /* --- COLOR PALETTE OPTIONS (Works on both Light & Dark themes) --- */
-  html[data-palette="emerald"]{
-    --accent:#3ecf8e;
-    --accent-ink:#062316;
-    --accent-2:#38bdf8;
-    --accent-soft:rgba(62,207,142,.13);
-  }
-  html[data-palette="sunset"]{
-    --accent:#f97316;
-    --accent-ink:#2b1202;
-    --accent-2:#fb7185;
-    --accent-soft:rgba(249,115,22,.14);
-  }
-  html[data-palette="violet"]{
-    --accent:#a855f7;
-    --accent-ink:#1e0735;
-    --accent-2:#ec4899;
-    --accent-soft:rgba(168,85,247,.14);
-  }
 
   *{box-sizing:border-box;}
   /* Reset native button chrome so custom styling isn't fought by the
@@ -103,80 +85,10 @@
     position:relative;
     margin-top:auto;
   }
-  #menuToggleBtn.open{background:var(--accent-soft); color:var(--accent);}
-  .menu-dropdown{
-    position:absolute;
-    bottom:calc(100% + 8px);
-    left:0;
-    min-width:210px;
-    background:var(--panel);
-    border-radius:12px;
-    padding:6px;
-    box-shadow:var(--shadow);
-    display:none;
-    flex-direction:column;
-    gap:2px;
-    z-index:60;
-  }
-  .menu-dropdown.show{display:flex;}
-  .menu-item{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    width:100%;
-    padding:10px 12px;
-    border-radius:8px;
-    border:none;
-    background:transparent;
-    color:var(--text);
-    font-size:13.5px;
-    text-align:left;
-    cursor:pointer;
-    transition:background .12s, color .12s;
-  }
-  .menu-item i{width:16px; text-align:center; color:var(--muted); font-size:14px;}
-  .menu-item:hover{background:var(--panel-2);}
-  .menu-item.active{background:var(--accent-soft); color:var(--accent);}
-  .menu-item.active i{color:var(--accent);}
-  .menu-divider{
-    height:1px;
-    background:var(--border);
-    margin:4px 2px;
-  }
 
   /* --- NEW: Palette Picker Swatches inside Dropdown --- */
-  .menu-section-title{
-    font-size:10.5px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:.5px;
-    color:var(--muted);
-    padding:6px 12px 2px;
-  }
-  .palette-picker-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:6px 12px 10px;
-    gap:8px;
-  }
-  .palette-swatch{
-    width:28px;
-    height:28px;
-    border-radius:50%;
-    border:2px solid transparent;
-    cursor:pointer;
-    position:relative;
-    transition:transform .15s, border-color .15s;
-  }
-  .palette-swatch:hover{transform:scale(1.12);}
-  .palette-swatch.active{border-color:var(--text); transform:scale(1.15); box-shadow:0 0 0 2px var(--panel), 0 0 0 4px var(--accent);}
   
   /* Individual Gradients for Swatch Buttons */
-  .palette-swatch[data-color="default"]{background:linear-gradient(135deg, #d1a54c, #4fd1c5);}
-  .palette-swatch[data-color="emerald"]{background:linear-gradient(135deg, #3ecf8e, #38bdf8);}
-  .palette-swatch[data-color="sunset"]{background:linear-gradient(135deg, #f97316, #fb7185);}
-  .palette-swatch[data-color="violet"]{background:linear-gradient(135deg, #a855f7, #ec4899);}
 
   .brand-mark{
     width:120px;
@@ -1125,7 +1037,6 @@
     .range-btn, .compare-range-btn{min-height:36px;}
     .compare-mode-btn{min-height:40px;}
     .btn{min-height:38px;}
-    .menu-item{min-height:40px;}
   }
 
   @media (max-width:360px){
@@ -1746,7 +1657,7 @@ body[data-app-state="detail"] #topAUMSection{
 body[data-app-state="detail"] .search-box{
   margin-bottom:0;
 }
-body:not([data-app-state="detail"]) .card{
+body:not([data-app-state="detail"]) #card{
   display:none !important;
 }
 .fund-toolbar{ display:none; }
@@ -2276,7 +2187,6 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   }
   .menu-wrap{ flex:1; margin-top:0; display:flex; }
   .menu-wrap .side-nav-item{ width:100%; }
-  .menu-dropdown{ bottom:calc(100% + 10px); left:auto; right:6px; }
   body{ padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px)); }
 }
 
@@ -2650,4 +2560,796 @@ html[data-theme="light"] .swal2-container.ih-swal-backdrop{ background:rgba(40,3
   }
   .compare-search-modal.show .compare-search-modal-panel{ transform:translateY(0); }
   .compare-modal-suggestions.show{ min-height:280px; }
+}
+
+/* ============================================================
+   PURE BLACK BACKGROUND (dark theme)
+   The old body had a faint accent-colour glow on top of black;
+   dark mode is now flat #000 edge to edge (incl. overscroll).
+   ============================================================ */
+html[data-theme="dark"],
+html[data-theme="dark"] body{
+  background:#000 !important;
+  background-image:none !important;
+}
+
+/* ============================================================
+   CLEAR FUND-HOUSE LOGOS
+   Every logo tile is a white square, the artwork fills it
+   (object-fit:contain keeps the aspect ratio) and gets the same
+   even padding everywhere. The Top-AUM icon used to render the
+   image at only 20-24px inside a 40px tile, which is what made
+   it look small and blurry.
+   ============================================================ */
+.suggestion-icon.has-logo,
+.top-aum-icon.has-logo,
+.recent-icon.has-logo,
+.explorer-result-icon.has-logo,
+.compare-slot-icon.has-logo,
+.compare-legend-icon.has-logo{
+  background:#fff;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);
+}
+.suggestion-icon img,
+.top-aum-icon img,
+.recent-icon img,
+.explorer-result-icon img,
+.compare-slot-icon img,
+.compare-legend-icon img,
+.fund-avatar img.fund-avatar-img{
+  width:100%;
+  height:100%;
+  max-width:none;
+  object-fit:contain;
+  object-position:center;
+  background:#fff;
+  padding:5px;
+  display:block;
+  image-rendering:auto;
+  -webkit-user-drag:none;
+  user-select:none;
+}
+.compare-legend-icon img{ padding:3px; }
+.fund-avatar img.fund-avatar-img{ padding:6px; }
+
+
+/* ============================================================
+   MOBILE POLISH (appended last so it wins; desktop untouched
+   except the search-input border fix, which applies everywhere)
+   ============================================================ */
+
+/* Text inputs never set a border style, so browsers drew their default
+   2px "inset" frame — a light edge on the bottom/right only. Give them a
+   proper, even 1px border on every screen size. */
+input[type="text"]{
+  border:1px solid var(--border);
+  -webkit-appearance:none;
+  appearance:none;
+}
+input[type="text"]:focus{ border-color:var(--accent-2); }
+
+html{ -webkit-tap-highlight-color:transparent; -webkit-text-size-adjust:100%; }
+button, .suggestion-item, .recent-item, .top-aum-item, .explorer-result-item{ touch-action:manipulation; }
+
+@media (max-width:1023px){
+  /* Bottom nav: the 4 tabs and Settings were sharing space 50/50, which
+     squeezed the tabs together and pushed Settings far right. Five equal
+     columns instead. */
+  .side-nav{ padding:6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); gap:2px; }
+  .side-nav-items{ flex:4 1 0; min-width:0; gap:2px; }
+  .menu-wrap{ flex:1 1 0; min-width:0; }
+  .side-nav-item{
+    min-width:0;
+    min-height:52px;
+    padding:7px 2px;
+    gap:3px;
+    border-radius:12px;
+    font-size:11px;
+    letter-spacing:.01em;
+  }
+  .side-nav-item span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .side-nav-item i{ font-size:20px; line-height:1; }
+  .side-nav-item .compare-count-badge{ top:3px; right:calc(50% - 24px); }
+  body{ padding-bottom:calc(76px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (max-width:600px){
+  /* Compact header: a 56px logo + tall padding ate a fifth of the screen. */
+  header{ padding:10px 16px; }
+  .brand-row{ gap:10px; }
+  .brand-mark{ width:38px; height:38px; }
+  .brand-text h1{ font-size:18px; }
+
+  .wrap{ padding-left:14px; padding-right:14px; }
+
+  /* 16px stops iOS from zooming the page when a field is focused. */
+  input[type="text"]{ font-size:16px; height:52px; padding:12px 50px 12px 44px; }
+  .search-leading-icon{ left:16px; }
+  .search-icon-btn{ right:7px; width:38px; height:38px; }
+
+  /* Fund variants differ at the END of the name (Direct/Regular,
+     Growth/IDCW), which a single-line ellipsis was cutting off. */
+  .suggestions{ max-height:min(62vh, 460px); padding:4px; }
+  .suggestion-item{ gap:10px; padding:10px 8px; align-items:center; }
+  .suggestion-name{
+    white-space:normal;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    line-height:1.3;
+    font-size:13.5px;
+  }
+  .suggestion-code{ font-size:11px; }
+
+  /* Sections were boxed twice (wrap padding + big inner padding). */
+  #topAUMSection, .fund-explorer{ padding:14px 12px; }
+
+  /* Fund detail: the two compare buttons side by side, not two full rows. */
+  .compare-action-row{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .compare-action-row .btn{ width:100%; padding-left:8px; padding-right:8px; font-size:13px; white-space:nowrap; justify-content:center; }
+  .card{ padding:14px; }
+
+  footer{ padding-top:14px; padding-bottom:14px; }
+}
+
+
+/* ============================================================
+   MINIMAL / PROFESSIONAL REDESIGN  (final layer)
+   Flat surfaces, hairline borders, one calm accent, system fonts,
+   no blur / glow / sweeping gradients (lighter to paint, too).
+   ============================================================ */
+:root{
+  --serif:-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg:#000000; --bg-2:#000000;
+  --panel:#0e1013; --panel-2:#14171b; --panel-3:#1a1e23;
+  --border:#1f2329;
+  --text:#ececee; --muted:#8a919b;
+  --danger:#f0776b;
+  --accent:#6b9cff; --accent-ink:#06122b; --accent-2:#6b9cff; --accent-soft:rgba(107,156,255,.12);
+  --shadow:none; --shadow-sm:none; --shadow-md:0 8px 24px rgba(0,0,0,.5);
+}
+html[data-theme="light"]{
+  --bg:#f6f7f9; --bg-2:#f6f7f9;
+  --panel:#ffffff; --panel-2:#f1f3f6; --panel-3:#e8ebf0;
+  --border:#e3e6eb;
+  --text:#14171c; --muted:#6a7280;
+  --danger:#c93c30;
+  --accent:#2f6bff; --accent-ink:#ffffff; --accent-2:#2f6bff; --accent-soft:rgba(47,107,255,.09);
+  --shadow:none; --shadow-sm:none; --shadow-md:0 8px 24px rgba(20,23,28,.10);
+}
+
+
+/* base */
+body{
+  background:var(--bg);
+  font-family:var(--serif);
+  font-size:15px;
+  line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{ font-weight:650; letter-spacing:-.01em; }
+.stat-value, .nav-highlight, .history-table, table, .suggestion-aum, .top-aum-value, .recent-meta, .card-code{
+  font-variant-numeric:tabular-nums;
+}
+.stat:first-child .stat-value, .nav-highlight{ font-family:var(--serif); font-weight:650; letter-spacing:-.02em; }
+
+/* no blur, no glow, no entrance animations */
+header, .side-nav, .swal2-container.ih-swal-backdrop{ backdrop-filter:none !important; -webkit-backdrop-filter:none !important; }
+.card, #topAUMSection, .fund-explorer, [class*="fadeUp"]{ animation:none !important; }
+header{ background:var(--bg); border-bottom:1px solid var(--border); }
+.side-nav{ background:var(--bg); box-shadow:none; border-color:var(--border); }
+
+/* surfaces: one flat panel, one hairline */
+.card, #topAUMSection, .fund-explorer, .suggestions,
+.recent-item, .history-table-wrap, .compare-slot, .explorer-result-list, .top-aum-list{
+  box-shadow:none;
+}
+.card, #topAUMSection, .fund-explorer{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:16px;
+}
+.suggestions{
+  background:var(--panel);
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-md);
+}
+input[type="text"]{ background:var(--panel); border:1px solid var(--border); border-radius:12px; box-shadow:none; }
+input[type="text"]:focus{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+input::placeholder{ color:var(--muted); opacity:.8; }
+.search-icon-btn{ background:transparent; color:var(--muted); }
+.search-icon-btn:hover{ background:var(--panel-2); color:var(--text); }
+
+/* stats: quiet tiles, hero NAV tile highlighted by colour only */
+.stat{ background:transparent; border:0; padding:var(--sp-3) 2px; }
+.stat:first-child{ background:transparent; border:0; }
+.stat-label{ font-size:11px; letter-spacing:.06em; color:var(--muted); font-weight:600; }
+.stat-value{ font-weight:600; }
+.nav-highlight{ color:var(--text); }
+.stat:first-child .stat-value{ color:var(--text); }
+
+/* buttons: secondary = outline, primary = solid accent */
+.btn, .fund-back-btn{
+  background:transparent;
+  color:var(--text);
+  border:1px solid var(--border);
+  border-radius:10px;
+  font-weight:600;
+}
+.btn:hover, .fund-back-btn:hover{ background:var(--panel-2); color:var(--text); border-color:var(--border); }
+.compare-btn, #addToCompareBtn{
+  background:var(--accent); color:var(--accent-ink); border-color:var(--accent);
+}
+.compare-btn:hover, #addToCompareBtn:hover{ background:var(--accent); color:var(--accent-ink); filter:brightness(1.08); }
+.fund-back-btn{ border-radius:999px; }
+
+/* range + filter chips */
+.range-btn, .compare-range-btn, .filter-chip{
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--muted);
+  font-weight:600;
+}
+.range-btn:hover, .compare-range-btn:hover, .filter-chip:hover{ background:var(--panel-2); color:var(--text); }
+.range-btn.active, .compare-range-btn.active, .filter-chip.active{
+  background:var(--accent-soft); color:var(--accent); border-color:var(--accent);
+}
+
+/* lists: divider rows instead of boxes */
+.top-aum-item, .explorer-result-item, .recent-item, .suggestion-item{
+  background:transparent; border:0; border-bottom:1px solid var(--border); border-radius:0;
+}
+.top-aum-item:last-child, .explorer-result-item:last-child, .recent-item:last-child, .suggestion-item:last-child{ border-bottom:0; }
+.top-aum-item:hover, .explorer-result-item:hover, .recent-item:hover,
+.suggestion-item:hover, .suggestion-item.active{ background:var(--panel-2); }
+.suggestion-icon, .top-aum-icon, .explorer-result-icon, .recent-icon, .fund-avatar{
+  background:var(--panel-2); color:var(--muted); border:1px solid var(--border);
+}
+.suggestion-icon.has-logo, .top-aum-icon.has-logo, .explorer-result-icon.has-logo, .recent-icon.has-logo{ background:#fff; }
+.top-aum-badge{ border:1px solid var(--border); background:transparent; }
+.card-code{ background:var(--panel-2); color:var(--muted); border:1px solid var(--border); font-weight:600; }
+
+/* navigation: quiet, accent only on the active item */
+.side-nav-item{ color:var(--muted); }
+.side-nav-item:hover{ background:var(--panel-2); color:var(--text); }
+.side-nav-item.active{ background:transparent; color:var(--accent); }
+.compare-count-badge{ background:var(--accent); color:var(--accent-ink); }
+@media (min-width:1024px){ .side-nav-item.active{ background:var(--accent-soft); } }
+@media (max-width:1023px){
+  .side-nav-item.active::before{
+    content:""; position:absolute; top:0; left:30%; right:30%; height:2px; border-radius:2px; background:var(--accent);
+  }
+}
+
+/* history table */
+.history-table-wrap{ border:1px solid var(--border); border-radius:12px; background:var(--panel); }
+th{ color:var(--muted); font-weight:600; font-size:11px; letter-spacing:.06em; text-transform:uppercase; }
+td, th{ border-color:var(--border); }
+
+/* skeletons: calm static pulse (no sweeping gradient repaint) */
+.skeleton{ background:var(--panel-3); animation:skPulse 1.4s ease-in-out infinite; }
+.skeleton::after{ display:none !important; }
+html[data-theme="light"] .skeleton{ background:var(--panel-3); }
+@keyframes skPulse{ 0%,100%{ opacity:.55 } 50%{ opacity:1 } }
+
+/* footer */
+footer{ color:var(--muted); border-top:1px solid var(--border); font-size:12px; }
+footer b{ color:var(--text); font-weight:600; }
+
+/* motion off for anyone who asks */
+@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+
+/* detail card: keep the back button inside the card padding */
+body[data-app-state="detail"] .fund-toolbar{ margin:0 0 12px; }
+.card{ padding:18px; }
+@media (min-width:768px){ .card{ padding:24px; } }
+
+
+/* ============================================================
+   FINAL LAYER: light/dark only, flat cards, top bar, full-screen compare
+   ============================================================ */
+
+/* One accent per theme (colour palettes removed). Panels match the page
+   background so cards are never grey or dimmed; hairline borders define them. */
+:root{
+  --panel:#000000; --panel-2:#0d0f12; --panel-3:#15181c;
+  --border:#22262c;
+}
+html[data-theme="light"]{
+  /* soft, eye-friendly off-white (no pure #fff) */
+  --bg:#eceef1; --bg-2:#eceef1;
+  --panel:#f2f3f5; --panel-2:#e4e7eb; --panel-3:#dadee4;
+  --border:#d3d8df;
+  --text:#1c2128; --muted:#5f6876;
+}
+
+/* Cards: no grey fill, no dimming overlay while loading. */
+.card, #topAUMSection, .fund-explorer{ background:transparent; }
+.card-loading-overlay{ background:var(--bg); }
+.card.loading .card-content{ opacity:0; filter:none; }
+.compare-slot.empty{ background:transparent; border:1.5px dashed var(--border); }
+.compare-slot.filled{ background:transparent; }
+.compare-slot.empty:hover{ background:transparent; }
+.history-table-wrap{ background:transparent; }
+
+/* ---------- Theme switch animation ---------- */
+::view-transition-old(root), ::view-transition-new(root){
+  animation:none;
+  mix-blend-mode:normal;
+}
+::view-transition-old(root){ z-index:1; }
+::view-transition-new(root){ z-index:2; }
+/* Fallback (no View Transitions): smooth colour cross-fade */
+html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after{
+  transition:background-color .45s ease, color .45s ease, border-color .45s ease, fill .45s ease, stroke .45s ease !important;
+}
+.side-nav-item#themeToggle i{ transition:transform .5s cubic-bezier(.4,0,.2,1); }
+.side-nav-item#themeToggle:active i{ transform:rotate(90deg) scale(.85); }
+
+/* ---------- Desktop: tabs live in a top bar ---------- */
+@media (min-width:1024px){
+  :root{ --topbar-h:60px; }
+  .side-nav{
+    top:0; left:0; right:0; bottom:auto;
+    width:auto; height:var(--topbar-h);
+    flex-direction:row; align-items:center;
+    padding:0 24px;
+    gap:8px;
+    border-right:0;
+    border-bottom:1px solid var(--border);
+    background:var(--bg);
+  }
+  .side-nav-logo{
+    flex-direction:row; width:auto; margin:0 20px 0 0; gap:10px;
+  }
+  .side-nav-logo img{ width:32px; height:32px; }
+  .side-nav-brand-name{ font-size:16px; white-space:nowrap; }
+  .side-nav-items{ flex-direction:row; gap:4px; }
+  .side-nav-item{ width:auto; padding:9px 16px; gap:8px; font-size:14px; }
+  .side-nav-item i{ font-size:16px; }
+  .side-nav-item .compare-count-badge{ margin-left:4px; position:static; }
+  .menu-wrap{ margin-top:0; margin-left:auto; }
+  .menu-wrap .side-nav-item{ width:auto; }
+  body{ padding-left:0; padding-top:var(--topbar-h); }
+  /* brand now lives in the top bar */
+  header{ display:none; }
+}
+
+/* ---------- Desktop Compare: chart covers the screen ---------- */
+@media (min-width:1024px){
+  body:has(#comparePanel.active) .wrap{
+    max-width:none; width:100%;
+    padding:12px 20px 12px;
+  }
+  #comparePanel.active{
+    grid-template-columns: 1fr 88px;
+    column-gap:16px;
+    height:calc(100vh - var(--topbar-h) - 24px);
+  }
+  #comparePanel .compare-header{ margin-bottom:6px; }
+  #comparePanel #compareCard.show{ margin-top:0; padding:14px 18px; }
+  #compareCard .chart-canvas-wrap{ min-height:0; }
+  #compareCard{ min-height:0; }
+
+  /* Right column: icons only, bigger */
+  #comparePanel .compare-slots{ gap:12px; align-items:stretch; }
+  #comparePanel .compare-slot{
+    justify-content:center;
+    padding:8px;
+    aspect-ratio:1 / 1;
+    width:100%;
+    border-radius:16px;
+  }
+  #comparePanel .compare-slot-icon{ width:56px; height:56px; border-radius:14px; font-size:24px; }
+  #comparePanel .compare-slot-icon img{ padding:8px; }
+  #comparePanel .compare-slot-name,
+  #comparePanel .compare-slot-cagr{ display:none; }
+  #comparePanel .compare-slot-remove{
+    top:4px; right:4px; transform:none; width:20px; height:20px; font-size:9px;
+  }
+  #comparePanel .compare-slot.empty span{ display:none; }
+  #comparePanel .compare-slot.empty i{ font-size:26px; }
+}
+
+
+/* ============================================================
+   DESKTOP REFINEMENTS (>=1024px) + SOFT LIGHT LOGO TILES
+   ============================================================ */
+html[data-theme="light"] .suggestion-icon.has-logo,
+html[data-theme="light"] .top-aum-icon.has-logo,
+html[data-theme="light"] .recent-icon.has-logo,
+html[data-theme="light"] .explorer-result-icon.has-logo,
+html[data-theme="light"] .compare-slot-icon.has-logo,
+html[data-theme="light"] .compare-legend-icon.has-logo,
+html[data-theme="light"] .suggestion-icon img,
+html[data-theme="light"] .top-aum-icon img,
+html[data-theme="light"] .recent-icon img,
+html[data-theme="light"] .explorer-result-icon img,
+html[data-theme="light"] .compare-slot-icon img,
+html[data-theme="light"] .compare-legend-icon img,
+html[data-theme="light"] .fund-avatar img.fund-avatar-img{ background:#f7f8fa; }
+
+@media (min-width:1024px){
+  /* Top tabs centered: logo | tabs | theme */
+  .side-nav{ display:grid; grid-template-columns:1fr auto 1fr; }
+  .side-nav-logo{ justify-self:start; margin:0; }
+  .side-nav-items{ justify-self:center; }
+  .menu-wrap{ justify-self:end; margin-left:0; }
+
+  /* Range selectors: small, minimal segmented pills */
+  .chart-range-row{
+    display:inline-flex; flex-wrap:nowrap; gap:2px; padding:2px;
+    background:var(--panel-2); border-radius:999px; margin-top:8px;
+    align-self:flex-start;
+  }
+  .range-btn, .compare-range-btn{
+    flex:0 0 auto; min-width:0; min-height:0; padding:3px 10px;
+    font-size:10.5px; font-weight:600; letter-spacing:.4px;
+    border:0; border-radius:999px; background:transparent; color:var(--muted);
+  }
+  .range-btn:hover, .compare-range-btn:hover{ background:transparent; color:var(--text); }
+  .range-btn.active, .compare-range-btn.active{
+    background:var(--bg); color:var(--accent); border:0;
+    box-shadow:0 1px 3px rgba(0,0,0,.18);
+  }
+
+  /* Compare mode toggle: icons only */
+  #compareCard .compare-mode-toggle{
+    display:inline-flex; flex-wrap:nowrap; gap:4px; margin-top:0; padding:3px;
+    background:var(--panel-2); border-radius:12px; align-self:flex-start;
+  }
+  #compareCard .compare-mode-btn{
+    flex:0 0 auto; width:38px; height:34px; min-height:0; padding:0;
+    border:0; border-radius:9px; background:transparent;
+  }
+  #compareCard .compare-mode-btn .mode-label{ display:none; }
+  #compareCard .compare-mode-btn i{ font-size:17px; }
+  #compareCard .compare-mode-btn.active{ background:var(--bg); color:var(--accent); box-shadow:0 1px 3px rgba(0,0,0,.18); }
+
+  /* Two-point popup floats over the chart so the graph never resizes */
+  #compareCard{ position:relative; }
+  #compareCard .chart-compare{
+    position:absolute; left:64px; bottom:62px; z-index:5;
+    min-height:0; width:max-content; max-width:240px;
+    padding:6px 8px; margin:0; border-radius:10px;
+    background:var(--panel); border:1px solid var(--border);
+    box-shadow:0 4px 14px rgba(0,0,0,.18);
+    font-size:10.5px; line-height:1.3;
+    display:none !important; visibility:visible;
+  }
+  #compareCard .chart-compare.show{ display:block !important; }
+  #compareCard .chart-compare-hint{ font-size:10.5px; }
+  #compareCard .chart-compare-row{ gap:6px; flex-wrap:nowrap; }
+  #compareCard .chart-compare-dates{ gap:5px; font-size:10px; }
+  #compareCard .chart-compare-dates .dot{ width:6px; height:6px; }
+  #compareCard .chart-compare-clear{ font-size:10px; padding:2px 6px; }
+  #compareCard .chart-compare > div[style]{ margin-top:4px !important; }
+  #compareCard .compare-point-row{ padding:2px 0; gap:8px; }
+  #compareCard .compare-point-fund{ font-size:10.5px; gap:5px; max-width:130px; }
+  #compareCard .chart-compare-figures .pct{ font-size:11px !important; }
+}
+
+
+/* ============================================================
+   ROUND 2: bigger range pills, minimal explore filters,
+   larger non-white fund icons in Compare
+   ============================================================ */
+
+/* Explore filters: one tight row per group (label + chips), flat chips */
+.fund-explorer{ padding:12px 4px; }
+.explorer-header p, .explorer-body-hint{ display:none; }
+.explorer-header h2{ font-size:16px; }
+.explorer-body{ margin-top:8px; }
+.explorer-body-top{ margin:0; position:absolute; right:4px; top:4px; }
+.fund-explorer{ position:relative; }
+.explorer-clear{ padding:3px 8px; font-size:11px; border:0; }
+#fundExplorer .filter-group, .compare-filter-groups .filter-group{
+  display:flex; align-items:center; gap:10px; margin-top:6px;
+}
+#fundExplorer .filter-label, .compare-filter-groups .filter-label{
+  flex:0 0 52px; margin:0; font-size:10px; letter-spacing:.06em; font-weight:600;
+}
+#fundExplorer .filter-chips, .compare-filter-groups .filter-chips{ gap:2px; padding:0; min-width:0; }
+#fundExplorer .filter-chip, .compare-filter-groups .filter-chip{
+  padding:3px 10px; font-size:11.5px; font-weight:500;
+  background:transparent; border:0; border-radius:999px; color:var(--muted);
+  transform:none;
+}
+#fundExplorer .filter-chip:hover, .compare-filter-groups .filter-chip:hover{ background:var(--panel-2); color:var(--text); transform:none; }
+#fundExplorer .filter-chip.active, .compare-filter-groups .filter-chip.active{
+  background:var(--accent-soft); color:var(--accent); font-weight:600;
+}
+#fundExplorer .explorer-name-box{ min-height:0; }
+#fundExplorer .explorer-name-box input{ padding-top:7px; padding-bottom:7px; font-size:13px; }
+#fundExplorer .filter-group:last-of-type .explorer-name-box{ flex:1; }
+
+/* Compare: fund icons on a soft grey tile, never white */
+.compare-slot-icon.has-logo, .compare-legend-icon.has-logo,
+html[data-theme="light"] .compare-slot-icon.has-logo, html[data-theme="light"] .compare-legend-icon.has-logo{
+  background:#d6dae1; box-shadow:none;
+}
+.compare-slot-icon img, .compare-legend-icon img,
+html[data-theme="light"] .compare-slot-icon img, html[data-theme="light"] .compare-legend-icon img{
+  background:transparent;
+}
+.compare-legend-icon{ width:28px; height:28px; border-radius:8px; }
+
+@media (min-width:1024px){
+  .range-btn, .compare-range-btn{ padding:5px 14px; font-size:12px; font-weight:600; }
+  .chart-range-row{ padding:3px; }
+  #comparePanel.active{ grid-template-columns:1fr 112px; }
+  #comparePanel .compare-slot-icon{ width:72px; height:72px; border-radius:18px; }
+  #comparePanel .compare-slot-icon img{ padding:10px; }
+  #comparePanel .compare-slot{ border-radius:20px; }
+}
+#fundExplorer .filter-chip, .compare-filter-groups .filter-chip{ min-height:0; line-height:1.4; }
+#fundExplorer .filter-label{ white-space:nowrap; }
+#fundExplorer .explorer-name-box{ flex:1; max-width:320px; margin:0; padding:0; height:auto; }
+#fundExplorer .explorer-name-box input{ height:auto; min-height:0; padding:6px 12px; font-size:12.5px; border-radius:10px; }
+
+
+/* ============================================================
+   ROUND 3: Explore filters — clear structure, comfortable size
+   Each group = labelled row, hairline dividers, readable chips.
+   ============================================================ */
+.fund-explorer{ padding:16px 18px; }
+.explorer-header h2{ font-size:17px; }
+.explorer-body{ margin-top:12px; border-top:1px solid var(--border); }
+.explorer-body-top{ top:14px; right:16px; }
+.explorer-clear{ padding:5px 12px; font-size:12px; border:1px solid var(--border); border-radius:999px; }
+.explorer-clear:hover{ background:var(--panel-2); }
+
+#fundExplorer .filter-group{
+  display:grid; grid-template-columns:84px 1fr; align-items:center; gap:12px;
+  margin:0; padding:11px 0; border-bottom:1px solid var(--border);
+}
+#fundExplorer .filter-label{
+  flex:none; font-size:11.5px; font-weight:700; letter-spacing:.08em; color:var(--muted);
+}
+#fundExplorer .filter-chips{ gap:8px; flex-wrap:wrap; overflow:visible; padding:0; }
+#fundExplorer .filter-chip{
+  padding:7px 15px; font-size:13px; font-weight:600; line-height:1.3;
+  background:transparent; color:var(--text);
+  border:1px solid var(--border); border-radius:999px;
+}
+#fundExplorer .filter-chip:hover{ background:var(--panel-2); border-color:var(--muted); }
+#fundExplorer .filter-chip.active{
+  background:var(--accent); color:var(--accent-ink); border-color:var(--accent);
+}
+#fundExplorer .explorer-name-box{ max-width:420px; width:100%; }
+#fundExplorer .explorer-name-box input{ padding:9px 14px; font-size:13.5px; border-radius:12px; }
+
+/* Same clear style in the Add-to-compare popup */
+.compare-filter-groups .filter-group{
+  display:grid; grid-template-columns:70px 1fr; gap:10px; align-items:center;
+  margin:0; padding:9px 0; border-bottom:1px solid var(--border);
+}
+.compare-filter-groups .filter-label{ font-size:11px; font-weight:700; }
+.compare-filter-groups .filter-chips{ gap:6px; }
+.compare-filter-groups .filter-chip{
+  padding:6px 13px; font-size:12.5px; font-weight:600;
+  border:1px solid var(--border); background:transparent; color:var(--text);
+}
+.compare-filter-groups .filter-chip.active{ background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+
+@media (max-width:600px){
+  #fundExplorer .filter-group{ grid-template-columns:1fr; gap:7px; padding:10px 0; }
+  #fundExplorer .filter-chips{ flex-wrap:wrap; }
+  .compare-filter-groups .filter-group{ grid-template-columns:1fr; gap:6px; }
+}
+
+
+/* ============================================================
+   ROUND 4: transparent, larger logos (fund-house + brand)
+   ============================================================ */
+.suggestion-icon, .top-aum-icon, .recent-icon, .explorer-result-icon,
+.compare-slot-icon, .compare-legend-icon, .fund-avatar,
+.suggestion-icon.has-logo, .top-aum-icon.has-logo, .recent-icon.has-logo,
+.explorer-result-icon.has-logo, .compare-slot-icon.has-logo,
+.compare-legend-icon.has-logo, .fund-avatar.has-logo,
+html[data-theme] .suggestion-icon.has-logo, html[data-theme] .top-aum-icon.has-logo,
+html[data-theme] .recent-icon.has-logo, html[data-theme] .explorer-result-icon.has-logo,
+html[data-theme] .compare-slot-icon.has-logo, html[data-theme] .compare-legend-icon.has-logo{
+  background:transparent !important; box-shadow:none !important;
+}
+.suggestion-icon img, .top-aum-icon img, .recent-icon img, .explorer-result-icon img,
+.compare-slot-icon img, .compare-legend-icon img, .fund-avatar img.fund-avatar-img,
+html[data-theme] .suggestion-icon img, html[data-theme] .top-aum-icon img,
+html[data-theme] .recent-icon img, html[data-theme] .explorer-result-icon img,
+html[data-theme] .compare-slot-icon img, html[data-theme] .compare-legend-icon img,
+html[data-theme] .fund-avatar img.fund-avatar-img{
+  background:transparent !important; padding:2px; object-fit:contain;
+}
+
+/* bigger fund-house logos */
+.suggestion-icon{ width:44px; height:44px; flex:0 0 44px; }
+.recent-icon{ width:46px; height:46px; flex:0 0 46px; }
+.explorer-result-icon{ width:50px; height:50px; flex:0 0 50px; }
+.top-aum-icon{ width:50px; height:50px; flex:0 0 50px; }
+.top-aum-icon img{ width:100%; height:100%; }
+.fund-avatar{ width:60px; height:60px; }
+.compare-legend-icon{ width:32px; height:32px; }
+@media (max-width:600px){
+  .explorer-result-icon, .top-aum-icon{ width:44px; height:44px; flex:0 0 44px; }
+  .top-aum-icon img{ width:100%; height:100%; }
+}
+
+/* Invisible House brand logo */
+.brand-mark{ width:80px; height:80px; }
+@media (min-width:768px){ .brand-mark{ width:96px; height:96px; } }
+@media (min-width:1024px){
+  .side-nav-logo img{ width:46px; height:46px; }
+  #comparePanel .compare-slot-icon{ width:80px; height:80px; }
+  #comparePanel .compare-slot-icon img{ padding:2px; }
+}
+@media (max-width:1023px){
+  #comparePanel .compare-slot-icon{ width:34px; height:34px; border-radius:8px; }
+}
+
+
+/* ============================================================
+   ROUND 5 FIXES
+   1. Add-fund popup: filter "Clear" no longer sits on the close (X)
+   2. Compare two-point readout: bigger, floats inside the chart
+   3. Fund icons in Explore results: no border
+   4. Explore (desktop): filters sidebar + tall results list
+   ============================================================ */
+
+/* 1 — the shared .explorer-body-top is absolutely positioned for the
+   Explore page; inside the popup that put "Clear" right on top of the
+   close button. Keep it in normal flow there, and make the header
+   stick so the close button is always reachable. */
+.compare-filter-groups .explorer-body-top{
+  position:static; top:auto; right:auto;
+  display:flex; align-items:center; justify-content:space-between;
+  margin:0 0 2px;
+}
+.compare-filter-groups .explorer-body-hint{ display:block; font-size:11.5px; }
+.compare-search-modal-header{
+  position:sticky; top:-20px; z-index:3;
+  background:var(--panel);
+  margin:-20px -20px 14px; padding:16px 20px 10px;
+}
+.compare-search-modal-close{ width:36px; height:36px; flex:0 0 36px; position:relative; z-index:4; }
+
+/* 2 — floating two-point readout (compare chart), all screen sizes */
+#compareCard .chart-canvas-wrap .chart-compare{
+  position:absolute; left:8px; top:8px; right:auto; bottom:auto; z-index:6;
+  width:max-content; min-width:210px; max-width:min(380px, calc(100% - 16px));
+  min-height:0; margin:0; padding:12px 14px;
+  background:var(--panel); border:1px solid var(--border); border-radius:14px;
+  box-shadow:0 8px 28px rgba(0,0,0,.28);
+  font-size:13px; line-height:1.4;
+  display:none !important; visibility:visible; cursor:default;
+}
+#compareCard .chart-canvas-wrap .chart-compare.show{ display:block !important; }
+#compareCard .chart-canvas-wrap .chart-compare-hint{ font-size:12.5px; }
+#compareCard .chart-canvas-wrap .chart-compare-row{ gap:10px; flex-wrap:nowrap; }
+#compareCard .chart-canvas-wrap .chart-compare-dates{ gap:7px; font-size:12px; }
+#compareCard .chart-canvas-wrap .chart-compare-dates .dot{ width:8px; height:8px; }
+#compareCard .chart-canvas-wrap .chart-compare-clear{ font-size:12px; padding:4px 10px; background:var(--panel-2); }
+#compareCard .chart-canvas-wrap .chart-compare > div[style]{ margin-top:8px !important; }
+#compareCard .chart-canvas-wrap .compare-point-row{ padding:6px 0; gap:14px; font-size:13px; }
+#compareCard .chart-canvas-wrap .compare-point-fund{ font-size:12.5px; gap:8px; max-width:210px; }
+#compareCard .chart-canvas-wrap .chart-compare-figures .pct{ font-size:14px !important; }
+@media (max-width:600px){
+  #compareCard .chart-canvas-wrap .chart-compare{
+    min-width:0; max-width:calc(100% - 16px); padding:9px 11px; font-size:12px;
+  }
+  #compareCard .chart-canvas-wrap .chart-compare-dates{ font-size:11px; gap:5px; }
+  #compareCard .chart-canvas-wrap .compare-point-row{ padding:4px 0; gap:10px; font-size:12px; }
+  #compareCard .chart-canvas-wrap .compare-point-fund{ max-width:150px; font-size:11.5px; }
+  #compareCard .chart-canvas-wrap .chart-compare-figures .pct{ font-size:12.5px !important; }
+}
+
+/* 3 — Explore result icons: no border */
+.explorer-result-icon,
+.explorer-result-icon.has-logo,
+html[data-theme] .explorer-result-icon.has-logo{
+  border:0 !important; box-shadow:none !important;
+}
+
+/* 4 — Explore on desktop: filters in a themed side panel, results
+   fill the remaining width and the full height of the screen */
+@media (min-width:1024px){
+  body:has(#explorerPanel.active) .wrap{
+    max-width:none; width:100%;
+    padding:20px 28px 16px;
+  }
+  body:has(#explorerPanel.active) footer{ display:none; }
+  #explorerPanel #fundExplorer{
+    margin-top:0; padding:0; box-shadow:none; background:transparent;
+  }
+  #explorerPanel .explorer-header{ margin-bottom:14px; }
+  #explorerPanel .explorer-header p{ display:block; }
+
+  #explorerPanel .explorer-body{
+    display:grid;
+    grid-template-columns:320px minmax(0, 1fr);
+    grid-template-rows:auto auto auto auto 1fr;
+    column-gap:20px; row-gap:0;
+    margin-top:0; border-top:0;
+    align-items:start;
+  }
+  /* sidebar card (left) */
+  #explorerPanel .explorer-body-top,
+  #explorerPanel .explorer-body > .filter-group{
+    grid-column:1;
+    background:var(--panel);
+    padding-left:18px; padding-right:18px;
+  }
+  #explorerPanel .explorer-body-top{
+    grid-row:1; position:static;
+    display:flex; align-items:center; justify-content:space-between;
+    padding-top:16px; padding-bottom:6px;
+    border-radius:var(--radius-lg) var(--radius-lg) 0 0;
+  }
+  #explorerPanel .explorer-body-hint{
+    display:block; margin:0; font-size:12px; font-weight:800;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--text);
+  }
+  #explorerPanel .explorer-clear{
+    color:var(--accent); border-color:var(--accent); background:var(--accent-soft);
+    font-weight:700;
+  }
+  #explorerPanel .explorer-clear:hover{ background:var(--accent); color:var(--accent-ink); }
+  #explorerPanel .explorer-body > .filter-group{
+    display:flex; flex-direction:column; align-items:stretch; gap:10px;
+    margin:0; padding-top:12px; padding-bottom:14px;
+    border-bottom:1px solid var(--border);
+  }
+  #explorerPanel .explorer-body > .filter-group:has(#categoryFilters){ grid-row:2; }
+  #explorerPanel .explorer-body > .filter-group:has(#planFilters){ grid-row:3; }
+  #explorerPanel .explorer-body > .filter-group:has(#optionFilters){ grid-row:4; }
+  #explorerPanel .explorer-body > .filter-group:has(#explorerNameInput){
+    grid-row:5; border-bottom:0; padding-bottom:18px; align-self:start;
+    border-radius:0 0 var(--radius-lg) var(--radius-lg);
+  }
+  #explorerPanel .filter-group .filter-label{ color:var(--muted); }
+  #explorerPanel .filter-chips{ gap:7px; }
+  #explorerPanel .filter-chip{ padding:6px 14px; font-size:12.5px; }
+  #explorerPanel .explorer-name-box{ max-width:none; }
+
+  /* results (right): full-height themed panel */
+  #explorerPanel .explorer-results,
+  #explorerPanel .explorer-skeleton-loading{
+    grid-column:2; grid-row:1 / span 5;
+    margin:0; padding:16px 18px 8px;
+    background:var(--panel); border:0; border-radius:var(--radius-lg);
+    align-self:start;
+  }
+  #explorerPanel .explorer-results:not([hidden]){
+    display:flex; flex-direction:column;
+    height:calc(100vh - var(--topbar-h) - 150px);
+    min-height:420px;
+  }
+  #explorerPanel .explorer-results-header{ flex:0 0 auto; padding-bottom:10px; border-bottom:1px solid var(--border); }
+  #explorerPanel .explorer-result-list{
+    flex:1 1 auto; min-height:0;
+    display:block; overflow-y:auto; overflow-x:hidden;
+    scrollbar-width:thin;
+  }
+  #explorerPanel .explorer-result-item{ padding:12px 10px; }
+  /* friendly empty state before any filter is used */
+  #explorerPanel .explorer-body:not(:has(#explorerResults:not([hidden]))):not(:has(#explorerLoading:not([hidden])))::after{
+    content:"Pick a category, plan or option — or type a fund name — to see matching funds here.";
+    grid-column:2; grid-row:1 / span 5;
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    min-height:260px; padding:24px;
+    background:var(--panel); border-radius:var(--radius-lg);
+    color:var(--muted); font-size:13.5px;
+  }
+}
+
+@media (min-width:1024px){
+  #explorerPanel #fundExplorer{ border:0 !important; }
+  #explorerPanel .explorer-body-top,
+  #explorerPanel .explorer-body > .filter-group{ background:var(--panel-2); border-color:var(--border); }
+  #explorerPanel .explorer-body > .filter-group:has(#explorerNameInput){ border-bottom:0; }
+  #explorerPanel .filter-chip{ background:var(--panel); }
+  #explorerPanel .filter-chip.active{ background:var(--accent); }
+  #explorerPanel .explorer-results,
+  #explorerPanel .explorer-skeleton-loading{ background:var(--panel-2); }
+  #explorerPanel .explorer-result-item:hover{ background:var(--panel-3); }
 }

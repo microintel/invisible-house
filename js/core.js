@@ -1,94 +1,83 @@
 // ---------- Skeleton minimum-visible-time helper ----------
-// Skeleton loaders are kept on screen for a randomized 1–2.5s beat
+// Skeleton loaders are kept on screen for a short, randomized beat (~0.1–0.25s)
 // instead of flashing instantly when a response comes back fast, so
 // loading always reads as deliberate rather than jumpy. Pass the
 // timestamp (Date.now()) from the moment the skeleton was shown;
 // this resolves once at least that much time has elapsed.
-function minSkeletonWait(shownAt, min = 1000, max = 2500){
+function minSkeletonWait(shownAt, min = 120, max = 260){
   const target = min + Math.random() * (max - min);
   const remaining = target - (Date.now() - shownAt);
   return remaining > 0 ? new Promise(r => setTimeout(r, remaining)) : Promise.resolve();
 }
 
-// ---------- Theme & Color Palette Controller ----------
+// ---------- Theme Controller (light / dark only) ----------
 const THEME_KEY = 'ih_theme';
-const PALETTE_KEY = 'ih_palette';
 const themeToggle = document.getElementById('themeToggle');
 const storedTheme = localStorage.getItem(THEME_KEY);
-const storedPalette = localStorage.getItem(PALETTE_KEY) || 'default';
-const prefersLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
 
-let currentTheme = storedTheme || (prefersLight ? 'light' : 'dark');
-let currentPalette = storedPalette;
+// Pure-black dark theme is the default; light only if the user picked it.
+let currentTheme = storedTheme === 'light' ? 'light' : 'dark';
 
-applyTheme(currentTheme, currentPalette);
+applyTheme(currentTheme);
 
-function applyTheme(theme, palette){
+function applyTheme(theme){
   document.documentElement.setAttribute('data-theme', theme);
-  document.documentElement.setAttribute('data-palette', palette);
-  
-  themeToggle.innerHTML = theme === 'dark'
-    ? '<i class="bi bi-moon-stars-fill"></i> Dark Mode'
-    : '<i class="bi bi-sun-fill"></i> Light Mode';
+  document.documentElement.removeAttribute('data-palette');
 
-  // Highlight the active swatch inside the menu
-  document.querySelectorAll('.palette-swatch').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.color === palette);
-  });
+  // The button shows the theme you'll switch TO.
+  themeToggle.innerHTML = theme === 'dark'
+    ? '<i class="bi bi-sun-fill"></i><span>Light</span>'
+    : '<i class="bi bi-moon-stars-fill"></i><span>Dark</span>';
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#000000' : '#eceef1');
 
   // Repaint active charts with the new CSS variable colors
   try{
     if (currentNavData && currentNavData.length){
-      setTimeout(() => drawChart(getChartDataForRange(currentChartRange)), 50);
+      drawChart(getChartDataForRange(currentChartRange));
     }
     if (compareFunds && compareFunds.length && comparePanel.classList.contains('active')){
-      setTimeout(() => drawCompareChart(), 50);
+      drawCompareChart();
     }
   } catch(e){}
 }
 
-// Swatch click events
-document.querySelectorAll('.palette-swatch').forEach(btn => {
-  btn.addEventListener('click', () => {
-    currentPalette = btn.dataset.color;
-    applyTheme(currentTheme, currentPalette);
-    localStorage.setItem(PALETTE_KEY, currentPalette);
-  });
-});
-
+// Animated theme switch: a circular reveal that grows from the toggle
+// button (View Transitions API). Browsers without it, or users who
+// prefer reduced motion, get a short colour cross-fade instead.
+let themeSwitching = false;
 themeToggle.addEventListener('click', () => {
-  currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  applyTheme(currentTheme, currentPalette);
-  localStorage.setItem(THEME_KEY, currentTheme);
-});
+  if (themeSwitching) return;
+  const next = currentTheme === 'dark' ? 'light' : 'dark';
+  const commit = () => {
+    currentTheme = next;
+    applyTheme(currentTheme);
+    try{ localStorage.setItem(THEME_KEY, currentTheme); }catch(e){}
+  };
 
-// ---------- Top menu ----------
-const menuToggleBtn = document.getElementById('menuToggleBtn');
-const menuDropdown = document.getElementById('menuDropdown');
-const menuWrap = document.getElementById('menuWrap');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const root = document.documentElement;
 
-function openMenu(){
-  menuDropdown.classList.add('show');
-  menuToggleBtn.classList.add('open');
-  menuToggleBtn.setAttribute('aria-expanded', 'true');
-}
-function closeMenu(){
-  menuDropdown.classList.remove('show');
-  menuToggleBtn.classList.remove('open');
-  menuToggleBtn.setAttribute('aria-expanded', 'false');
-}
-menuToggleBtn.addEventListener('click', () => {
-  if (menuDropdown.classList.contains('show')) closeMenu(); else openMenu();
-});
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('#menuWrap')) closeMenu();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeMenu();
-});
-// Close dropdown when navigation items are clicked (ignore clicks on swatches)
-menuDropdown.querySelectorAll('.menu-item').forEach(item => {
-  item.addEventListener('click', closeMenu);
+  if (document.startViewTransition && !reduce){
+    const r = themeToggle.getBoundingClientRect();
+    const x = r.left + r.width / 2;
+    const y = r.top + r.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    themeSwitching = true;
+    const vt = document.startViewTransition(commit);
+    vt.ready.then(() => {
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 650, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
+      );
+    }).catch(() => {});
+    vt.finished.finally(() => { themeSwitching = false; });
+  } else {
+    root.classList.add('theme-fade');
+    commit();
+    setTimeout(() => root.classList.remove('theme-fade'), 500);
+  }
 });
 
 // ---------- Tabs ----------

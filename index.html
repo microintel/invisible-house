@@ -6,9 +6,11 @@
 <title>Invisible House</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/microintel/endgram/main/photo/invisible-home.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#000000">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://api.mfapi.in" crossorigin>
+<link rel="dns-prefetch" href="https://raw.githubusercontent.com">
+<link rel="dns-prefetch" href="https://api.tigzig.com">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -25,23 +27,8 @@
     <button class="side-nav-item" id="recentTabBtn"><i class="bi bi-clock-history"></i><span>Recent</span></button>
     <button class="side-nav-item" id="compareTabBtn"><i class="bi bi-bar-chart-line"></i><span>Compare</span><span class="compare-count-badge" id="compareCountBadge" style="display:none;">0</span></button>
   </div>
-  <div class="menu-wrap" id="menuWrap">
-    <button class="side-nav-item" id="menuToggleBtn" title="Settings" aria-label="Settings" aria-haspopup="true" aria-expanded="false">
-      <i class="bi bi-gear"></i><span>Settings</span>
-    </button>
-    <div class="menu-dropdown" id="menuDropdown">
-      <!-- --- Color Combination & Gradient Theme Picker --- -->
-      <div class="menu-section-title">Color Combination</div>
-      <div class="palette-picker-row">
-        <button type="button" class="palette-swatch active" data-color="default" title="Gold & Cyan"></button>
-        <button type="button" class="palette-swatch" data-color="emerald" title="Emerald & Mint"></button>
-        <button type="button" class="palette-swatch" data-color="sunset" title="Sunset & Rose"></button>
-        <button type="button" class="palette-swatch" data-color="violet" title="Violet & Pink"></button>
-      </div>
-      <div class="menu-divider"></div>
-
-      <button class="menu-item" id="themeToggle"><i class="bi bi-moon-stars-fill"></i> Dark Mode</button>
-    </div>
+  <div class="menu-wrap">
+    <button class="side-nav-item" id="themeToggle" type="button" title="Switch theme" aria-label="Switch theme"><i class="bi bi-sun-fill"></i><span>Light</span></button>
   </div>
 </nav>
 
@@ -466,8 +453,8 @@
 
     <div class="card compare-card" id="compareCard">
       <div class="compare-mode-toggle" id="compareModeToggle">
-        <button type="button" class="compare-mode-btn active" data-mode="nav"><i class="bi bi-currency-rupee"></i> NAV Compare</button>
-        <button type="button" class="compare-mode-btn" data-mode="growth"><i class="bi bi-graph-up-arrow"></i> Growth/Loss Compare</button>
+        <button type="button" class="compare-mode-btn active" data-mode="nav" title="NAV Compare" aria-label="NAV Compare"><i class="bi bi-currency-rupee"></i><span class="mode-label">NAV Compare</span></button>
+        <button type="button" class="compare-mode-btn" data-mode="growth" title="Growth/Loss Compare" aria-label="Growth/Loss Compare"><i class="bi bi-graph-up-arrow"></i><span class="mode-label">Growth/Loss Compare</span></button>
       </div>
       <div class="section-label-row" style="margin-top:16px;">
         <div class="section-label"><i class="bi bi-graph-up"></i> NAV Trend</div>
@@ -491,10 +478,11 @@
       </div>
       <div class="chart-canvas-wrap" style="margin-top:8px;">
         <canvas id="compareChart"></canvas>
+        <!-- Two-point readout floats inside the chart and moves away from the picked points -->
+        <div class="chart-compare" id="compareChartCompare"></div>
       </div>
       <div class="chart-label" id="compareChartLabel">NAV trend</div>
       <div class="chart-hint"><i class="bi bi-mouse"></i> Scroll or pinch to zoom · drag to pan · hover for values · tap two points to compare</div>
-      <div class="chart-compare" id="compareChartCompare"></div>
     </div>
   </div>
 </div>
@@ -569,6 +557,15 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"
         onerror="this.onerror=null;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.12.4/sweetalert2.all.min.js';document.head.appendChild(s);"></script>
 
+<!-- Data layer -->
+<script src="js/data/idb-store.js"></script>
+<script src="js/data/fund-repository.js"></script>
+<script src="js/data/logo-repository.js"></script>
+<!-- Service layer -->
+<script src="js/services/phrase-matcher.js"></script>
+<script src="js/services/logo-service.js"></script>
+<script src="js/services/search-service.js"></script>
+<!-- UI layer -->
 <script src="js/core.js"></script>
 <script src="js/fund.js"></script>
 <script src="js/discovery.js"></script>

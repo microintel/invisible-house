@@ -45,6 +45,29 @@ All of this runs directly in the browser, with no sign-up and no account require
 
 ---
 
+## Architecture
+
+```
+index.html
+css/style.css
+js/
+  data/                      DATA LAYER  - where data comes from, no DOM
+    idb-store.js             IndexedDB wrapper (openIdb / idbGet / idbSet)
+    fund-repository.js       live fund search against mfapi.in (no 40k list stored or cached)
+    logo-repository.js       MicroIntel MF Logos: seed -> localStorage -> service.json + mf-logos.json
+  services/                  SERVICE LAYER - algorithms, no DOM
+    phrase-matcher.js        token trie (whole-word matching)
+    logo-service.js          fund name -> logo, with favicon fallback chain
+    search-service.js        ranking of the live search results
+  core.js fund.js discovery.js ui-state.js     UI LAYER - rendering and events
+```
+
+- **Logos** come from [microintel/mf-logos](https://microintel.github.io/mf-logos/). Both published manifests are merged (each has a few funds the other lacks), and a built-in seed keeps logos working offline. If a fund house has no logo, the old favicon chain runs, then the piggy-bank icon.
+- **Search** is live: every query is fetched from mfapi.in (`/mf/search`), nothing is pre-downloaded or stored. Results are ranked, and words match anywhere in a name (so "cap" finds "SmallCap"). Stale in-flight requests are cancelled as you keep typing.
+- Dark theme is flat `#000`.
+
+---
+
 ## Key Features
 
 | Feature | Description |
@@ -96,7 +119,7 @@ All NAV data is fetched live from **[mfapi.in](https://www.mfapi.in)**, a free p
 
 ## Tech Stack
 
-- Vanilla HTML, CSS, and JavaScript — no build step required
+- Vanilla HTML, CSS, and JavaScript — no build step required (layered: data / services / UI)
 - [Chart.js](https://www.chartjs.org/) with the zoom/pan plugin for interactive NAV charts
 - IndexedDB for local, persistent storage of comparison selections
 - localStorage for theme preference and recent searches

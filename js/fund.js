@@ -1,48 +1,4 @@
-// ---------- IndexedDB cache layer ----------
-const IDB_NAME = 'sipTrackerCache';
-const IDB_VERSION = 1;
-
-let idbPromise = null;
-function openIdb(){
-  if (idbPromise) return idbPromise;
-  idbPromise = new Promise((resolve) => {
-    if (!('indexedDB' in window)){ resolve(null); return; }
-    const req = indexedDB.open(IDB_NAME, IDB_VERSION);
-    req.onupgradeneeded = () => {
-      const db = req.result;
-      if (!db.objectStoreNames.contains('fundList')) db.createObjectStore('fundList', { keyPath: 'key' });
-      if (!db.objectStoreNames.contains('navCache')) db.createObjectStore('navCache', { keyPath: 'code' });
-    };
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => resolve(null);
-  });
-  return idbPromise;
-}
-
-async function idbGet(storeName, key){
-  const db = await openIdb();
-  if (!db) return null;
-  return new Promise((resolve) => {
-    try{
-      const req = db.transaction(storeName, 'readonly').objectStore(storeName).get(key);
-      req.onsuccess = () => resolve(req.result || null);
-      req.onerror = () => resolve(null);
-    } catch(e){ resolve(null); }
-  });
-}
-
-async function idbSet(storeName, value){
-  const db = await openIdb();
-  if (!db) return;
-  return new Promise((resolve) => {
-    try{
-      const tx = db.transaction(storeName, 'readwrite');
-      tx.objectStore(storeName).put(value);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => resolve();
-    } catch(e){ resolve(); }
-  });
-}
+// IndexedDB cache layer -> js/data/idb-store.js (openIdb / idbGet / idbSet)
 
 // ---------- Search ----------
 const searchInput = document.getElementById('searchInput');
@@ -115,127 +71,23 @@ function notifyError(message){
 }
 
 /*
-  Search downloads the full mfapi scheme list (~40k entries) once, caches
-  it in IndexedDB, and matches locally: each typed word just needs to
-  appear somewhere in a scheme name (any order, no need to be adjacent).
-  This is what correctly surfaces every Direct/Regular/Growth/IDCW variant
-  even when the fund's underlying AMFI name doesn't read the way the fund
-  is commonly known (e.g. "Motilal Oswal Midcap Fund" is actually stored
-  as "Motilal Oswal MOSt Focused Midcap 30 Fund").
+  Search is live: every query goes to mfapi.in (via FundRepository.search)
+  and nothing is downloaded or cached up front. Each typed word just needs
+  to appear somewhere in a scheme name (any order, no need to be adjacent),
+  which still surfaces every Direct/Regular/Growth/IDCW variant.
 */
-const FUND_LIST_TTL_MS = 24 * 60 * 60 * 1000;
 const firstLoadLoader = document.getElementById('firstLoadLoader');
+let searchAbort = null;
 
-let allFunds = [];
-let fundsLoaded = false;
-let fundsLoading = false;
-let searchIndex = [];
-let prefixIndex = new Map();
-
-function buildSearchIndex(){
-  const n = allFunds.length;
-  searchIndex = new Array(n);
-  prefixIndex = new Map();
-  for (let i = 0; i < n; i++){
-    const lname = (allFunds[i].schemeName || '').toLowerCase();
-    searchIndex[i] = lname;
-    const tokens = lname.split(/[^a-z0-9]+/);
-    const seenPrefixes = new Set();
-    for (let t = 0; t < tokens.length; t++){
-      const tok = tokens[t];
-      if (tok.length < 3) continue;
-      const prefix = tok.slice(0, 3);
-      if (seenPrefixes.has(prefix)) continue;
-      seenPrefixes.add(prefix);
-      let bucket = prefixIndex.get(prefix);
-      if (!bucket){ bucket = []; prefixIndex.set(prefix, bucket); }
-      bucket.push(i);
-    }
-  }
-}
-
-let firstLoadLoaderShownAt = 0;
-
-async function loadFundList(attempt=1){
-  if (fundsLoaded || fundsLoading) return;
-  fundsLoading = true;
-
-  if (attempt === 1){
-    const cached = await idbGet('fundList', 'all');
-    if (cached && Array.isArray(cached.data) && cached.data.length){
-      allFunds = cached.data;
-      fundsLoaded = true;
-      fundsLoading = false;
-      buildSearchIndex();
-      setStatus('');
-      searchInput.disabled = false;
-      if (firstLoadLoader && firstLoadLoader.classList.contains('show')){
-        await minSkeletonWait(firstLoadLoaderShownAt);
-      }
-      if (firstLoadLoader) firstLoadLoader.classList.remove('show');
-      if (Date.now() - (cached.ts || 0) > FUND_LIST_TTL_MS){
-        refreshFundListInBackground();
-      }
-      return;
-    }
-  }
-
-  searchInput.disabled = true;
-  if (firstLoadLoader) firstLoadLoader.classList.add('show');
-  firstLoadLoaderShownAt = Date.now();
-  const MAX_ATTEMPTS = 3;
-  try{
-    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (!Array.isArray(data) || !data.length) throw new Error('Empty fund list returned');
-    allFunds = data;
-    fundsLoaded = true;
-    buildSearchIndex();
-    idbSet('fundList', { key: 'all', data, ts: Date.now() });
-    setStatus('');
-    if (firstLoadLoader && firstLoadLoader.classList.contains('show')){
-      await minSkeletonWait(firstLoadLoaderShownAt);
-    }
-  } catch(err){
-    fundsLoading = false;
-    if (attempt < MAX_ATTEMPTS){
-      if (firstLoadLoader) firstLoadLoader.classList.remove('show');
-      searchInput.disabled = false;
-      await new Promise(r => setTimeout(r, attempt * 700));
-      return loadFundList(attempt + 1);
-    }
-    showRetryListError(friendlyMessage(err, 'list'));
-  } finally{
-    fundsLoading = false;
-    searchInput.disabled = false;
-    if (firstLoadLoader) firstLoadLoader.classList.remove('show');
-  }
-}
-
-async function refreshFundListInBackground(){
-  try{
-    const res = await fetchWithTimeout('https://api.mfapi.in/mf', 20000);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!Array.isArray(data) || !data.length) return;
-    allFunds = data;
-    buildSearchIndex();
-    idbSet('fundList', { key: 'all', data, ts: Date.now() });
-  } catch(e){}
-}
-
-function showRetryListError(message){
+function showRetrySearchError(message, query){
   statusEl.className = 'status error';
   statusSpinner.classList.remove('show');
   statusText.innerHTML = `${escapeHtml(message)} <button type="button" id="statusRetryListBtn" class="status-retry-btn">Retry</button>`;
   const btn = document.getElementById('statusRetryListBtn');
   if (btn){
-    btn.addEventListener('click', () => loadFundList());
+    btn.addEventListener('click', () => runSearch(query));
   }
 }
-
-loadFundList();
 
 const SEARCH_RESULT_LIMIT = 30;
 
@@ -264,42 +116,29 @@ let searchRequestSeq = 0;
 async function runSearch(query){
   warmFundAumMap();
   const requestId = ++searchRequestSeq;
+  if (searchAbort) searchAbort.abort();
+  searchAbort = new AbortController();
 
-  if (!fundsLoaded){
-    setStatus('Fund database still loading, one moment...', false, true);
-    await loadFundList();
-    if (requestId !== searchRequestSeq) return;
-    if (!fundsLoaded) return;
-  }
-
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  if (!words.length){
+  if (!query.trim()){
     currentItems = [];
     renderSuggestions(currentItems);
     setStatus('');
     return;
   }
 
-  const firstPrefix = words[0].length >= 3 ? words[0].slice(0, 3) : null;
-  const candidates = (firstPrefix && prefixIndex.has(firstPrefix)) ? prefixIndex.get(firstPrefix) : null;
-  const scanLength = candidates ? candidates.length : searchIndex.length;
-  const matches = [];
-  let matchCount = 0;
-
-  for (let k = 0; k < scanLength; k++){
-    const i = candidates ? candidates[k] : k;
-    const lname = searchIndex[i];
-    let ok = true;
-    for (let w = 0; w < words.length; w++){
-      if (lname.indexOf(words[w]) === -1){ ok = false; break; }
-    }
-    if (ok){
-      matchCount++;
-      if (matches.length < SEARCH_RESULT_LIMIT) matches.push(allFunds[i]);
-    }
+  setStatus('Searching...', false, true);
+  let result;
+  try{
+    result = await FundRepository.search(query, { limit: SEARCH_RESULT_LIMIT, signal: searchAbort.signal });
+  } catch(err){
+    if (requestId !== searchRequestSeq) return;   // superseded by a newer search
+    showRetrySearchError(friendlyMessage(err, 'list'), query);
+    return;
   }
+  if (requestId !== searchRequestSeq) return;
 
-  currentItems = matches;
+  const { items, total: matchCount } = result;
+  currentItems = items;
   renderSuggestions(currentItems);
   setStatus(
     matchCount
@@ -551,96 +390,7 @@ function showRetryableError(message){
   }
 }
 
-const AMC_DOMAINS = {
-  'sbi': 'sbimf.com',
-  'hdfc': 'hdfcfund.com',
-  'icici': 'icicipruamc.com',
-  'aditya birla': 'mutualfund.adityabirlacapital.com',
-  'birla sun life': 'mutualfund.adityabirlacapital.com',
-  'axis': 'axismf.com',
-  'kotak': 'kotakmf.com',
-  'nippon': 'mf.nipponindiaim.com',
-  'uti': 'utimf.com',
-  'tata': 'tatamutualfund.com',
-  'dsp': 'dspim.com',
-  'franklin': 'franklintempletonindia.com',
-  'invesco': 'invescomutualfund.com',
-  'mirae': 'miraeassetmf.co.in',
-  'motilal': 'motilaloswalmf.com',
-  'pgim': 'pgimindiamf.com',
-  'quantum': 'quantumamc.com',
-  'quant': 'quantmutual.com',
-  'edelweiss': 'edelweissmf.com',
-  'canara': 'canararobeco.com',
-  'bandhan': 'bandhanmutual.com',
-  'idfc': 'bandhanmutual.com',
-  'lic mutual': 'licmf.com',
-  'lic mf': 'licmf.com',
-  'baroda': 'barodabnpparibasmf.in',
-  'sundaram': 'sundarammutual.com',
-  'hsbc': 'assetmanagement.hsbc.co.in',
-  'union': 'unionmf.com',
-  'navi': 'navi.com',
-  'whiteoak': 'whiteoakamc.com',
-  'bank of india': 'boiaxamc.com',
-  'jm financial': 'jmfinancialmf.com',
-  'mahindra': 'mahindramanulife.com',
-  '360 one': '360.one',
-  'groww': 'groww.in',
-  'samco': 'samco.in',
-  'trust': 'trustmf.com',
-  'iti mutual': 'itimf.com',
-  'shriram': 'shriramamc.com',
-  'nj mutual': 'njmutualfund.com',
-  'old bridge': 'oldbridgemf.com',
-  'parag parikh': 'ppfas.com',
-  'taurus': 'taurusmutualfund.com',
-  'pnb mutual': 'pnbamc.com',
-  'indiabulls': 'groww.in',
-  'helios': 'heliosmf.com',
-  'zerodha': 'coin.zerodha.com',
-  'unifi': 'unifimf.com'
-};
-const AMC_DOMAIN_KEYS = Object.keys(AMC_DOMAINS).sort((a, b) => b.length - a.length);
-
-function resolveAmcDomain(fundHouseName){
-  if (!fundHouseName) return null;
-  const lower = fundHouseName.toLowerCase();
-  const key = AMC_DOMAIN_KEYS.find(k => lower.includes(k));
-  return key ? AMC_DOMAINS[key] : null;
-}
-
-/*
-  Fund house logos: no single free logo service covers every AMC, so
-  each domain gets several tries in order before giving up and
-  showing the piggy-bank fallback icon. Google's favicons endpoint
-  goes first since it's fast and reliable for most domains, but it
-  doesn't have everything (small/newer AMCs especially), so we chain
-  through a few more sources that each have different coverage before
-  falling back.
-*/
-function amcLogoUrl(domain, stage){
-  switch (stage){
-    case 0: return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-    case 1: return `https://icons.duckduckgo.com/ip3/${domain}.ico`;
-    case 2: return `https://logo.clearbit.com/${domain}?size=256`;
-    default: return `https://${domain}/favicon.ico`;
-  }
-}
-const AMC_LOGO_STAGE_COUNT = 4;
-
-function attachAmcLogoFallback(img, domain, onFail){
-  let stage = 0;
-  img.addEventListener('error', function handler(){
-    stage++;
-    if (stage < AMC_LOGO_STAGE_COUNT){
-      img.src = amcLogoUrl(domain, stage);
-    } else {
-      img.removeEventListener('error', handler);
-      if (typeof onFail === 'function') onFail();
-    }
-  });
-}
+// AMC domains, logo matching and the fallback chain -> js/services/logo-service.js
 
 function setFundAvatar(fundHouseName, schemeName){
   const avatar = document.getElementById('fundAvatar');
@@ -847,6 +597,8 @@ let redrawFallbackMarkers = null;
 const twoPointSelectionPlugin = {
   id: 'twoPointSelection',
   afterDatasetsDraw(chart){
+    // Plugins are registered globally — only draw on the single-fund chart
+    if (!chart.canvas || chart.canvas.id !== 'navChart') return;
     if (!chartSelection.length) return;
     const meta = chart.getDatasetMeta(0);
     if (!meta || !meta.data) return;
@@ -1300,7 +1052,7 @@ function renderCompareSlots(){
       ? `<img data-amc-domain="${escapeHtml(domain)}" alt="" referrerpolicy="no-referrer">`
       : `<i class="bi bi-piggy-bank"></i>`;
     return `
-    <div class="compare-slot filled" style="--slot-color:${f.color};">
+    <div class="compare-slot filled" style="--slot-color:${f.color};" title="${escapeHtml(f.schemeName)}${result ? ` · ${result.pct >= 0 ? '+' : ''}${result.pct.toFixed(1)}%` : ''}">
       <button type="button" class="compare-slot-remove" data-code="${escapeHtml(String(f.schemeCode))}" title="Remove"><i class="bi bi-x-lg"></i></button>
       <span class="compare-slot-icon${domain ? ' has-logo' : ''}">${iconInner}</span>
       <span class="compare-slot-name" title="${escapeHtml(f.schemeName)}">${escapeHtml(f.schemeName)}</span>
@@ -1413,6 +1165,8 @@ function buildCompareDataset(range){
 const compareTwoPointPlugin = {
   id: 'compareTwoPointSelection',
   afterDatasetsDraw(chart){
+    // Plugins are registered globally — only draw on the compare chart
+    if (!chart.canvas || chart.canvas.id !== 'compareChart'){ return; }
     if (!compareSelection.length) return;
     const ctx = chart.ctx;
     const chartArea = chart.chartArea;
@@ -1449,8 +1203,84 @@ const compareTwoPointPlugin = {
         ctx.restore();
       });
     });
+    scheduleComparePopupReposition();
   }
 };
+
+/*
+  The two-point readout floats inside the compare chart. Instead of
+  sitting in one fixed spot (where it could hide the points the person
+  just picked), it is placed in whichever spot of the chart covers the
+  fewest picked points, selection lines and data-line pixels.
+*/
+let comparePopupRaf = null;
+function scheduleComparePopupReposition(){
+  if (comparePopupRaf) return;
+  comparePopupRaf = requestAnimationFrame(() => {
+    comparePopupRaf = null;
+    positionComparePopup();
+  });
+}
+
+function positionComparePopup(){
+  const el = document.getElementById('compareChartCompare');
+  const chart = compareChartInstance;
+  if (!el || !chart || !el.classList.contains('show') || !compareSelection.length) return;
+  const wrap = el.parentElement;
+  const area = chart.chartArea;
+  if (!wrap || !area) return;
+
+  const W = wrap.clientWidth;
+  const H = wrap.clientHeight;
+  const pw = el.offsetWidth;
+  const ph = el.offsetHeight;
+  const pad = 8;
+
+  const xs = compareSelection.map(s => chart.scales.x.getPixelForValue(s.index));
+  const pts = [];
+  compareSelection.forEach(sel => {
+    chart.data.datasets.forEach((ds, i) => {
+      if (ds.data[sel.index] === null || ds.data[sel.index] === undefined) return;
+      const m = chart.getDatasetMeta(i);
+      const p = m && m.data && m.data[sel.index];
+      if (p) pts.push({ x: p.x, y: p.y });
+    });
+  });
+
+  const left0 = Math.max(pad, area.left + pad);
+  const right0 = Math.min(W - pad, area.right - pad);
+  const top0 = Math.max(pad, area.top + pad);
+  const bottom0 = Math.min(H - pad, area.bottom - pad);
+  const xs0 = [left0, right0 - pw, (left0 + right0 - pw) / 2];
+  const ys0 = [top0, bottom0 - ph, (top0 + bottom0 - ph) / 2];
+
+  const cands = [];
+  [ys0[0], ys0[1]].forEach(t => xs0.forEach(l => cands.push({ l, t })));
+  cands.push({ l: xs0[0], t: ys0[2] }, { l: xs0[1], t: ys0[2] });
+
+  const dataPts = [];
+  chart.data.datasets.forEach((ds, i) => {
+    const m = chart.getDatasetMeta(i);
+    if (m && m.data) m.data.forEach(p => { if (p && isFinite(p.x) && isFinite(p.y)) dataPts.push(p); });
+  });
+
+  let best = null;
+  cands.forEach(c => {
+    const l = Math.max(pad, Math.min(c.l, W - pw - pad));
+    const t = Math.max(pad, Math.min(c.t, H - ph - pad));
+    let score = 0;
+    xs.forEach(x => { if (x >= l - 8 && x <= l + pw + 8) score += 100000; });
+    pts.forEach(p => { if (p.x >= l - 16 && p.x <= l + pw + 16 && p.y >= t - 16 && p.y <= t + ph + 16) score += 50000; });
+    dataPts.forEach(p => { if (p.x >= l && p.x <= l + pw && p.y >= t && p.y <= t + ph) score += 1; });
+    if (!best || score < best.score) best = { l, t, score };
+  });
+
+  if (best){
+    el.style.left = Math.round(best.l) + 'px';
+    el.style.top = Math.round(best.t) + 'px';
+  }
+}
+window.addEventListener('resize', scheduleComparePopupReposition);
 
 function handleComparePointPick(idx){
   if (!compareChartLabels[idx]) return;
@@ -1484,6 +1314,7 @@ function renderCompareChartCompare(){
   if (compareSelection.length === 1){
     el.classList.add('show');
     el.innerHTML = `<div class="chart-compare-hint"><span class="dot a" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent-2);"></span> ${escapeHtml(compareSelection[0].date)} selected — tap a second point to compare</div>`;
+    scheduleComparePopupReposition();
     return;
   }
 
@@ -1528,6 +1359,7 @@ function renderCompareChartCompare(){
 
   const clearBtn = document.getElementById('compareChartCompareClear');
   if (clearBtn) clearBtn.addEventListener('click', resetCompareSelection);
+  scheduleComparePopupReposition();
 }
 
 function drawCompareChart(){
@@ -2196,7 +2028,7 @@ compareSearchInput.addEventListener('input', () => {
 // With a category/plan/option filter active, results come from the same
 // filtered search service the Explore Funds panel uses (so "Large / Direct
 // / Growth" etc. actually narrows things down); with no filter active this
-// falls back to the fast local name match against the cached fund list.
+// falls back to a live name search on mfapi.in.
 async function runCompareSearch(query){
   warmFundAumMap();
   const requestId = ++compareSearchRequestSeq;
@@ -2252,31 +2084,15 @@ async function runCompareSearch(query){
 
 async function runLocalCompareSearch(query, requestId){
   if (!query) return;
-  if (!fundsLoaded){
-    await loadFundList();
+  let matches = [];
+  try{
+    matches = (await FundRepository.search(query, { limit: 20 })).items;
+  } catch(err){
     if (requestId !== compareSearchRequestSeq) return;
-    if (!fundsLoaded) return;
-  }
-
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  if (!words.length) return;
-
-  const firstPrefix = words[0].length >= 3 ? words[0].slice(0, 3) : null;
-  const candidates = (firstPrefix && prefixIndex.has(firstPrefix)) ? prefixIndex.get(firstPrefix) : null;
-  const scanLength = candidates ? candidates.length : searchIndex.length;
-  const matches = [];
-
-  for (let k = 0; k < scanLength; k++){
-    const i = candidates ? candidates[k] : k;
-    const lname = searchIndex[i];
-    let ok = true;
-    for (let w = 0; w < words.length; w++){
-      if (lname.indexOf(words[w]) === -1){ ok = false; break; }
-    }
-    if (ok){
-      matches.push(allFunds[i]);
-      if (matches.length >= 20) break;
-    }
+    compareSuggestionsBox.classList.remove('show');
+    compareSuggestionsBox.innerHTML = '';
+    notifyToast(friendlyMessage(err, 'list'));
+    return;
   }
 
   await minSkeletonWait(compareSuggestionsSkeletonShownAt);
